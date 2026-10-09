@@ -1,8 +1,8 @@
 # v0.1 验证记录
 
-验证日期为 2026 年 10 月 9 日。v0.1 的代码开发已完成环境、模型适配、CLI 验证入口和离线测试；真实模型配置尚未提供，因此模型接入完整验收仍待完成。
+验证日期为 2026 年 10 月 9 日。v0.1 完成环境、模型适配、CLI 验证入口和离线测试；v0.1.1 补充 DeepSeek 低消耗探测，已实际通过 DeepSeek V4 Pro 的三项能力验证。业务多 Agent 协作仍按后续版本实现。
 
-## 本地实际环境与结果
+## v0.1 开发基线的实际环境与结果
 
 | 项目 | 实际值或结果 |
 | --- | --- |
@@ -15,22 +15,39 @@
 | 代码检查 | uv run --locked ruff check .：通过 |
 | 离线图 | increment → double，输入 2 得到 6，实际执行通过 |
 | 缺配置 | doctor 返回退出码 1，明确提示填写 LLM_BASE_URL |
-| 真实模型 | 未配置，未执行成功的真实请求，不作为已验收项 |
+| 真实模型 | 基线验证时未配置，后由下文 v0.1.1 实际验证补充 |
 
 测试覆盖模型请求协议、有限重试、鉴权不重试、错误摘要不包含原始响应或密钥、严格结构化输出、受限工具调用、CLI 失败退出、运行报告和确定性图运行。测试中的模拟 HTTP 响应不证明模型可用。
 
 本次真实离线图产物保存在 [evidence/offline-langgraph-v0.1.json](../evidence/offline-langgraph-v0.1.json)，run_id 为 edcad020-1a32-42ea-8e97-6b0ddea8aea6。此文件来自真实 graph-demo 执行，明确标记 mode=offline，不是模型或五 Agent 协作证据。
 
-## 待完成的模型验收
+## v0.1.1 实际模型验收
 
-在本地 .env 配置实际服务地址、模型和必要密钥后运行：
+使用本地 .env 的 DeepSeek 官方地址和 deepseek-v4-pro 模型执行以下命令，doctor 通过且仅运行一次 smoke：
 
 ```bash
 uv run --locked office-agents doctor
-uv run --locked office-agents smoke
+uv run --locked office-agents smoke --profile deepseek
 ```
 
-smoke 必须分别通过 text、structured_json 和 tool_call 三项，再记录所用模型的接入验收。当前不会因为离线测试通过而标注真实调用成功，也不发布代表完整模型验收通过的 v0.1.0 标签。
+| 验证项 | 实际结果 |
+| --- | --- |
+| text | 通过，收到非空文本 |
+| structured_json | 通过，使用 json_object，本地 Pydantic 严格校验 number=7、label=probe |
+| tool_call | 通过，校验并执行 echo_number(7)，将结果返回模型 |
+| HTTP 请求 | 4 次，零自动重试 |
+| 单次输出上限 | 64 token，thinking=disabled |
+| 输入 token | 434 |
+| 输出 token | 49 |
+| 总 token | 483，来自服务响应的 usage |
+| reasoning token | 服务未提供统计，标为不可用 |
+| 探测耗时 | 5.275 秒 |
+| 离线测试 | 77 passed |
+| Ruff 检查及格式检查 | 通过 |
+
+真实运行证据为 [evidence/live-deepseek-v0.1.1.json](../evidence/live-deepseek-v0.1.1.json)，run_id 为 66e018f0-3a8c-458d-951c-022377b49a46。报告仅保存检查结论、请求数和用量，不包含密钥或模型回复原文。未重复真实调用。
+
+该结果证明本次所选模型在 DeepSeek 配置下通过探测；JSON 能力使用本地 schema 校验，不证明服务端支持严格 json_schema。结果不代表已实现办公业务流程或五 Agent 协作。此次发布对应 v0.1.1；不补发未在基线阶段验收的 v0.1.0 标签。
 
 ## AI 协作实际贡献
 
@@ -43,7 +60,7 @@ Git 使用实际开发者身份，角色 A/B/C 表示 AI 辅助工作。本版�
 
 ## 截图与后续记录
 
-本次提交保存结构化运行证据和可复现命令。尚未归档终端截图；后续模型配置完成后，截取真实 doctor、smoke 输出并遮挡密钥，记录对应 commit SHA 和 run_id。不要将 mock 或离线图截图标注为真实模型协作。
+本次提交保存结构化运行证据和可复现命令。尚未归档终端截图；课程报告仍需整理真实运行截图并遮挡密钥，记录对应 commit SHA 和 run_id。已有 JSON 证据无需通过重复付费请求生成。不要将 mock 或离线图截图标注为真实模型协作。
 
 GitHub CI 结果通过 PR 的 Checks 页面查看；仅在检查实际成功后合并。
 

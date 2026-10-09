@@ -23,6 +23,8 @@ class OpenAICompatibleClient:
     ) -> None:
         settings.validate_for_live()
         self.settings = settings
+        self.request_count = 0
+        self._usage_records: list[dict[str, int] | None] = []
         self._sleep = sleep
         headers = {"Content-Type": "application/json"}
         if settings.api_key:
@@ -37,9 +39,41 @@ class OpenAICompatibleClient:
     def close(self) -> None:
         self._client.close()
 
+    @property
+    def usage_statistics(self) -> dict[str, int | None]:
+        """Sum a field only when every HTTP attempt has its valid provider value.
+
+        Missing/invalid usage or unsuccessful attempts produce None, never an
+        invented zero. Reasoning tokens are a subset of completion tokens.
+        """
+        totals: dict[str, int | None] = {}
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens", "reasoning_tokens"):
+            values = [record[key] for record in self._usage_records if record and key in record]
+            totals[key] = (
+                sum(values) if self.request_count and len(values) == self.request_count else None
+            )
+        return totals
+
+    def _record_usage(self, data: dict[str, Any]) -> None:
+        usage = data.get("usage")
+        if not isinstance(usage, dict):
+            return
+        safe: dict[str, int] = {}
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens", "reasoning_tokens"):
+            value = usage.get(key)
+            if key == "reasoning_tokens" and value is None:
+                details = usage.get("completion_tokens_details")
+                if isinstance(details, dict):
+                    value = details.get(key)
+            if type(value) is int and value >= 0:
+                safe[key] = value
+        self._usage_records[-1] = safe
+
     def chat(self, messages: list[dict[str, Any]], **options: Any) -> dict[str, Any]:
         payload = {"model": self.settings.model, "messages": messages, **options}
         for attempt in range(self.settings.max_retries + 1):
+            self.request_count += 1
+            self._usage_records.append(None)
             try:
                 response = self._client.post(self.settings.chat_url, json=payload)
             except httpx.TimeoutException:
@@ -68,6 +102,7 @@ class OpenAICompatibleClient:
                         raise ModelCallError("Model service returned invalid JSON.") from None
                     if not isinstance(data, dict):
                         raise ModelCallError("Model service returned an invalid response shape.")
+                    self._record_usage(data)
                     return data
             if attempt < self.settings.max_retries:
                 self._sleep(min(2**attempt, 4))

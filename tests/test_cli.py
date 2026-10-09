@@ -50,7 +50,7 @@ def test_failed_probe_causes_cli_failure(monkeypatch, tmp_path, capsys):
     monkeypatch.setattr("office_agents.cli.Settings.from_env", lambda: Settings())
     monkeypatch.setattr(
         "office_agents.cli.run_live_smoke",
-        lambda _: RunReport(
+        lambda _, **kwargs: RunReport(
             mode="live",
             status="failed",
             description="Mocked failure, not a live run.",
@@ -59,6 +59,34 @@ def test_failed_probe_causes_cli_failure(monkeypatch, tmp_path, capsys):
     )
     assert main(["smoke", "--output-dir", str(tmp_path)]) == 1
     assert "FAIL tool_call" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("profile", ["generic", "deepseek"])
+def test_cli_forwards_profile_and_marks_missing_usage_unavailable(
+    monkeypatch, tmp_path, capsys, profile
+):
+    received = []
+    monkeypatch.setattr("office_agents.cli.Settings.from_env", lambda: Settings())
+
+    def fake_smoke(settings, **kwargs):
+        received.append(kwargs)
+        return RunReport(
+            mode="live",
+            status="failed",
+            description="Mocked CLI probe; no real model call.",
+            probes=[ProbeResult(name="text", passed=False, detail="Mocked failure.")],
+            profile=kwargs["profile"],
+            max_output_tokens=64,
+            request_count=1,
+            usage={"prompt_tokens": None, "completion_tokens": None, "total_tokens": None},
+        )
+
+    monkeypatch.setattr("office_agents.cli.run_live_smoke", fake_smoke)
+    assert main(["smoke", "--profile", profile, "--output-dir", str(tmp_path)]) == 1
+    assert received == [{"profile": profile}]
+    output = capsys.readouterr().out
+    assert f"Profile: {profile}" in output
+    assert "total_tokens: unavailable" in output
 
 
 def test_graph_demo_success_remains_offline(tmp_path, capsys):

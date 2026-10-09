@@ -14,6 +14,8 @@ def main(argv: list[str] | None = None) -> int:
     for name in ("smoke", "graph-demo"):
         command = commands.add_parser(name)
         command.add_argument("--output-dir", type=Path, default=Path("outputs"))
+        if name == "smoke":
+            command.add_argument("--profile", choices=("generic", "deepseek"), default="generic")
     args = parser.parse_args(argv)
     if args.command == "doctor":
         try:
@@ -46,18 +48,30 @@ def main(argv: list[str] | None = None) -> int:
             )
     else:
         try:
-            report = run_live_smoke(Settings.from_env())
+            report = run_live_smoke(Settings.from_env(), profile=args.profile)
         except ConfigurationError as exc:
             report = RunReport(
                 mode="live",
                 status="failed",
                 description="Live smoke checks could not start.",
                 probes=[ProbeResult(name="configuration", passed=False, detail=str(exc))],
+                profile=args.profile,
+                max_output_tokens=64,
+                request_count=0,
             )
     print(f"Mode: {report.mode}; result: {report.status}.")
     print(report.description)
     for probe in report.probes:
         print(f"{'PASS' if probe.passed else 'FAIL'} {probe.name}: {probe.detail}")
+    if report.mode == "live":
+        print(
+            f"Profile: {report.profile}; max output tokens per request: {report.max_output_tokens}."
+        )
+        count = report.request_count if report.request_count is not None else "unavailable"
+        print(f"HTTP requests: {count}.")
+        for key in ("prompt_tokens", "completion_tokens", "total_tokens", "reasoning_tokens"):
+            value = report.usage.get(key) if report.usage else None
+            print(f"{key}: {value if value is not None else 'unavailable'}")
     try:
         save_report(report, args.output_dir)
     except OSError:
