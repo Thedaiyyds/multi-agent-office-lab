@@ -24,12 +24,21 @@ class WorkflowEvent(ContractModel):
     run_id: str
     created_at: str
     role: Role
-    event_type: Literal["node_started", "node_finished", "model_request", "tool_execution"]
+    event_type: Literal[
+        "node_started",
+        "node_finished",
+        "model_request",
+        "tool_execution",
+        "model_retry",
+        "error_injected",
+    ]
     status: Literal["running", "passed", "needs_input", "review_failed", "failed"]
     duration_ms: float | None = Field(default=None, ge=0, allow_inf_nan=False)
     summary: str
     tool_name: str | None = None
     arguments: dict[str, Any] | None = None
+    revision_index: int = Field(default=0, ge=0, le=2, strict=True)
+    attempt: int = Field(default=1, ge=1, le=2, strict=True)
 
 
 class NodeRecord(ContractModel):
@@ -41,6 +50,17 @@ class NodeRecord(ContractModel):
     input: dict[str, Any]
     output: dict[str, Any] | None = None
     error: str | None = None
+    revision_index: int = Field(default=0, ge=0, le=2, strict=True)
+    generated_output: dict[str, Any] | None = None
+
+
+class RevisionRecord(ContractModel):
+    revision_index: int = Field(ge=0, le=2, strict=True)
+    draft: Draft
+    review: Review
+    writer_node_index: int = Field(ge=0, strict=True)
+    checker_node_index: int = Field(ge=0, strict=True)
+    review_mode: Literal["program_only", "program_and_model"]
 
 
 class WorkflowResult(ContractModel):
@@ -59,11 +79,19 @@ class WorkflowResult(ContractModel):
     data_issues: list[DataIssue] = Field(default_factory=list)
     draft: Draft | None = None
     review: Review | None = None
-    revision_count: Literal[0] = 0
+    schema_version: Literal["0.5"] = "0.5"
+    max_revisions: int = Field(default=2, ge=0, le=2, strict=True)
+    revision_count: int = Field(default=0, ge=0, le=2, strict=True)
+    revision_history: list[RevisionRecord] = Field(default_factory=list, max_length=3)
+    test_scenario: Literal["none", "bad-fact", "missing-section", "always-bad"] = "none"
+    narrative_policy: Literal["constrained"] = "constrained"
     nodes: list[NodeRecord] = Field(default_factory=list)
     events: list[WorkflowEvent] = Field(default_factory=list)
     request_count: int = Field(default=0, ge=0)
     reserved_output_tokens: int = Field(default=0, ge=0)
+    logical_request_count: int = Field(default=0, ge=0)
+    retry_count: int = Field(default=0, ge=0, le=2, strict=True)
+    retry_budget: int = Field(default=0, ge=0, le=2, strict=True)
     usage: dict[str, int | None] = Field(default_factory=dict)
     error: str | None = None
 
@@ -76,6 +104,8 @@ class WorkflowResult(ContractModel):
 
     @model_validator(mode="after")
     def completed_requires_review(self):
+        if self.revision_count > self.max_revisions or self.retry_count > self.retry_budget:
+            raise ValueError("Revision and retry counts cannot exceed their independent limits.")
         if self.status == "completed" and (
             self.requirements is None
             or self.outline is None
@@ -87,4 +117,16 @@ class WorkflowResult(ContractModel):
             or not self.review.passed
         ):
             raise ValueError("Completed workflows require data, draft and passed review.")
+        if self.status == "completed" and (
+            len(self.revision_history) != self.revision_count + 1
+            or [record.revision_index for record in self.revision_history]
+            != list(range(self.revision_count + 1))
+            or any(
+                record.review.passed or record.review.needs_input
+                for record in self.revision_history[:-1]
+            )
+            or self.revision_history[-1].draft != self.draft
+            or self.revision_history[-1].review != self.review
+        ):
+            raise ValueError("Completed workflows require consistent checked draft history.")
         return self
