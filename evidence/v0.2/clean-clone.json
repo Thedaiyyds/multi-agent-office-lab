@@ -1,0 +1,91 @@
+{
+  "code_commit": "66185e82dc337956c7f7f982a189ae96f1419464",
+  "created_at": "2026-10-09T07:07:06.337110+00:00",
+  "mode": "offline",
+  "clone_method": "fresh local git clone --no-hardlinks",
+  "env_file_present": false,
+  "model_requests": 0,
+  "checks": [
+    {
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--python",
+        "3.12"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "Using CPython 3.12.15\nCreating virtual environment at: .venv\nResolved 47 packages in 15ms\n   Building multi-agent-office-lab @ file://<clean-checkout>\n      Built multi-agent-office-lab @ file://<clean-checkout>\nPrepared 1 package in 1.56s\nInstalled 45 packages in 57ms\n + annotated-types==0.8.0\n + anyio==4.15.1\n + certifi==2026.7.22\n + charset-normalizer==3.5.2\n + distro==1.9.0\n + h11==0.16.0\n + httpcore==1.0.9\n + httpcore2==2.13.1\n + httpx==0.28.1\n + httpx2==2.13.1\n + idna==3.20\n + iniconfig==2.3.1\n + jsonpatch==1.33\n + jsonpointer==3.2.0\n + langchain-core==1.6.9\n + langchain-protocol==0.0.19\n + langgraph==1.2.14\n + langgraph-checkpoint==4.2.0\n + langgraph-prebuilt==1.1.0\n + langgraph-sdk==0.4.6\n + langsmith==0.14.5\n + multi-agent-office-lab==0.2.0 (from file://<clean-checkout>)\n + orjson==3.13.0\n + ormsgpack==1.12.2\n + packaging==26.3\n + pluggy==1.6.0\n + pydantic==2.14.0\n + pydantic-core==2.50.0\n + pygments==2.21.0\n + pytest==9.1.1\n + python-dotenv==1.2.4\n + pyyaml==6.0.3\n + requests==2.34.2\n + requests-toolbelt==1.0.0\n + ruff==0.16.10\n + sniffio==1.3.1\n + tenacity==9.2.1\n + truststore==0.10.4\n + typing-extensions==4.16.0\n + typing-inspection==0.4.4\n + urllib3==2.8.0\n + uuid-utils==0.17.1\n + websockets==16.1.1\n + xxhash==4.0.1\n + zstandard==0.25.0\n"
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "stdout": "........................................................................ [ 47%]\n........................................................................ [ 95%]\n.......                                                                  [100%]\n151 passed in 1.48s\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "31 files already formatted\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "graph-demo"
+      ],
+      "exit_code": 0,
+      "stdout": "Mode: offline; result: passed.\nDeterministic two-node LangGraph check; no model or real multi-agent work.\nPASS two_node_graph: Expected sequence: increment then double; input 2 becomes 6.\nReport saved with run_id=afdd5589-0fd2-4275-aaa9-fa7605fc16dc.\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "data-check",
+        "--department",
+        "研发部",
+        "--start-date",
+        "2026-04-01",
+        "--end-date",
+        "2026-07-01"
+      ],
+      "exit_code": 0,
+      "stdout": "Mode: offline; status: ok; data origin: simulated.\nDeterministic data tools; no model request or business Agent execution.\nproject_count: 3 (count)\ncompleted_project_count: 2 (count)\ncompletion_rate: 0.6666666666666666 (ratio)\nachievement_count: 2 (count)\nissues.txt: unfiltered source material; no department/date attribution or issue count.\nData report saved with run_id=a85fe2c0-c9f8-4e16-bed6-b1a5efe3692f.\n",
+      "stderr": ""
+    }
+  ]
+}

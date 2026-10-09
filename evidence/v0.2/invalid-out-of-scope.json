@@ -1,0 +1,44 @@
+{
+  "run_id": "055e26a6-5ba8-4427-b20b-a7959599fbd9",
+  "created_at": "2026-10-09T07:06:27.597202+00:00",
+  "mode": "offline",
+  "status": "invalid_data",
+  "request": {
+    "department": "研发部",
+    "start_date": "2026-04-01",
+    "end_date": "2026-07-01",
+    "data_origin": "simulated"
+  },
+  "metrics": [],
+  "sources": [
+    {
+      "source_id": "achievements.csv",
+      "file_name": "achievements.csv",
+      "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+      "record_count": 5
+    },
+    {
+      "source_id": "issues.txt",
+      "file_name": "issues.txt",
+      "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+      "record_count": 0
+    },
+    {
+      "source_id": "projects.csv",
+      "file_name": "projects.csv",
+      "sha256": "0ba8de31ee7e8153333b34bd838f882bae228dced0ecc5e05e93df2d338cbb9c",
+      "record_count": 9
+    }
+  ],
+  "data_issues": [
+    {
+      "severity": "error",
+      "code": "invalid_project",
+      "message": "Record violates the required field or consistency rules.",
+      "source_id": "projects.csv",
+      "line_number": 10,
+      "field": "progress"
+    }
+  ],
+  "issue_materials": []
+}
