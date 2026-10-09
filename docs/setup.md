@@ -66,6 +66,18 @@ uv run --locked office-agents smoke --output-dir outputs
 
 `smoke` 一次执行以下探测，报告标记 `mode=live`。任一探测失败或配置缺失，命令退出码为 1，并保留可用于排错的安全报告。
 
+### DeepSeek 探测配置
+
+使用已配置的 DeepSeek V4 Pro 时执行一次：
+
+```bash
+uv run --locked office-agents smoke --profile deepseek
+```
+
+该配置设置每请求 `max_tokens=64`、`thinking.type=disabled`，强制 0 次重试，任一失败立即停止。正常路径为文本 1 次、JSON 1 次、工具调用及结果回传 2 次，共 4 次请求。64 是单次输出上限，不包含输入 tokens，也不是实际总用量。
+
+DeepSeek JSON 探测使用 `response_format.type=json_object`，再由 Pydantic 本地校验 `number=7`、`label=probe`。默认通用探测请求的是严格 `json_schema`；两种模式应分别记录，不能用 DeepSeek 模式成功来证明服务端严格 schema 支持。参数见 [DeepSeek 官方文档](https://api-docs.deepseek.com/api/create-chat-completion/)。下面表格描述默认通用探测。
+
 | 探测 | 成功判据 | 能证明的范围 |
 | --- | --- | --- |
 | 文本 | 模型返回有效文本回复 | 配置服务能够接受本次文本请求 |
@@ -74,7 +86,7 @@ uv run --locked office-agents smoke --output-dir outputs
 
 报告保存在 `outputs/live-<run_id>.json`，离线图报告为 `outputs/offline-<run_id>.json`。报告只保留安全摘要，不保存模型原文、原始响应或密钥。`mode=live` 表示走真实服务路径，失败报告同样使用该标记；必须结合每项结果判断是否成功。
 
-三项探测是兼容性样例，并不保证所有复杂业务请求均成功。单纯返回 JSON 文本不能替代严格 Schema 探测成功，模型介绍中声称支持工具也不能替代实际运行。
+三项探测是兼容性样例，并不保证所有复杂业务请求均成功。JSON 模式和本地 schema 校验应与服务端严格 schema 能力区分记录，模型介绍中声称支持工具也不能替代实际运行。
 
 ## 5. 常见失败的处理
 

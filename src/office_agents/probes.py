@@ -27,6 +27,10 @@ class RunReport(BaseModel):
     description: str
     probes: list[ProbeResult]
     elapsed_seconds: float = 0.0
+    profile: Literal["generic", "deepseek"] | None = None
+    max_output_tokens: int | None = None
+    request_count: int | None = None
+    usage: dict[str, int | None] | None = None
 
 
 class StructuredAnswer(BaseModel):
@@ -76,15 +80,24 @@ def _content(response: dict[str, Any]) -> str:
     return content
 
 
-def _text_probe(client: OpenAICompatibleClient) -> str:
-    _content(client.chat([{"role": "user", "content": "Reply with a short greeting."}]))
+def _probe_options(profile: str) -> dict[str, Any]:
+    options: dict[str, Any] = {"max_tokens": 64}
+    if profile == "deepseek":
+        options.update(thinking={"type": "disabled"}, temperature=0)
+    return options
+
+
+def _text_probe(client: OpenAICompatibleClient, profile: str = "generic") -> str:
+    prompt = "Reply OK." if profile == "deepseek" else "Reply with a short greeting."
+    _content(client.chat([{"role": "user", "content": prompt}], **_probe_options(profile)))
     return "Received nonempty text from a real model endpoint; response text is not stored."
 
 
-def _json_probe(client: OpenAICompatibleClient) -> str:
-    response = client.chat(
-        [{"role": "user", "content": 'Return exactly {"number":7,"label":"probe"}.'}],
-        response_format={
+def _json_probe(client: OpenAICompatibleClient, profile: str = "generic") -> str:
+    response_format = (
+        {"type": "json_object"}
+        if profile == "deepseek"
+        else {
             "type": "json_schema",
             "json_schema": {
                 "name": "capability_probe",
@@ -99,22 +112,35 @@ def _json_probe(client: OpenAICompatibleClient) -> str:
                     "additionalProperties": False,
                 },
             },
-        },
+        }
+    )
+    response = client.chat(
+        [{"role": "user", "content": 'Return JSON {"number":7,"label":"probe"} only.'}],
+        response_format=response_format,
+        **_probe_options(profile),
     )
     validate_structured_answer(_content(response))
+    if profile == "deepseek":
+        return (
+            "Requested json_object output; locally validated number=7 and label=probe "
+            "with Pydantic (not server-side JSON schema enforcement)."
+        )
     return "Requested json_schema output and locally validated number=7 and label=probe."
 
 
-def _tool_probe(client: OpenAICompatibleClient) -> str:
-    messages: list[dict[str, Any]] = [
-        {"role": "user", "content": "Call echo_number with number 7, then report the tool result."}
-    ]
+def _tool_probe(client: OpenAICompatibleClient, profile: str = "generic") -> str:
+    prompt = (
+        "Call echo_number(7). After tool result, reply 7 only."
+        if profile == "deepseek"
+        else "Call echo_number with number 7, then report the tool result."
+    )
+    messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
     tools = [
         {
             "type": "function",
             "function": {
                 "name": "echo_number",
-                "description": "Echo a bounded integer for a capability check.",
+                "description": "Echo an integer.",
                 "parameters": {
                     "type": "object",
                     "properties": {"number": {"type": "integer", "minimum": -100, "maximum": 100}},
@@ -124,11 +150,14 @@ def _tool_probe(client: OpenAICompatibleClient) -> str:
             },
         }
     ]
+    options = _probe_options(profile)
+    if profile == "generic":
+        options["parallel_tool_calls"] = False
     response = client.chat(
         messages,
         tools=tools,
         tool_choice={"type": "function", "function": {"name": "echo_number"}},
-        parallel_tool_calls=False,
+        **options,
     )
     message = _message(response)
     calls = message.get("tool_calls")
@@ -154,16 +183,27 @@ def _tool_probe(client: OpenAICompatibleClient) -> str:
             {"role": "tool", "tool_call_id": call["id"], "content": json.dumps(result)},
         ]
     )
-    _content(client.chat(messages, tools=tools, tool_choice="none"))
+    _content(client.chat(messages, tools=tools, tool_choice="none", **_probe_options(profile)))
     return "Validated a forced echo_number call, executed it locally and returned its result."
 
 
-def run_live_smoke(settings: Settings, *, client_factory=OpenAICompatibleClient) -> RunReport:
+def run_live_smoke(
+    settings: Settings,
+    *,
+    profile: Literal["generic", "deepseek"] = "generic",
+    client_factory=OpenAICompatibleClient,
+) -> RunReport:
     start = time.monotonic()
     probes: list[ProbeResult] = []
     client = None
+    request_count = 0
+    usage = None
     try:
+        if profile not in {"generic", "deepseek"}:
+            raise ConfigurationError("Unsupported smoke profile.")
         settings.validate_for_live()
+        if profile == "deepseek":
+            settings = settings.model_copy(update={"max_retries": 0})
         client = client_factory(settings)
         for name, probe in (
             ("text", _text_probe),
@@ -171,7 +211,7 @@ def run_live_smoke(settings: Settings, *, client_factory=OpenAICompatibleClient)
             ("tool_call", _tool_probe),
         ):
             try:
-                detail = probe(client)
+                detail = probe(client, profile)
             except ModelCallError as exc:
                 probes.append(ProbeResult(name=name, passed=False, detail=str(exc)))
             except Exception:
@@ -180,6 +220,8 @@ def run_live_smoke(settings: Settings, *, client_factory=OpenAICompatibleClient)
                 )
             else:
                 probes.append(ProbeResult(name=name, passed=True, detail=detail))
+            if profile == "deepseek" and not probes[-1].passed:
+                break
     except ConfigurationError as exc:
         probes.append(ProbeResult(name="configuration", passed=False, detail=str(exc)))
     except Exception:
@@ -188,6 +230,8 @@ def run_live_smoke(settings: Settings, *, client_factory=OpenAICompatibleClient)
         )
     finally:
         if client is not None:
+            request_count = getattr(client, "request_count", None)
+            usage = getattr(client, "usage_statistics", None)
             client.close()
     return RunReport(
         mode="live",
@@ -195,6 +239,10 @@ def run_live_smoke(settings: Settings, *, client_factory=OpenAICompatibleClient)
         description="Live endpoint capability checks; no business agents are implemented in v0.1.",
         probes=probes,
         elapsed_seconds=round(time.monotonic() - start, 3),
+        profile=profile,
+        max_output_tokens=64,
+        request_count=request_count,
+        usage=usage,
     )
 
 

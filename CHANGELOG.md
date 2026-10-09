@@ -1,5 +1,12 @@
 # 版本记录
 
+## v0.1.1 DeepSeek 低消耗探测
+
+- 增加显式 DeepSeek 探测配置：关闭思考，每次最多输出 64 token，无自动重试，首个失败后停止。
+- DeepSeek Chat Completions 使用 JSON object 输出，再由本地 Pydantic 校验字段、类型和取值；通用配置保留服务端 JSON Schema 请求。
+- 记录实际 HTTP 请求数和服务返回的 token 用量；缺失用量明确标为不可用。
+- DeepSeek V4 Pro 实际探测三项通过：4 次请求，总用量 483 token（输入 434、输出 49）；77 项离线测试通过。实际证据见 docs/validation-v0.1.md。
+
 ## v0.1 开发基线
 
 本版建立环境、模型适配与验证入口。真实模型验收状态见 docs/validation-v0.1.md；未配置模型时不能声明已完成模型接入验收。
