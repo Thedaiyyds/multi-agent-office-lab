@@ -2,9 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前里程碑为 v0.3：实现 Manager、Planner、Data、Writer、Checker 五个独立角色。v0.2 的数据读取、统计和来源追踪继续复用；完整 LangGraph 协作、审核返工和 Streamlit 界面按后续版本实现。实际验收结果见版本验证记录。
-
-v0.3 的 305 项测试与新克隆复现通过；一次真实 DeepSeek 验收完成五个角色和 Checker 错误注入，共 7 请求、4811 token。结果已归档，无需重复真实调用查看。
+当前里程碑为 v0.4：真实 LangGraph 串联五个角色，前一个角色的实际输出传递给后一个角色，审核通过才导出 report.md。数据读取、统计与来源追踪继续复用；自动返工和 Streamlit 界面按 v0.5、v0.6 实现。实际测试和真实联调见 [v0.4 验收记录](docs/validation-v0.4.md)。
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
@@ -20,11 +18,26 @@ uv sync --locked --python 3.12
 uv run --locked office-agents graph-demo
 uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
 uv run --locked office-agents agent-demo --mode mock --role all
+uv run --locked office-agents run --mode mock --request '生成研发部2026年第二季度工作报告'
 uv run --locked pytest
 uv run --locked ruff check .
 ```
 
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
+
+## v0.4 完整协作
+
+```bash
+# 默认离线脚本，不读取密钥；实际执行 LangGraph、数据工具和程序审核
+uv run --locked office-agents run --request '生成研发部2026年第二季度工作报告'
+uv run --locked office-agents run --request '生成市场部2026年第二季度工作报告'
+# 显式选择真实 DeepSeek 调用，正常链路最多 6 请求，关闭思考和重试
+uv run --locked office-agents run --mode live --profile deepseek --request '生成研发部2026年第二季度工作报告'
+```
+
+产物在 `outputs/<run_id>/`：run.json、events.jsonl、nodes/、draft.md，审核通过才生成 report.md。正常退出 0；缺需求/数据返回 needs_input，审核拒绝返回 review_failed，调用失败返回 failed，均退出 1 并保留过程。本版不自动返工。2/3 是模拟项目完成率，不是软件开发完成率。
+
+[详细使用说明](docs/workflow-usage.md)、[开发计划](docs/plan-v0.4.md)、[实际架构与时序](docs/architecture-v0.4.md)、[交叉审查](docs/review-v0.4.md)、[验收记录](docs/validation-v0.4.md)。已归档的真实输出可直接阅读，无需重复付费运行。
 
 ## v0.3 独立角色
 
