@@ -112,13 +112,18 @@ def _report(result: WorkflowResult) -> str:
     ]
     # check_draft already required exact deterministic rendering, including this heading.
     body = result.draft.markdown.removeprefix("# 工作报告草稿").lstrip()
+    cursor = 0
     for section in result.draft.sections:
         heading_and_text = f"## {_plain_text(section.title)}\n\n{_plain_text(section.text)}"
         labelled = (
             f"## {_plain_text(section.title)}\n\n"
             f"模型叙述（待人工核实）：{_plain_text(section.text)}"
         )
-        body = body.replace(heading_and_text, labelled, 1)
+        position = body.find(heading_and_text, cursor)
+        if position < 0:
+            raise ValueError("Validated report section could not be located.")
+        body = body[:position] + labelled + body[position + len(heading_and_text) :]
+        cursor = position + len(labelled)
     lines = metadata + [body, "", "## 数据来源记录", ""]
     for source in data.sources:
         lines.extend(

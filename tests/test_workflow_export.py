@@ -149,6 +149,26 @@ def test_unsupported_model_prose_remains_visible_with_human_verification_label(
     assert (directory / "draft.md").read_text().endswith(result.draft.markdown + "\n")
 
 
+def test_escaped_heading_collision_does_not_relabel_previous_section(tmp_path, completed_result):
+    result = completed_result
+    label = "模型叙述（待人工核实）："
+    titles = ["概\n况", "概 况"]
+    texts = ["x", label + "x"]
+    for index, (title, text) in enumerate(zip(titles, texts, strict=True)):
+        result.requirements.required_sections[index] = title
+        result.outline.sections[index].title = title
+        result.draft.sections[index].title = title
+        result.draft.sections[index].text = text
+    result.draft.markdown = render_draft(result.draft)
+    result.nodes[0].output = result.manager_decision.model_dump(mode="json")
+    result.nodes[1].output = result.outline.model_dump(mode="json")
+    result.nodes[3].output = result.draft.model_dump(mode="json")
+    report = (save_workflow(result, tmp_path) / "report.md").read_text()
+    sections = report.split("## 概 况\n\n")
+    assert sections[1].startswith(label + "x\n\n")
+    assert sections[2].startswith(label + label + "x\n\n")
+
+
 def test_provided_live_metadata_is_explicit(tmp_path, completed_result):
     result = completed_result
     result.mode = "live"
