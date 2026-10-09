@@ -1,0 +1,20 @@
+Mode: live; status: completed; run_id=c20640f6-d1a5-4319-a41b-d54be75415ce.
+Fault experiment: bad-fact; deliberate injection, not a natural model error.
+Business revisions: 1/2; network retries: 0/0.
+manager[revision=0]: passed; duration_ms=2524.43.
+planner[revision=0]: passed; duration_ms=2675.71.
+data[revision=0]: passed; duration_ms=5641.07.
+writer[revision=0]: passed; duration_ms=3793.21.
+checker[revision=0]: review_failed; duration_ms=1.03.
+writer[revision=1]: passed; duration_ms=3889.12.
+checker[revision=1]: passed; duration_ms=1896.80.
+review[0]: passed=False; mode=program_only.
+review[1]: passed=True; mode=program_and_model.
+HTTP requests: 7; reserved output limit: 2752.
+Logical model request attempts: 7.
+prompt_tokens: 4418
+completion_tokens: 1357
+total_tokens: 5775
+reasoning_tokens: unavailable
+Workflow artifacts: outputs/v0.5-live/c20640f6-d1a5-4319-a41b-d54be75415ce
+Final report: report.md

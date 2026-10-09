@@ -137,12 +137,14 @@ class Review(ContractModel):
 
 class AgentEvent(ContractModel):
     role: Role
-    event_type: Literal["model_request", "tool_execution"]
+    event_type: Literal["model_request", "model_retry", "tool_execution"]
     status: Literal["passed", "failed"]
     created_at: str
     summary: str
     tool_name: str | None = None
     arguments: dict[str, Any] | None = None
+    attempt: int = Field(default=1, ge=1, le=2, strict=True)
+    max_output_tokens: int | None = Field(default=None, ge=1, le=768, strict=True)
 
 
 class RoleRun(ContractModel):

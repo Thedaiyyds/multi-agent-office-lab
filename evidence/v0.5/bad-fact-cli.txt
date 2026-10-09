@@ -1,0 +1,21 @@
+Mode: offline_mock; status: completed; run_id=2e23a691-8941-4bde-9a1e-7ede40531634.
+Local scripted HTTP fixtures; no real model requests.
+Fault experiment: bad-fact; deliberate injection, not a natural model error.
+Business revisions: 1/2; network retries: 0/0.
+manager[revision=0]: passed; duration_ms=0.66.
+planner[revision=0]: passed; duration_ms=0.20.
+data[revision=0]: passed; duration_ms=0.83.
+writer[revision=0]: passed; duration_ms=0.47.
+checker[revision=0]: review_failed; duration_ms=0.20.
+writer[revision=1]: passed; duration_ms=0.36.
+checker[revision=1]: passed; duration_ms=0.33.
+review[0]: passed=False; mode=program_only.
+review[1]: passed=True; mode=program_and_model.
+HTTP requests: 7; reserved output limit: 2752.
+Logical model request attempts: 7.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: /Users/dai/Agent_SoftwareArc/outputs/v0.5-mock/bad-fact/2e23a691-8941-4bde-9a1e-7ede40531634
+Final report: report.md

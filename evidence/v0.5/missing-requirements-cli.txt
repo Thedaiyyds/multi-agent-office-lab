@@ -1,0 +1,13 @@
+Mode: offline_mock; status: needs_input; run_id=7156d0d1-e331-4e9b-acab-6ff224e7b57b.
+Local scripted HTTP fixtures; no real model requests.
+Business revisions: 0/2; network retries: 0/0.
+manager[revision=0]: needs_input; duration_ms=0.57.
+请提供部门和明确年份季度或起止 ISO 日期。
+HTTP requests: 1; reserved output limit: 256.
+Logical model request attempts: 1.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: /Users/dai/Agent_SoftwareArc/outputs/v0.5-mock/missing-requirements/7156d0d1-e331-4e9b-acab-6ff224e7b57b
+No final report exported.

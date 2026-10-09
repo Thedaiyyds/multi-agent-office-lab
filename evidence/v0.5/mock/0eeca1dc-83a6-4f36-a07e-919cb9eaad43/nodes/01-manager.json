@@ -1,0 +1,32 @@
+{
+  "role": "manager",
+  "started_at": "2026-10-09T10:56:35.363316+00:00",
+  "finished_at": "2026-10-09T10:56:35.363973+00:00",
+  "duration_ms": 0.654999865218997,
+  "status": "passed",
+  "input": {
+    "user_text": "生成研发部2026年第二季度工作报告",
+    "data_origin": "simulated"
+  },
+  "output": {
+    "status": "ready",
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-04-01",
+      "end_date": "2026-07-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    },
+    "missing_fields": [],
+    "questions": []
+  },
+  "error": null,
+  "revision_index": 0,
+  "generated_output": null
+}

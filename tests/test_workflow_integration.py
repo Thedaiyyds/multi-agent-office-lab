@@ -26,7 +26,9 @@ def user_context(payload):
     return json.loads(user["content"])
 
 
-def execute(request=Q2, *, data_root=SAMPLES, mutate=None, budget=6, origin="simulated"):
+def execute(
+    request=Q2, *, data_root=SAMPLES, mutate=None, budget=6, origin="simulated", revisions=2
+):
     calls = []
 
     def handler(http_request):
@@ -43,7 +45,9 @@ def execute(request=Q2, *, data_root=SAMPLES, mutate=None, budget=6, origin="sim
         max_total_output_tokens=1984,
     )
     try:
-        result = run_workflow(request, data_root, session, data_origin=origin)
+        result = run_workflow(
+            request, data_root, session, data_origin=origin, max_revisions=revisions
+        )
         return result, calls
     finally:
         session.close()
@@ -177,11 +181,12 @@ def test_model_approval_cannot_override_program_audit(bad, tmp_path):
 
         return change_completion(response, edit)
 
-    result, calls = execute(mutate=mutate)
+    result, calls = execute(mutate=mutate, revisions=0)
     assert result.status == "review_failed"
     assert result.review.passed is False
     assert bad in {issue.code for issue in result.review.issues}
-    assert role_of(calls[-1]) == "checker"
+    assert role_of(calls[-1]) == "writer"  # Program rejection requires no model review.
+    assert result.revision_history[-1].review_mode == "program_only"
     assert result.revision_count == 0
     destination = save_workflow(result, tmp_path)
     assert not (destination / "report.md").exists()

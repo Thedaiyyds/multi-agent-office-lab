@@ -1,0 +1,26 @@
+Mode: offline_mock; status: review_failed; run_id=1dbab011-6341-4a32-a126-62fae8db7a00.
+Local scripted HTTP fixtures; no real model requests.
+Fault experiment: always-bad; deliberate injection, not a natural model error.
+Business revisions: 2/2; network retries: 0/0.
+manager[revision=0]: passed; duration_ms=0.63.
+planner[revision=0]: passed; duration_ms=0.20.
+data[revision=0]: passed; duration_ms=0.83.
+writer[revision=0]: passed; duration_ms=0.47.
+checker[revision=0]: review_failed; duration_ms=0.20.
+writer[revision=1]: passed; duration_ms=0.40.
+checker[revision=1]: review_failed; duration_ms=0.18.
+writer[revision=2]: passed; duration_ms=0.42.
+checker[revision=2]: review_failed; duration_ms=0.18.
+review[0]: passed=False; mode=program_only.
+review[1]: passed=False; mode=program_only.
+review[2]: passed=False; mode=program_only.
+审核未通过；流程已停止，请查看逐轮草稿及审核意见。
+fact_value [fact_claims[0]]: 事实值与权威数据不一致或不是有限数值。
+HTTP requests: 7; reserved output limit: 3264.
+Logical model request attempts: 7.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: /Users/dai/Agent_SoftwareArc/outputs/v0.5-mock/always-bad/1dbab011-6341-4a32-a126-62fae8db7a00
+No final report exported.

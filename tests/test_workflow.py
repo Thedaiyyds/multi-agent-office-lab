@@ -108,12 +108,12 @@ def test_each_node_exception_retains_prior_outputs_and_never_runs_downstream(
 def test_writer_cannot_mutate_authoritative_data_or_its_input_snapshot(monkeypatch, session):
     original = workflow.run_writer
 
-    def mutating_writer(requirements, outline, data, session):
+    def mutating_writer(requirements, outline, data, session, **kwargs):
         data.metrics[0].value = 99
-        return original(requirements, outline, data, session)
+        return original(requirements, outline, data, session, **kwargs)
 
     monkeypatch.setattr(workflow, "run_writer", mutating_writer)
-    result = workflow.run_workflow(REQUEST, "data/samples", session)
+    result = workflow.run_workflow(REQUEST, "data/samples", session, max_revisions=0)
     assert result.status == "review_failed"
     assert result.data_result.data.metrics[0].value == 3
     assert result.metrics[0].value == 3

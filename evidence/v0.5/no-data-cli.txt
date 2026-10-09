@@ -1,0 +1,16 @@
+Mode: offline_mock; status: needs_input; run_id=59e1be6d-b711-4a92-b47c-9997741a0993.
+Local scripted HTTP fixtures; no real model requests.
+Business revisions: 0/2; network retries: 0/0.
+manager[revision=0]: passed; duration_ms=0.66.
+planner[revision=0]: passed; duration_ms=0.20.
+data[revision=0]: needs_input; duration_ms=0.82.
+离线 HTTP 脚本已收到实际工具结果。无匹配数据。
+WARNING no_projects: 所选部门和日期区间无项目快照，完成率没有分母，返回 null。
+HTTP requests: 4; reserved output limit: 960.
+Logical model request attempts: 4.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: /Users/dai/Agent_SoftwareArc/outputs/v0.5-mock/no-data/59e1be6d-b711-4a92-b47c-9997741a0993
+No final report exported.

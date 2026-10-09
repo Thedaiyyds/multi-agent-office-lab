@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-09",
+  "source_commit": "05194a8b827e6f7ada2a4e8491d4f3a67ec54ee6",
+  "run_id": "c20640f6-d1a5-4319-a41b-d54be75415ce",
+  "mode": "live",
+  "test_scenario": "bad-fact",
+  "deliberate_injection": true,
+  "status": "completed",
+  "revision_count": 1,
+  "http_attempts": 7,
+  "retry_count": 0,
+  "request_budget": 8,
+  "output_budget": 3008,
+  "reserved_output_tokens": 2752,
+  "usage": {
+    "prompt_tokens": 4418,
+    "completion_tokens": 1357,
+    "total_tokens": 5775,
+    "reasoning_tokens": null
+  },
+  "authoritative_metrics": [
+    {
+      "metric_id": "project_count",
+      "value": 3,
+      "unit": "count",
+      "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+      "source_ids": [
+        "projects.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "projects.csv",
+          "line_number": 3
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 4
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 5
+        }
+      ]
+    },
+    {
+      "metric_id": "completed_project_count",
+      "value": 2,
+      "unit": "count",
+      "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+      "source_ids": [
+        "projects.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "projects.csv",
+          "line_number": 3
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 4
+        }
+      ]
+    },
+    {
+      "metric_id": "completion_rate",
+      "value": 0.6666666666666666,
+      "unit": "ratio",
+      "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+      "source_ids": [
+        "projects.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "projects.csv",
+          "line_number": 3
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 4
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 5
+        }
+      ]
+    },
+    {
+      "metric_id": "achievement_count",
+      "value": 2,
+      "unit": "count",
+      "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+      "source_ids": [
+        "achievements.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "achievements.csv",
+          "line_number": 2
+        },
+        {
+          "source_id": "achievements.csv",
+          "line_number": 3
+        }
+      ]
+    }
+  ],
+  "project_count_original_injected_corrected": [
+    3,
+    4,
+    3
+  ],
+  "review_modes": [
+    "program_only",
+    "program_and_model"
+  ],
+  "suggestions_count": 0,
+  "artifacts": "evidence/v0.5/live/c20640f6-d1a5-4319-a41b-d54be75415ce",
+  "verification": "Local complete export gate, exact narrative and immutable node inputs rechecked; human read report. This is explicit test injection, not a natural model error.",
+  "screenshots_captured": false
+}
