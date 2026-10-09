@@ -19,14 +19,15 @@ MANAGER_SYSTEM = """你是 Manager，只解析用户的办公报告需求，返�
 missing_fields 只列实际缺失字段，每个字段一个简短问题。
 部门必须来自用户原文。必须有明确 ISO 日期区间或明确年份季度；不能猜年份、
 日期、部门，不能用当前时间补齐。日期是半开区间 [start_date,end_date)。
+grounded_date_ranges 是程序从原文明确日期/年份季度提取的范围提示；
+匹配时逐字复制 start_date 和 end_date。季度 end_date 是下季度第一天（不含），
+不能写当季度最后一天。范围提示不能补齐缺失的部门或其它信息；无年份不能猜。
 未指定章节时使用提供的 default_sections；不决定 data_origin，不输出它。
 只输出上面的 JSON 字段，不解释。"""
 
 
-def _date_range_is_grounded(user_text: str, start: date, end: date) -> bool:
-    explicit_dates = re.findall(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", user_text)
-    if start.isoformat() in explicit_dates and end.isoformat() in explicit_dates:
-        return True
+def _quarter_date_ranges(user_text: str) -> list[tuple[date, date]]:
+    ranges = []
     quarters = re.finditer(
         r"(?<!\d)(\d{4})\s*年?\s*(?:第\s*([一二三四1234])\s*季度|[Qq]([1-4]))",
         user_text,
@@ -42,9 +43,36 @@ def _date_range_is_grounded(user_text: str, start: date, end: date) -> bool:
             expected_end = date(year + 1, 1, 1) if quarter == 4 else date(year, quarter * 3 + 1, 1)
         except ValueError:
             continue
-        if (start, end) == (expected_start, expected_end):
-            return True
-    return False
+        ranges.append((expected_start, expected_end))
+    return ranges
+
+
+def _grounded_date_ranges(user_text: str) -> list[dict[str, str]]:
+    """Hints only: extract explicit pairs/quarters, never repair model output.
+
+    Adjacent valid ISO dates provide concise candidate hints. The existing
+    grounding validator below still allows any explicitly mentioned start/end
+    pair, so hints do not narrow or silently change accepted input semantics.
+    """
+    dates = re.findall(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", user_text)
+    ranges = _quarter_date_ranges(user_text)
+    for start_text, end_text in zip(dates, dates[1:]):
+        try:
+            start, end = date.fromisoformat(start_text), date.fromisoformat(end_text)
+        except ValueError:
+            continue
+        if start < end:
+            ranges.append((start, end))
+    # Hints have a bounded context size even for input containing many dates.
+    unique = list(dict.fromkeys(ranges))[:32]
+    return [{"start_date": start.isoformat(), "end_date": end.isoformat()} for start, end in unique]
+
+
+def _date_range_is_grounded(user_text: str, start: date, end: date) -> bool:
+    explicit_dates = re.findall(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)", user_text)
+    if start.isoformat() in explicit_dates and end.isoformat() in explicit_dates:
+        return True
+    return (start, end) in _quarter_date_ranges(user_text)
 
 
 def run_manager(
@@ -62,7 +90,11 @@ def run_manager(
         decision = session.json(
             "manager",
             MANAGER_SYSTEM,
-            {"user_text": user_text, "default_sections": DEFAULT_SECTIONS},
+            {
+                "user_text": user_text,
+                "default_sections": DEFAULT_SECTIONS,
+                "grounded_date_ranges": _grounded_date_ranges(user_text),
+            },
             ManagerDecision,
             max_output_tokens=256,
         )

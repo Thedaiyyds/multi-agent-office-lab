@@ -193,3 +193,31 @@ def test_budget_like_private_exception_cannot_bypass_exact_allowlist(monkeypatch
     assert result.status == "failed"
     assert result.error == "Manager node failed; inspect safe audit events and inputs."
     assert "PRIVATE_PROVIDER_BODY_AND_SECRET" not in result.model_dump_json()
+
+
+@pytest.mark.parametrize(
+    ("role", "message", "diagnosis"),
+    [
+        (
+            "manager",
+            "Manager returned invalid or ungrounded requirements.",
+            "Manager requirements invalid or ungrounded",
+        ),
+        (
+            "planner",
+            "Planner returned an invalid section or metric plan.",
+            "Planner section or metric plan invalid",
+        ),
+    ],
+)
+def test_requirement_and_plan_validation_have_safe_explicit_diagnoses(
+    monkeypatch, session, role, message, diagnosis
+):
+    def failed(*args, **kwargs):
+        raise ModelCallError(message)
+
+    monkeypatch.setattr(workflow, f"run_{role}", failed)
+    result = workflow.run_workflow(REQUEST, "data/samples", session)
+    assert result.status == "failed"
+    assert diagnosis in result.error
+    assert result.nodes[-1].error == result.error

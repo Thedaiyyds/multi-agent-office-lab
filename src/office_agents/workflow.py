@@ -80,6 +80,12 @@ def _safe_node_error(role: Role, error: Exception) -> str:
         "Agent output failed local JSON validation.": "role JSON validation failed",
         "Agent response was truncated or blocked.": "model response truncated or blocked",
         "Data Agent authorized tool execution failed.": "authorized data tool execution failed",
+        "Manager returned invalid or ungrounded requirements.": (
+            "Manager requirements invalid or ungrounded"
+        ),
+        "Planner returned an invalid section or metric plan.": (
+            "Planner section or metric plan invalid"
+        ),
     }
     reason = None
     if isinstance(error, ModelCallError) and len(error.args) == 1 and type(error.args[0]) is str:

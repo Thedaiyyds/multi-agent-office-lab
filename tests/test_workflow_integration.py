@@ -286,3 +286,41 @@ def test_actual_tool_exception_has_failed_event_and_no_downstream_model_call(mon
     assert len(tool_events) == 1
     assert tool_events[0].status == "failed"
     assert "sentinel-private-tool-error" not in result.model_dump_json()
+
+
+@pytest.mark.parametrize(
+    ("user_text", "expected"),
+    [
+        (Q2, [{"start_date": "2026-04-01", "end_date": "2026-07-01"}]),
+        (
+            "生成研发部2026年第四季度工作报告",
+            [{"start_date": "2026-10-01", "end_date": "2027-01-01"}],
+        ),
+        ("生成研发部第二季度工作报告", []),
+        (
+            "研发部2026-04-01到2026-07-01报告",
+            [{"start_date": "2026-04-01", "end_date": "2026-07-01"}],
+        ),
+    ],
+)
+def test_manager_http_context_has_only_user_grounded_date_hints(user_text, expected):
+    _, calls = execute(user_text)
+    assert user_context(calls[0])["grounded_date_ranges"] == expected
+
+
+def test_date_hints_do_not_silently_repair_a_wrong_model_answer():
+    def mutate(payload, response):
+        if role_of(payload) != "manager":
+            return response
+
+        def edit(content):
+            content["requirements"]["end_date"] = "2026-06-30"
+
+        return change_completion(response, edit)
+
+    result, calls = execute(mutate=mutate)
+    assert result.status == "failed"
+    assert len(calls) == 1
+    assert result.requirements is None
+    assert result.nodes[0].output is None
+    assert "Manager requirements invalid or ungrounded" in result.error
