@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-v0.1 的范围是环境配置、模型能力探测和离线图运行验证。此版本不包含五个业务 Agent、真实办公汇报流程或 Streamlit 界面。`pyproject.toml` 的版本号不代表实验已经验收或发布；实际结果以运行记录和版本验证文档为准。
+当前开发里程碑为 v0.2：在 v0.1 模型接入基础上，实现模拟办公数据的读取、校验、统计及来源追踪。五个业务 Agent、完整办公汇报流程和 Streamlit 界面按后续版本实现；实际验收结果见版本验证记录。
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
@@ -16,11 +16,33 @@ cd multi-agent-office-lab
 uv python install 3.12
 uv sync --locked --python 3.12
 uv run --locked office-agents graph-demo
+uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
 uv run --locked pytest
 uv run --locked ruff check .
 ```
 
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
+
+## v0.2 数据工具
+
+`data-check` 默认读取仓库 `data/samples/` 内的三个模拟文件，无需 `.env`，不调用模型：
+
+```bash
+uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
+uv run --locked office-agents data-check --department 市场部 --start-date 2026-04-01 --end-date 2026-07-01
+```
+
+研发部 Q2 的手算预期是项目 3 个、完成 2 个、完成率 2/3、成果 2 个。统计先校验全部文件，再按部门和半开日期区间筛选；同一项目只取区间内最新快照。无项目时完成率为 `null`，不伪造为 0%。任何数据错误会阻止指标输出，返回 `invalid_data` 及非零退出码；合法但无匹配项目或成果时返回 `no_data`，退出码为 0。
+
+处理自己的数据时，将同名文件放在一个目录并指定：
+
+```bash
+uv run --locked office-agents data-check --data-dir uploads/example --data-origin provided --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
+```
+
+每文件最多 2 MiB，CSV 最多 10,000 条数据记录，必需字段与来源边界见 [数据契约](docs/data-contract.md)。结果保存为 `outputs/data-{run_id}.json`，包括口径、SHA-256、来源行号与数据问题。`issues.txt` 是未按部门和季度筛选的原始材料，不统计问题条数；自有材料会进入本地结果文件，按需选择脱敏证据提交。
+
+[数据字典](docs/data-dictionary.md) 和 [模拟数据手算表](data/samples/README.md) 说明字段与预期；[开发计划](docs/plan-v0.2.md) 记录实际 AI 分工和验收流程。
 
 ## 接入真实模型
 
@@ -52,8 +74,9 @@ uv run --locked office-agents smoke --output-dir outputs
 
 - [版本路线](ROADMAP.md)：v0.1～v1.0 的开发任务和验收条件。
 - [v0.1 验证记录](docs/validation-v0.1.md)：实际执行结果、环境和未验证项目。
+- [v0.2 验证记录](docs/validation-v0.2.md)：离线统计、异常处理、交叉审查与复现结果。
 - [团队协作方式](TEAM_WORKFLOW.md)：一名实际开发者和三个 AI 开发角色的职责、评审与真实证据规则。
-- [数据接口草案](docs/data-contract.md)：指标、来源和数据问题的约定。
+- [数据接口](docs/data-contract.md)：指标、来源和数据问题的实际约定。
 - [报告与审核接口草案](docs/report-contract.md)：后续 Writer、Checker 和导出的接口。
 
 Git 使用实际开发者身份，角色 A/B/C 表示 AI 辅助模块分工。实验记录、截图和测试结果按实际运行整理。密钥保存在本地 `.env`，提交 `.env.example`；自动生成的 `outputs/` 默认不提交，需要归档时选择脱敏证据。

@@ -2,10 +2,19 @@
 
 import re
 from datetime import UTC, date, datetime
-from typing import Literal
+from typing import Annotated, Literal
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
+
+RawText = Annotated[str, StringConstraints(strip_whitespace=False)]
 
 
 class ContractModel(BaseModel):
@@ -92,7 +101,7 @@ class Achievement(ContractModel):
 
 
 class RawRow(ContractModel):
-    values: dict[str, str]
+    values: dict[str, RawText]
     line_number: int = Field(ge=1)
 
 
@@ -105,7 +114,7 @@ class RawTable(ContractModel):
 class IssueMaterial(ContractModel):
     source_id: str = "issues.txt"
     scope: Literal["unfiltered"] = "unfiltered"
-    text: str
+    text: RawText
 
 
 class ValidatedDataset(ContractModel):
