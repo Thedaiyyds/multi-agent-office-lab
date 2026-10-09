@@ -12,6 +12,11 @@ from office_agents.config import Settings
 class ModelCallError(RuntimeError):
     """Safe error: never contains response bodies, URLs, credentials or provider text."""
 
+    def __init__(self, message: str, *, code: str = "model_error", retryable: bool = False):
+        super().__init__(message)
+        self.code = code
+        self.retryable = retryable
+
 
 class OpenAICompatibleClient:
     def __init__(
@@ -72,19 +77,33 @@ class OpenAICompatibleClient:
     def chat(self, messages: list[dict[str, Any]], **options: Any) -> dict[str, Any]:
         payload = {"model": self.settings.model, "messages": messages, **options}
         for attempt in range(self.settings.max_retries + 1):
+            try:
+                request = self._client.build_request("POST", self.settings.chat_url, json=payload)
+            except (TypeError, ValueError):
+                raise ModelCallError(
+                    "Model request parameters are invalid.", code="invalid_parameters"
+                ) from None
             self.request_count += 1
             self._usage_records.append(None)
             try:
-                response = self._client.post(self.settings.chat_url, json=payload)
+                response = self._client.send(request)
             except httpx.TimeoutException:
-                error = "Model request timed out."
+                error = ModelCallError("Model request timed out.", code="timeout", retryable=True)
+            except httpx.NetworkError:
+                error = ModelCallError(
+                    "Model connection failed.", code="connection", retryable=True
+                )
             except httpx.RequestError:
-                error = "Model connection failed."
+                raise ModelCallError("Model connection failed.", code="transport") from None
             else:
                 if response.status_code == 429 or 500 <= response.status_code < 600:
-                    error = (
+                    error = ModelCallError(
                         f"HTTP {response.status_code}: model service was temporarily unavailable "
-                        "or rate limited."
+                        "or rate limited.",
+                        code="rate_limited"
+                        if response.status_code == 429
+                        else "service_unavailable",
+                        retryable=True,
                     )
                 elif not 200 <= response.status_code < 300:
                     hints = {
@@ -94,16 +113,26 @@ class OpenAICompatibleClient:
                         404: "endpoint or model not found; check API base path and model name.",
                     }
                     hint = hints.get(response.status_code, "model service rejected the request.")
-                    raise ModelCallError(f"HTTP {response.status_code}: {hint}")
+                    raise ModelCallError(
+                        f"HTTP {response.status_code}: {hint}",
+                        code="authentication"
+                        if response.status_code in {401, 403}
+                        else "http_rejected",
+                    )
                 else:
                     try:
                         data = response.json()
                     except ValueError:
-                        raise ModelCallError("Model service returned invalid JSON.") from None
+                        raise ModelCallError(
+                            "Model service returned invalid JSON.", code="invalid_json"
+                        ) from None
                     if not isinstance(data, dict):
-                        raise ModelCallError("Model service returned an invalid response shape.")
+                        raise ModelCallError(
+                            "Model service returned an invalid response shape.",
+                            code="response_shape",
+                        )
                     self._record_usage(data)
                     return data
             if attempt < self.settings.max_retries:
                 self._sleep(min(2**attempt, 4))
-        raise ModelCallError(error) from None
+        raise error from None

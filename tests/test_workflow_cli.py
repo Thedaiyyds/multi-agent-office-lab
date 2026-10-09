@@ -130,3 +130,54 @@ def test_export_error_is_safe_and_nonzero(tmp_path, monkeypatch, capsys):
 def test_invalid_blank_request_cannot_create_final_report(tmp_path):
     assert main(run_command(tmp_path, "   ")) == 1
     assert not list(tmp_path.glob("*/report.md"))
+
+
+@pytest.mark.parametrize("case", ["bad-fact", "missing-section"])
+def test_explicit_experiment_repairs_and_exports_each_actual_round(tmp_path, case, capsys):
+    args = run_command(tmp_path)
+    args[0] = "workflow-test"
+    assert main([*args, "--case", case]) == 0
+    directory, result = load_result(tmp_path)
+    assert result["test_scenario"] == case
+    assert result["revision_count"] == 1 and result["retry_count"] == 0
+    assert result["request_count"] == 7 and result["reserved_output_tokens"] == 2752
+    assert [item["review"]["passed"] for item in result["revision_history"]] == [False, True]
+    assert (directory / "revisions" / "00" / "draft.md").exists()
+    assert (directory / "revisions" / "01" / "review.json").exists()
+    assert (directory / "report.md").exists()
+    output = capsys.readouterr().out
+    assert "deliberate injection, not a natural model error" in output
+    assert "Business revisions: 1/2; network retries: 0/0" in output
+
+
+@pytest.mark.parametrize("limit", [0, 1, 2])
+def test_persistent_experiment_exits_nonzero_at_requested_limit(tmp_path, limit):
+    args = run_command(tmp_path)
+    args[0] = "workflow-test"
+    assert main([*args, "--case", "always-bad", "--max-revisions", str(limit)]) == 1
+    directory, result = load_result(tmp_path)
+    assert result["status"] == "review_failed" and result["revision_count"] == limit
+    assert len(result["revision_history"]) == limit + 1
+    assert result["request_count"] == limit + 5
+    assert not (directory / "report.md").exists()
+
+
+def test_output_and_request_budgets_remain_independent(tmp_path):
+    assert main([*run_command(tmp_path), "--max-output-tokens", "960"]) == 1
+    directory, result = load_result(tmp_path)
+    assert result["status"] == "failed" and result["request_count"] == 4
+    assert result["reserved_output_tokens"] == 960 and result["revision_count"] == 0
+    assert not (directory / "report.md").exists()
+
+
+def test_fault_flags_are_only_accepted_on_the_experiment_entry(tmp_path):
+    with pytest.raises(SystemExit) as error:
+        main([*run_command(tmp_path), "--case", "bad-fact"])
+    assert error.value.code == 2
+    assert not list(tmp_path.glob("*/run.json"))
+
+
+def test_invalid_timeout_is_safe_and_makes_no_business_calls(tmp_path, capsys):
+    assert main([*run_command(tmp_path), "--timeout-seconds", "nan"]) == 1
+    assert "must be greater than 0" in capsys.readouterr().out
+    assert not list(tmp_path.glob("*/run.json"))

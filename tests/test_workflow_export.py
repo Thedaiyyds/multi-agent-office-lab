@@ -5,76 +5,66 @@ from pathlib import Path
 
 import pytest
 
-from office_agents.agent_examples import sample_content, sample_outline, sample_requirements
-from office_agents.agent_schemas import DataAgentResult, Draft, ManagerDecision, Review
+from office_agents.agent_runtime import AgentSession
 from office_agents.agents.writer import render_draft
-from office_agents.schemas import DataRequest
-from office_agents.tools.metrics import run_data_tools
+from office_agents.config import Settings
+from office_agents.workflow import run_workflow
+from office_agents.workflow_examples import make_workflow_mock_transport
 from office_agents.workflow_export import WorkflowExportError, save_workflow
-from office_agents.workflow_schemas import NodeRecord, WorkflowEvent, WorkflowResult
-
-SAMPLES = Path(__file__).resolve().parents[1] / "data" / "samples"
+from office_agents.workflow_schemas import WorkflowResult
 
 
 @pytest.fixture
 def completed_result():
-    requirements = sample_requirements()
-    outline = sample_outline(requirements)
-    data = run_data_tools(
-        SAMPLES,
-        DataRequest.model_validate(
-            requirements.model_dump(exclude={"required_sections", "output_format"})
-        ),
-    )
-    content = sample_content(outline, data)
-    draft = Draft(**content.model_dump(), markdown=render_draft(content))
-    manager = ManagerDecision(status="ready", requirements=requirements)
-    data_agent = DataAgentResult(status="ready", data=data, summary="离线测试数据。")
-    review = Review(passed=True)
-    result = WorkflowResult(
+    with_session = AgentSession(
+        Settings(base_url="https://mock.invalid", model="export-fixture"),
         mode="offline_mock",
-        status="completed",
-        user_text="生成研发部2026年第二季度工作报告",
-        data_origin="simulated",
-        manager_decision=manager,
-        requirements=requirements,
-        outline=outline,
-        data_result=data_agent,
-        metrics=data.metrics,
-        sources=data.sources,
-        data_issues=data.data_issues,
-        draft=draft,
-        review=review,
+        max_requests=6,
+        max_total_output_tokens=1984,
+        transport=make_workflow_mock_transport(),
     )
-    result.data_result.data.run_id = result.run_id
-    for role, output in zip(
-        ["manager", "planner", "data", "writer", "checker"],
-        [manager, outline, data_agent, draft, review],
-        strict=True,
-    ):
-        result.nodes.append(
-            NodeRecord(
-                role=role,
-                started_at=result.created_at,
-                finished_at=result.created_at,
-                duration_ms=1,
-                status="passed",
-                input={"fixture": "explicit independent export test"},
-                output=output.model_dump(mode="json"),
-            )
+    try:
+        result = run_workflow(
+            "生成研发部2026年第二季度工作报告",
+            "data/samples",
+            with_session,
+            data_origin="simulated",
+            max_revisions=0,
         )
-        result.events.append(
-            WorkflowEvent(
-                run_id=result.run_id,
-                created_at=result.created_at,
-                role=role,
-                event_type="node_finished",
-                status="passed",
-                duration_ms=1,
-                summary="独立导出测试记录，非运行证据。",
-            )
-        )
-    return result
+        assert result.status == "completed"
+        return result
+    finally:
+        with_session.close()
+
+
+def _sync_audit(result):
+    """Explicit synthetic mutation fixtures, never production evidence."""
+    result.manager_decision.requirements = result.requirements.model_copy(deep=True)
+    req = result.requirements.model_dump(mode="json")
+    data = result.data_result.data.model_dump(mode="json")
+    base = {"requirements": req, "outline": result.outline.model_dump(mode="json"), "data": data}
+    result.nodes[0].input = {"user_text": result.user_text, "data_origin": result.data_origin}
+    result.nodes[0].output = result.manager_decision.model_dump(mode="json")
+    result.nodes[1].input = {"requirements": req}
+    result.nodes[1].output = result.outline.model_dump(mode="json")
+    result.nodes[2].input["requirements"] = req
+    result.nodes[2].output = result.data_result.model_dump(mode="json")
+    result.nodes[3].input = {
+        **base,
+        "previous_draft": None,
+        "review": None,
+        "strict_narrative": True,
+    }
+    result.nodes[3].output = result.draft.model_dump(mode="json")
+    result.nodes[4].input = {
+        **base,
+        "draft": result.draft.model_dump(mode="json"),
+        "strict_narrative": True,
+        "skip_model_on_local_errors": True,
+    }
+    result.nodes[4].output = result.review.model_dump(mode="json")
+    result.revision_history[0].draft = result.draft.model_copy(deep=True)
+    result.revision_history[0].review = result.review.model_copy(deep=True)
 
 
 def test_success_artifacts_preserve_actual_records_and_provenance(tmp_path, completed_result):
@@ -104,69 +94,56 @@ def test_success_artifacts_preserve_actual_records_and_provenance(tmp_path, comp
     assert "未筛选，不可归因" in report
     assert "四项结构化指标及其来源通过程序校验；Checker 模型审核通过" in report
     assert "模型叙述仍以所列来源为依据" not in report
-    assert report.count("模型叙述（待人工核实）：") == len(result.draft.sections)
+    assert "正文使用受约束范围说明" in report
+    assert "模型叙述（待人工核实）：" not in report
+    assert (directory / "revisions/00/draft.md").exists()
+    assert json.loads(
+        (directory / "revisions/00/review.json").read_text()
+    ) == result.review.model_dump(mode="json")
     for line in result.draft.markdown.splitlines():
         if line.startswith(("- 事实：", "- 建议（尚未实施）：")):
             assert line in report
 
 
-def test_long_section_text_labels_only_report_without_changing_actual_evidence(
-    tmp_path, completed_result
+@pytest.mark.parametrize(
+    "text",
+    [
+        "待" * 500,
+        "整体工作按计划推进",
+        "存在项目延期风险，部分项目资源分配紧张",
+        "本季度完成项目九十九个",
+    ],
+)
+def test_unsupported_model_prose_cannot_pass_final_export_even_if_model_approved(
+    tmp_path, completed_result, text
 ):
     result = completed_result
-    result.draft.sections[0].text = "待" * 500
+    result.draft.sections[0].text = text
     result.draft.markdown = render_draft(result.draft)
-    result.nodes[3].output = result.draft.model_dump(mode="json")
-    before = result.model_dump(mode="json")
-    directory = save_workflow(result, tmp_path)
-    report = (directory / "report.md").read_text()
-    assert "模型叙述（待人工核实）：" + "待" * 500 in report
-    assert (directory / "draft.md").read_text().endswith(result.draft.markdown + "\n")
-    assert "模型叙述（待人工核实）：" not in result.draft.markdown
-    assert json.loads((directory / "run.json").read_text()) == before
-    assert json.loads((directory / "nodes" / "04-writer.json").read_text()) == before["nodes"][3]
-    assert result.model_dump(mode="json") == before
-
-
-def test_unsupported_model_prose_remains_visible_with_human_verification_label(
-    tmp_path, completed_result
-):
-    result = completed_result
-    texts = ["整体工作按计划推进", "存在项目延期风险，部分项目资源分配紧张"]
-    for section, text in zip(result.draft.sections, texts):
-        section.text = text
-    result.draft.markdown = render_draft(result.draft)
-    result.nodes[3].output = result.draft.model_dump(mode="json")
+    _sync_audit(result)
     original = result.model_dump(mode="json")
-    directory = save_workflow(result, tmp_path)
-    report = (directory / "report.md").read_text()
-    for text in texts:
-        assert f"模型叙述（待人工核实）：{text}" in report
-    for line in result.draft.markdown.splitlines():
-        if line.startswith("- 事实："):
-            assert line in report
+    with pytest.raises(WorkflowExportError, match="local validation"):
+        save_workflow(result, tmp_path)
+    directory = tmp_path / result.run_id
+    assert not (directory / "report.md").exists()
+    assert result.draft.markdown in (directory / "draft.md").read_text()
     assert json.loads((directory / "run.json").read_text()) == original
-    assert (directory / "draft.md").read_text().endswith(result.draft.markdown + "\n")
+    assert result.model_dump(mode="json") == original
 
 
-def test_escaped_heading_collision_does_not_relabel_previous_section(tmp_path, completed_result):
+def test_escaped_heading_collision_keeps_each_constrained_section(tmp_path, completed_result):
     result = completed_result
-    label = "模型叙述（待人工核实）："
     titles = ["概\n况", "概 况"]
-    texts = ["x", label + "x"]
-    for index, (title, text) in enumerate(zip(titles, texts, strict=True)):
+    for index, title in enumerate(titles):
         result.requirements.required_sections[index] = title
         result.outline.sections[index].title = title
         result.draft.sections[index].title = title
-        result.draft.sections[index].text = text
     result.draft.markdown = render_draft(result.draft)
-    result.nodes[0].output = result.manager_decision.model_dump(mode="json")
-    result.nodes[1].output = result.outline.model_dump(mode="json")
-    result.nodes[3].output = result.draft.model_dump(mode="json")
+    _sync_audit(result)
     report = (save_workflow(result, tmp_path) / "report.md").read_text()
     sections = report.split("## 概 况\n\n")
-    assert sections[1].startswith(label + "x\n\n")
-    assert sections[2].startswith(label + label + "x\n\n")
+    assert sections[1].startswith(result.draft.sections[0].text)
+    assert sections[2].startswith(result.draft.sections[1].text)
 
 
 def test_provided_live_metadata_is_explicit(tmp_path, completed_result):
@@ -175,8 +152,7 @@ def test_provided_live_metadata_is_explicit(tmp_path, completed_result):
     result.data_origin = "provided"
     result.requirements.data_origin = "provided"
     result.data_result.data.request.data_origin = "provided"
-    result.nodes[0].output = result.manager_decision.model_dump(mode="json")
-    result.nodes[2].output = result.data_result.model_dump(mode="json")
+    _sync_audit(result)
     report = (save_workflow(result, tmp_path) / "report.md").read_text()
     assert "真实模型（live）" in report
     assert "数据来源类型：用户提供数据" in report
@@ -326,8 +302,7 @@ def test_metadata_escapes_untrusted_department_structure(tmp_path, completed_res
     department = "研发部\n# injected [link](https://example.test)"
     result.requirements.department = department
     result.data_result.data.request.department = department
-    result.nodes[0].output = result.manager_decision.model_dump(mode="json")
-    result.nodes[2].output = result.data_result.model_dump(mode="json")
+    _sync_audit(result)
     report = (save_workflow(result, tmp_path) / "report.md").read_text()
     assert "\n# injected" not in report
     assert "\\# injected \\[link\\]" in report

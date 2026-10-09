@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前里程碑为 v0.4：真实 LangGraph 串联五个角色，前一个角色的实际输出传递给后一个角色，审核通过才导出 report.md。数据读取、统计与来源追踪继续复用；自动返工和 Streamlit 界面按 v0.5、v0.6 实现。实际测试和真实联调见 [v0.4 验收记录](docs/validation-v0.4.md)。
+当前里程碑为 v0.5：LangGraph 五角色协作，Checker 拒绝后将实际草稿和反馈送回 Writer，首次草稿之后最多返工两次。完整工作流使用受约束正文和结构化事实，审核通过并复核历史才导出 report.md；网络重试另计、默认关闭。实际测试与真实联调见 [v0.5 验收记录](docs/validation-v0.5.md)。Streamlit 页面安排在 v0.6。
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
@@ -25,19 +25,24 @@ uv run --locked ruff check .
 
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
 
-## v0.4 完整协作
+## v0.5 完整协作与有界返工
 
 ```bash
-# 默认离线脚本，不读取密钥；实际执行 LangGraph、数据工具和程序审核
+# 离线执行真实图、数据工具和程序审核，不读取密钥
 uv run --locked office-agents run --request '生成研发部2026年第二季度工作报告'
-uv run --locked office-agents run --request '生成市场部2026年第二季度工作报告'
-# 显式选择真实 DeepSeek 调用，正常链路最多 6 请求，关闭思考和重试
-uv run --locked office-agents run --mode live --profile deepseek --request '生成研发部2026年第二季度工作报告'
+# 独立实验入口：首次故意改错项目数，保留注入前结果和修改过程
+uv run --locked office-agents workflow-test --case bad-fact --request '生成研发部2026年第二季度工作报告'
+# 每轮故意改错，最多返工两次，预期 review_failed / 退出 1
+uv run --locked office-agents workflow-test --case always-bad --request '生成研发部2026年第二季度工作报告'
+# 真实调用需要显式选择；已归档的实测可直接阅读，避免重复付费
+uv run --locked office-agents run --mode live --profile deepseek --request '生成研发部2026年第二季度工作报告。日期范围为2026-04-01（含）至2026-07-01（不含）；章节依次为工作概况、主要成果、问题与风险、后续计划。'
 ```
 
-产物在 `outputs/<run_id>/`：run.json、events.jsonl、nodes/、draft.md，审核通过才生成 report.md。正常退出 0；缺需求/数据返回 needs_input，审核拒绝返回 review_failed，调用失败返回 failed，均退出 1 并保留过程。本版不自动返工。2/3 是模拟项目完成率，不是软件开发完成率。
+产物在 `outputs/<run_id>/`：run.json、events.jsonl、nodes/、逐轮 revisions/ 和最新 draft.md，审核通过才生成 report.md。正常完成退出 0；缺需求/数据为 needs_input，返工上限仍拒绝为 review_failed，调用/解析/工具/预算异常为 failed，均退出 1并保留实际过程。2/3 是模拟项目完成率，不是软件开发完成率。
 
-[详细使用说明](docs/workflow-usage.md)、[开发计划](docs/plan-v0.4.md)、[实际架构与时序](docs/architecture-v0.4.md)、[交叉审查](docs/review-v0.4.md)、[验收记录](docs/validation-v0.4.md)。已归档的真实输出可直接阅读，无需重复付费运行。
+`--max-revisions 0/1/2` 限制业务返工；`--retry-budget 0/1/2` 限制全会话网络重试，每个请求最多重试一次。默认两次返工、零重试，预算最多 10 次 HTTP / 4032 预留输出 tokens，输入另计。已知程序错误直接审核拒绝，省去 Checker HTTP；故障实验成功修复通常为 7 次 HTTP。正文范围说明必须逐字符合模板，核心数字来自权威指标；建议标记尚未实施、待人工评估。独立 agent-demo 保留旧的自由正文演示。
+
+[详细使用说明](docs/workflow-usage-v0.5.md)、[详细开发计划](docs/plan-v0.5.md)、[实际架构与时序](docs/architecture-v0.5.md)、[交叉审查](docs/review-v0.5.md)、[验收记录](docs/validation-v0.5.md)。故障注入是显式实验，不能冒充模型自然犯错；历史 [v0.4 记录](docs/validation-v0.4.md) 保留原状。
 
 ## v0.3 独立角色
 

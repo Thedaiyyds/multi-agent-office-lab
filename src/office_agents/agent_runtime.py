@@ -1,6 +1,8 @@
 """Bounded shared model session for independent role agents."""
 
 import json
+import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import uuid4
@@ -77,14 +79,18 @@ class AgentSession:
         mode: Literal["live", "offline_mock"] = "live",
         max_requests: int = 7,
         max_total_output_tokens: int = 2240,
+        retry_budget: int = 0,
         transport: httpx.BaseTransport | None = None,
+        sleep: Callable[[float], None] = time.sleep,
     ):
         if profile not in {"generic", "deepseek"} or mode not in {"live", "offline_mock"}:
             raise ConfigurationError("Unsupported agent session configuration.")
-        if type(max_requests) is not int or not 1 <= max_requests <= 7:
-            raise ConfigurationError("Agent request budget must be an integer from 1 to 7.")
-        if type(max_total_output_tokens) is not int or not 1 <= max_total_output_tokens <= 2240:
-            raise ConfigurationError("Agent output budget must be an integer from 1 to 2240.")
+        if type(max_requests) is not int or not 1 <= max_requests <= 12:
+            raise ConfigurationError("Agent request budget must be an integer from 1 to 12.")
+        if type(max_total_output_tokens) is not int or not 1 <= max_total_output_tokens <= 5568:
+            raise ConfigurationError("Agent output budget must be an integer from 1 to 5568.")
+        if type(retry_budget) is not int or not 0 <= retry_budget <= 2:
+            raise ConfigurationError("Agent retry budget must be an integer from 0 to 2.")
         if mode == "offline_mock" and not isinstance(transport, httpx.MockTransport):
             raise ConfigurationError("Mock mode requires an explicit local MockTransport.")
         self.mode = mode
@@ -92,6 +98,10 @@ class AgentSession:
         self.max_requests = max_requests
         self.max_total_output_tokens = max_total_output_tokens
         self.reserved_output_tokens = 0
+        self.retry_budget = retry_budget
+        self.retry_count = 0
+        self.logical_request_count = 0
+        self._sleep = sleep
         self.events: list[AgentEvent] = []
         self.client = OpenAICompatibleClient(
             settings.model_copy(update={"max_retries": 0}), transport=transport
@@ -116,10 +126,6 @@ class AgentSession:
             raise ModelCallError("Agent output limit is invalid.")
         if self.client.settings.max_retries != 0:
             raise ModelCallError("Agent requests require zero retries.")
-        if self.request_count >= self.max_requests:
-            raise ModelCallError("Agent request budget exhausted.")
-        if self.reserved_output_tokens + max_output_tokens > self.max_total_output_tokens:
-            raise ModelCallError("Agent output budget exhausted.")
         if {"max_tokens", "model", "thinking", "temperature"} & options.keys():
             raise ModelCallError("Agent options cannot override the shared limits.")
         copied = [dict(message) for message in messages]
@@ -134,34 +140,77 @@ class AgentSession:
             raise ModelCallError("Agent context cannot be serialized.") from None
         if len(serialized) > 16000:
             raise ModelCallError("Agent context exceeds the local size limit.")
-        self.reserved_output_tokens += max_output_tokens
         settings = {"max_tokens": max_output_tokens, "temperature": 0}
         if self.profile == "deepseek":
             settings["thinking"] = {"type": "disabled"}
         try:
-            response = self.client.chat(copied, **settings, **options)
-            response_message(response)
-        except ModelCallError:
+            json.dumps({"messages": copied, **settings, **options}, allow_nan=False)
+        except (TypeError, ValueError):
+            raise ModelCallError(
+                "Agent request parameters are invalid.", code="invalid_parameters"
+            ) from None
+        self.logical_request_count += 1
+        for attempt in (1, 2):
+            # Admission is repeated for every HTTP attempt, including optional retries.
+            if self.request_count >= self.max_requests:
+                raise ModelCallError("Agent request budget exhausted.", code="request_budget")
+            if self.reserved_output_tokens + max_output_tokens > self.max_total_output_tokens:
+                raise ModelCallError("Agent output budget exhausted.", code="output_budget")
+            if attempt == 2:
+                try:
+                    self._sleep(1)
+                except Exception:
+                    raise ModelCallError("Agent retry wait failed.", code="retry_wait") from None
+            self.reserved_output_tokens += max_output_tokens
+            if attempt == 2:
+                self.retry_count += 1
+                self.events.append(
+                    AgentEvent(
+                        role=role,
+                        event_type="model_retry",
+                        status="passed",
+                        attempt=attempt,
+                        max_output_tokens=max_output_tokens,
+                        created_at=datetime.now(UTC).isoformat(),
+                        summary="Admitted bounded network retry; HTTP and output budgets reserved.",
+                    )
+                )
+            try:
+                response = self.client.chat(copied, **settings, **options)
+                response_message(response)
+            except ModelCallError as error:
+                self.events.append(
+                    AgentEvent(
+                        role=role,
+                        event_type="model_request",
+                        status="failed",
+                        attempt=attempt,
+                        max_output_tokens=max_output_tokens,
+                        created_at=datetime.now(UTC).isoformat(),
+                        summary="Model request or completion shape failed; no raw response stored.",
+                    )
+                )
+                if (
+                    attempt == 1
+                    and error.retryable
+                    and error.code
+                    in {"timeout", "connection", "rate_limited", "service_unavailable"}
+                    and self.retry_count < self.retry_budget
+                ):
+                    continue
+                raise
             self.events.append(
                 AgentEvent(
                     role=role,
                     event_type="model_request",
-                    status="failed",
+                    status="passed",
+                    attempt=attempt,
+                    max_output_tokens=max_output_tokens,
                     created_at=datetime.now(UTC).isoformat(),
-                    summary="Model request or completion shape failed; no raw response stored.",
+                    summary="Received completion; role output requires local validation.",
                 )
             )
-            raise
-        self.events.append(
-            AgentEvent(
-                role=role,
-                event_type="model_request",
-                status="passed",
-                created_at=datetime.now(UTC).isoformat(),
-                summary="Received completion; role output requires local validation.",
-            )
-        )
-        return response
+            return response
 
     def json(
         self,

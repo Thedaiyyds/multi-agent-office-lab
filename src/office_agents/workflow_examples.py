@@ -137,7 +137,10 @@ def workflow_mock_response(request: httpx.Request) -> httpx.Response:
                     {
                         "section_id": section["section_id"],
                         "title": section["title"],
-                        "text": "根据本次实际工具提供的指标汇报工作；此正文为离线脚本响应。",
+                        "text": context.get("allowed_section_texts", {}).get(
+                            section["section_id"],
+                            "根据本次实际工具提供的指标汇报工作；此正文为离线脚本响应。",
+                        ),
                     }
                     for section in outline
                 ],

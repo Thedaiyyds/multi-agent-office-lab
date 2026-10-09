@@ -28,17 +28,36 @@ def _run(args: argparse.Namespace) -> int:
             if args.mode == "mock"
             else Settings.from_env()
         )
+        if args.timeout_seconds is not None:
+            settings = Settings.model_validate(
+                {**settings.model_dump(), "timeout_seconds": args.timeout_seconds}
+            )
         session = AgentSession(
             settings,
             profile=args.profile,
             mode="offline_mock" if args.mode == "mock" else "live",
-            max_requests=args.max_requests,
-            max_total_output_tokens=1984,
+            max_requests=args.max_requests
+            if args.max_requests is not None
+            else 6 + 2 * args.max_revisions + args.retry_budget,
+            max_total_output_tokens=args.max_output_tokens
+            if args.max_output_tokens is not None
+            else 1984 + 1024 * args.max_revisions + 768 * args.retry_budget,
+            retry_budget=args.retry_budget,
             transport=make_workflow_mock_transport() if args.mode == "mock" else None,
         )
-        result = run_workflow(args.request, args.data_dir, session, data_origin=origin)
+        result = run_workflow(
+            args.request,
+            args.data_dir,
+            session,
+            data_origin=origin,
+            max_revisions=args.max_revisions,
+            test_scenario=args.case if args.command == "workflow-test" else "none",
+        )
     except ConfigurationError as exc:
         print(f"Workflow configuration failed: {exc}")
+        return 1
+    except ValidationError:
+        print("Workflow input/configuration failed local validation; no final report accepted.")
         return 1
     except Exception:
         print("Workflow could not start; no final report accepted.")
@@ -49,8 +68,25 @@ def _run(args: argparse.Namespace) -> int:
     print(f"Mode: {result.mode}; status: {result.status}; run_id={result.run_id}.")
     if result.mode == "offline_mock":
         print("Local scripted HTTP fixtures; no real model requests.")
+    if result.test_scenario != "none":
+        print(
+            f"Fault experiment: {result.test_scenario}; "
+            "deliberate injection, not a natural model error."
+        )
+    print(
+        f"Business revisions: {result.revision_count}/{result.max_revisions}; "
+        f"network retries: {result.retry_count}/{result.retry_budget}."
+    )
     for node in result.nodes:
-        print(f"{node.role}: {node.status}; duration_ms={node.duration_ms:.2f}.")
+        print(
+            f"{node.role}[revision={node.revision_index}]: {node.status}; "
+            f"duration_ms={node.duration_ms:.2f}."
+        )
+    for record in result.revision_history:
+        print(
+            f"review[{record.revision_index}]: passed={record.review.passed}; "
+            f"mode={record.review_mode}."
+        )
     if result.manager_decision and result.manager_decision.status == "needs_input":
         for question in result.manager_decision.questions:
             print(question)
@@ -59,7 +95,7 @@ def _run(args: argparse.Namespace) -> int:
         for issue in result.data_issues:
             print(f"{issue.severity.upper()} {issue.code}: {issue.message}")
     if result.review and not result.review.passed:
-        print("审核未通过；本版不自动返工。")
+        print("审核未通过；流程已停止，请查看逐轮草稿及审核意见。")
         for issue in result.review.issues:
             print(f"{issue.code} [{issue.location}]: {issue.message}")
     if result.error:
@@ -68,6 +104,7 @@ def _run(args: argparse.Namespace) -> int:
         f"HTTP requests: {result.request_count}; reserved output limit: "
         f"{result.reserved_output_tokens}."
     )
+    print(f"Logical model request attempts: {result.logical_request_count}.")
     for key in ("prompt_tokens", "completion_tokens", "total_tokens", "reasoning_tokens"):
         value = result.usage.get(key)
         print(f"{key}: {value if value is not None else 'unavailable'}")
@@ -219,14 +256,25 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="office-agents")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor", help="Check configuration locally without making model requests.")
-    run_command = commands.add_parser("run", help="Run the actual five-role LangGraph workflow.")
-    run_command.add_argument("--request", required=True)
-    run_command.add_argument("--data-dir", type=Path, default=Path("data/samples"))
-    run_command.add_argument("--data-origin", choices=("simulated", "provided"))
-    run_command.add_argument("--mode", choices=("mock", "live"), default="mock")
-    run_command.add_argument("--profile", choices=("deepseek", "generic"), default="deepseek")
-    run_command.add_argument("--max-requests", type=int, default=6)
-    run_command.add_argument("--output-dir", type=Path, default=Path("outputs"))
+    for name in ("run", "workflow-test"):
+        command = commands.add_parser(
+            name, help="Run the workflow." if name == "run" else "Run an explicit fault experiment."
+        )
+        command.add_argument("--request", required=True)
+        command.add_argument("--data-dir", type=Path, default=Path("data/samples"))
+        command.add_argument("--data-origin", choices=("simulated", "provided"))
+        command.add_argument("--mode", choices=("mock", "live"), default="mock")
+        command.add_argument("--profile", choices=("deepseek", "generic"), default="deepseek")
+        command.add_argument("--max-revisions", type=int, choices=(0, 1, 2), default=2)
+        command.add_argument("--retry-budget", type=int, choices=(0, 1, 2), default=0)
+        command.add_argument("--max-requests", type=int)
+        command.add_argument("--max-output-tokens", type=int)
+        command.add_argument("--timeout-seconds", type=float)
+        command.add_argument("--output-dir", type=Path, default=Path("outputs"))
+        if name == "workflow-test":
+            command.add_argument(
+                "--case", choices=("bad-fact", "missing-section", "always-bad"), required=True
+            )
     agent_command = commands.add_parser(
         "agent-demo", help="Run independent role examples (mock by default)."
     )
@@ -263,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
         if name == "smoke":
             command.add_argument("--profile", choices=("generic", "deepseek"), default="generic")
     args = parser.parse_args(argv)
-    if args.command == "run":
+    if args.command in {"run", "workflow-test"}:
         return _run(args)
     if args.command == "agent-demo":
         return _agent_demo(args)

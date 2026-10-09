@@ -27,11 +27,12 @@ from office_agents.agents.checker import run_checker
 from office_agents.agents.data import run_data_agent
 from office_agents.agents.manager import run_manager
 from office_agents.agents.planner import run_planner
-from office_agents.agents.writer import run_writer
+from office_agents.agents.writer import render_draft, run_writer
 from office_agents.llm import ModelCallError
 from office_agents.schemas import DataIssue, Metric, SourceRecord
 from office_agents.workflow_schemas import (
     NodeRecord,
+    RevisionRecord,
     WorkflowEvent,
     WorkflowResult,
     WorkflowStatus,
@@ -54,7 +55,15 @@ class WorkflowState(TypedDict):
     data_issues: list[DataIssue]
     draft: Draft | None
     review: Review | None
-    revision_count: Literal[0]
+    revision_count: int
+    max_revisions: int
+    revision_history: list[RevisionRecord]
+    test_scenario: Literal["none", "bad-fact", "missing-section", "always-bad"]
+    schema_version: Literal["0.5"]
+    narrative_policy: Literal["constrained"]
+    logical_request_count: int
+    retry_count: int
+    retry_budget: int
     nodes: list[NodeRecord]
     events: list[WorkflowEvent]
     request_count: int
@@ -102,18 +111,29 @@ def run_workflow(
     *,
     data_origin: Literal["simulated", "provided"] = "provided",
     run_id: str | None = None,
+    max_revisions: int = 2,
+    test_scenario: Literal["none", "bad-fact", "missing-section", "always-bad"] = "none",
 ) -> WorkflowResult:
-    """Run one dedicated bounded session, stopping at the first non-success node.
+    """Run one dedicated session with at most two genuine Writer revisions.
 
     This function never loads environment settings, changes budgets, retries, or
     exports files. The caller chooses live/mock mode and the authorized data path.
     """
-    if session.request_count or session.reserved_output_tokens or session.events:
+    if (
+        session.request_count
+        or session.reserved_output_tokens
+        or session.events
+        or session.logical_request_count
+        or session.retry_count
+    ):
         raise ValueError("Workflow requires a fresh dedicated agent session.")
     initial = WorkflowResult(
         user_text=user_text,
         data_origin=data_origin,
         mode=session.mode,
+        max_revisions=max_revisions,
+        test_scenario=test_scenario,
+        retry_budget=session.retry_budget,
         **({"run_id": run_id} if run_id is not None else {}),
     )
     # Python-mode values preserve typed contracts for node consumers.
@@ -124,12 +144,15 @@ def run_workflow(
             started_at, started = _utc_now(), monotonic()
             event_offset = len(session.events)
             snapshots = deepcopy(inputs(current))
+            revision_index = current["revision_count"]
             output = None
+            generated_output = None
             updates = {}
             node_status = "failed"
             error = None
             try:
                 output, node_status, updates = action(current)
+                generated_output = updates.pop("_generated_output", None)
                 output = output.model_dump(mode="json")
             except Exception as failure:
                 # Exceptions may contain keys, raw provider text or uploaded data.
@@ -147,6 +170,8 @@ def run_workflow(
                 input=snapshots,
                 output=output,
                 error=error,
+                revision_index=revision_index,
+                generated_output=generated_output,
             )
             events = [
                 WorkflowEvent(
@@ -156,11 +181,29 @@ def run_workflow(
                     event_type="node_started",
                     status="running",
                     summary=f"Started {role} with validated workflow inputs.",
+                    revision_index=revision_index,
                 )
             ]
             for event in session.events[event_offset:]:
                 events.append(
-                    WorkflowEvent(run_id=current["run_id"], **event.model_dump(mode="json"))
+                    WorkflowEvent(
+                        run_id=current["run_id"],
+                        revision_index=revision_index,
+                        **event.model_dump(mode="json"),
+                    )
+                )
+            if generated_output is not None:
+                events.append(
+                    WorkflowEvent(
+                        run_id=current["run_id"],
+                        created_at=finished_at,
+                        role=role,
+                        event_type="error_injected",
+                        status="passed",
+                        revision_index=revision_index,
+                        summary="Explicit test scenario injected after validated Writer output.",
+                        arguments={"test_scenario": current["test_scenario"]},
+                    )
                 )
             events.append(
                 WorkflowEvent(
@@ -171,6 +214,7 @@ def run_workflow(
                     status=node_status,
                     duration_ms=duration,
                     summary=error or f"Finished {role}; workflow decision: {node_status}.",
+                    revision_index=revision_index,
                 )
             )
             return {
@@ -178,6 +222,8 @@ def run_workflow(
                 "nodes": [*current["nodes"], record],
                 "events": [*current["events"], *events],
                 "request_count": session.request_count,
+                "logical_request_count": session.logical_request_count,
+                "retry_count": session.retry_count,
                 "reserved_output_tokens": session.reserved_output_tokens,
                 "usage": deepcopy(session.usage_statistics),
             }
@@ -236,11 +282,37 @@ def run_workflow(
                 deepcopy(current["outline"]),
                 deepcopy(current["data_result"].data),
                 session,
+                previous_draft=deepcopy(current["draft"]),
+                review=deepcopy(current["review"]),
+                strict_narrative=True,
             ),
         )
-        return output, "passed", {"draft": output}
+        updates = {"draft": output}
+        scenario = current["test_scenario"]
+        if scenario != "none" and (current["revision_count"] == 0 or scenario == "always-bad"):
+            updates["_generated_output"] = output.model_dump(mode="json")
+            output = deepcopy(output)
+            if scenario in {"bad-fact", "always-bad"}:
+                metric = next(
+                    metric
+                    for metric in current["data_result"].data.metrics
+                    if metric.metric_id == "project_count"
+                )
+                claim = next(
+                    fact for fact in output.fact_claims if fact.metric_id == "project_count"
+                )
+                claim.value = metric.value + 1
+            elif len(output.sections) > 1:
+                output.sections.pop()
+            else:
+                output.sections[0].title = "实验注入的缺失章节"
+            output.markdown = render_draft(output)
+            output = _validated(Draft, output)
+            updates["draft"] = output
+        return output, "passed", updates
 
     def checker(current):
+        request_offset = session.request_count
         output = _validated(
             Review,
             run_checker(
@@ -249,17 +321,38 @@ def run_workflow(
                 deepcopy(current["data_result"].data),
                 deepcopy(current["draft"]),
                 session,
+                strict_narrative=True,
+                skip_model_on_local_errors=True,
             ),
         )
         status = (
             "passed" if output.passed else "needs_input" if output.needs_input else "review_failed"
+        )
+        history = RevisionRecord(
+            revision_index=current["revision_count"],
+            draft=deepcopy(current["draft"]),
+            review=deepcopy(output),
+            writer_node_index=len(current["nodes"]) - 1,
+            checker_node_index=len(current["nodes"]),
+            review_mode=(
+                "program_and_model" if session.request_count > request_offset else "program_only"
+            ),
+        )
+        can_revise = (
+            status == "review_failed" and current["revision_count"] < current["max_revisions"]
         )
         return (
             output,
             status,
             {
                 "review": output,
-                "status": "completed" if status == "passed" else status,
+                "revision_history": [*current["revision_history"], history],
+                "status": "completed"
+                if status == "passed"
+                else "running"
+                if can_revise
+                else status,
+                "revision_count": current["revision_count"] + int(can_revise),
             },
         )
 
@@ -294,7 +387,21 @@ def run_workflow(
             data,
         ),
     )
-    graph.add_node("writer", execute("writer", report_input, writer))
+    graph.add_node(
+        "writer",
+        execute(
+            "writer",
+            lambda current: {
+                **report_input(current),
+                "previous_draft": current["draft"].model_dump(mode="json")
+                if current["draft"]
+                else None,
+                "review": current["review"].model_dump(mode="json") if current["review"] else None,
+                "strict_narrative": True,
+            },
+            writer,
+        ),
+    )
     graph.add_node(
         "checker",
         execute(
@@ -302,6 +409,8 @@ def run_workflow(
             lambda current: {
                 **report_input(current),
                 "draft": current["draft"].model_dump(mode="json"),
+                "strict_narrative": True,
+                "skip_model_on_local_errors": True,
             },
             checker,
         ),
@@ -320,6 +429,10 @@ def run_workflow(
             ),
             {following: following, END: END},
         )
-    graph.add_edge("checker", END)
+    graph.add_conditional_edges(
+        "checker",
+        lambda current: "writer" if current["status"] == "running" else END,
+        {"writer": "writer", END: END},
+    )
     final_state = graph.compile().invoke(state)
     return WorkflowResult.model_validate(final_state)

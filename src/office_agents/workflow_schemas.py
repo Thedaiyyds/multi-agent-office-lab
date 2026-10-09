@@ -39,6 +39,7 @@ class WorkflowEvent(ContractModel):
     arguments: dict[str, Any] | None = None
     revision_index: int = Field(default=0, ge=0, le=2, strict=True)
     attempt: int = Field(default=1, ge=1, le=2, strict=True)
+    max_output_tokens: int | None = Field(default=None, ge=1, le=768, strict=True)
 
 
 class NodeRecord(ContractModel):

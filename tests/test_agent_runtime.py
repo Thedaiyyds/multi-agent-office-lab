@@ -118,9 +118,9 @@ def test_service_failure_is_not_retried_and_missing_usage_is_not_zero():
 @pytest.mark.parametrize(
     "options",
     [
-        {"max_requests": 8},
+        {"max_requests": 13},
         {"max_requests": True},
-        {"max_total_output_tokens": 2241},
+        {"max_total_output_tokens": 5569},
         {"mode": "offline_mock"},
     ],
 )
