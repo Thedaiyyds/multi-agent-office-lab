@@ -1,0 +1,15 @@
+{
+  "run_id": "edcad020-1a32-42ea-8e97-6b0ddea8aea6",
+  "created_at": "2026-10-09T05:43:50.368582+00:00",
+  "mode": "offline",
+  "status": "passed",
+  "description": "Deterministic two-node LangGraph check; no model or real multi-agent work.",
+  "probes": [
+    {
+      "name": "two_node_graph",
+      "passed": true,
+      "detail": "Expected sequence: increment then double; input 2 becomes 6."
+    }
+  ],
+  "elapsed_seconds": 0.001
+}

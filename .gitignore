@@ -1,0 +1,22 @@
+# Local secrets and user-provided data
+.env
+.env.*
+!.env.example
+uploads/
+
+# Environments, caches, and build products
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+.DS_Store
+
+# Generated reports remain local; only curated, redacted evidence is committed
+outputs/
+models/
