@@ -2,7 +2,9 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前里程碑为 v0.2：在 v0.1 模型接入基础上，实现模拟办公数据的读取、校验、统计及来源追踪。151 项离线测试和新克隆复现通过。五个业务 Agent、完整办公汇报流程和 Streamlit 界面按后续版本实现；实际验收结果见版本验证记录。
+当前里程碑为 v0.3：实现 Manager、Planner、Data、Writer、Checker 五个独立角色。v0.2 的数据读取、统计和来源追踪继续复用；完整 LangGraph 协作、审核返工和 Streamlit 界面按后续版本实现。实际验收结果见版本验证记录。
+
+v0.3 的 305 项测试与新克隆复现通过；一次真实 DeepSeek 验收完成五个角色和 Checker 错误注入，共 7 请求、4811 token。结果已归档，无需重复真实调用查看。
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
@@ -17,11 +19,37 @@ uv python install 3.12
 uv sync --locked --python 3.12
 uv run --locked office-agents graph-demo
 uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
+uv run --locked office-agents agent-demo --mode mock --role all
 uv run --locked pytest
 uv run --locked ruff check .
 ```
 
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
+
+## v0.3 独立角色
+
+默认样例是明确标记的本地 HTTP 固定响应，不读取 `.env`、不调用真实模型；Data 的本地数据工具和程序审核仍实际执行：
+
+```bash
+uv run --locked office-agents agent-demo --role all
+uv run --locked office-agents agent-demo --role data
+uv run --locked office-agents agent-demo --role checker --case bad-draft
+uv run --locked office-agents agent-demo --role manager --case missing-requirements
+```
+
+`--role` 可选 manager、planner、data、writer、checker、all。正常样例退出 0；坏草稿返回 `review_failed`、缺需求返回 `needs_input`，退出 1，这是这些异常样例的预期结果。报告保存为 `outputs/agents-{run_id}.json`，含输出、实际事件、请求数和用量；mode=offline_mock 的请求数表示本地模拟 HTTP 次数，不是外部 API 调用数。
+
+all 依次验证五个角色的固定独立输入，不把 Manager 输出自动送给后续角色。Data 只允许一个参数受限的 run_data_tools 调用，路径由调用方绑定；Writer 返回结构化草稿和固定渲染 Markdown；Checker 的程序错误不能被模型判“通过”覆盖。当前 Markdown 是草稿，不是完整协作产出的最终报告。
+
+需要真实调用时必须显式选择 live，已配置 DeepSeek 的命令是：
+
+```bash
+uv run --locked office-agents agent-demo --mode live --profile deepseek --role all
+```
+
+正常五角色最多 6 次请求，关闭思考和自动重试，按角色限制输出，失败即停；一次 all 样例预留输出上限合计 1984 token，输入另计。验收再加一份 Checker 坏草稿最多合计 7 请求/2240 输出上限。真实证据可直接阅读，避免为了查看结果重复付费调用；实际结果见 [v0.3 验证记录](docs/validation-v0.3.md)。
+
+[详细开发计划](docs/plan-v0.3.md)、[Data 权限](docs/agents-data.md)、[Writer/Checker 契约](docs/report-contract.md) 说明角色接口与审核覆盖范围。自然语言理解依赖模型；部门子串和显式日期的程序校验不能证明完整语义正确。
 
 ## v0.2 数据工具
 
@@ -75,6 +103,7 @@ uv run --locked office-agents smoke --output-dir outputs
 - [版本路线](ROADMAP.md)：v0.1～v1.0 的开发任务和验收条件。
 - [v0.1 验证记录](docs/validation-v0.1.md)：实际执行结果、环境和未验证项目。
 - [v0.2 验证记录](docs/validation-v0.2.md)：离线统计、异常处理、交叉审查与复现结果。
+- [v0.3 验证记录](docs/validation-v0.3.md)：独立角色、请求预算与真实模型验收。
 - [团队协作方式](TEAM_WORKFLOW.md)：一名实际开发者和三个 AI 开发角色的职责、评审与真实证据规则。
 - [数据接口](docs/data-contract.md)：指标、来源和数据问题的实际约定。
 - [报告与审核接口草案](docs/report-contract.md)：后续 Writer、Checker 和导出的接口。

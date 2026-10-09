@@ -1,0 +1,31 @@
+{
+  "code_commit": "9da16a4430fb3f1353f08f4f3d26f5059d3919be",
+  "created_at": "2026-10-09T07:40:56.328725+00:00",
+  "mode": "live",
+  "profile": "deepseek",
+  "model": "deepseek-v4-pro",
+  "status": "passed",
+  "cases": [
+    {
+      "scenario": "independent-normal",
+      "run_id": "31036cd8-4942-4078-8e71-60863a53e543",
+      "status": "passed",
+      "evidence": "normal.json"
+    },
+    {
+      "scenario": "checker-injected-errors",
+      "run_id": "356ead64-bce7-48b4-9a72-f36034aa42c4",
+      "status": "review_failed",
+      "evidence": "bad-draft.json"
+    }
+  ],
+  "writer_local_issues": [],
+  "request_count": 7,
+  "reserved_output_tokens": 2240,
+  "usage": {
+    "prompt_tokens": 3642,
+    "completion_tokens": 1169,
+    "total_tokens": 4811,
+    "reasoning_tokens": null
+  }
+}

@@ -10,6 +10,85 @@ from office_agents.probes import ProbeResult, RunReport, run_graph_demo, run_liv
 from office_agents.schemas import DataRequest
 
 
+def _agent_demo(args: argparse.Namespace) -> int:
+    from office_agents.agent_examples import (
+        make_mock_transport,
+        run_role_examples,
+        sample_requirements,
+    )
+    from office_agents.agent_runtime import AgentSession
+
+    session = None
+    try:
+        try:
+            is_sample = args.data_dir.resolve() == Path("data/samples").resolve()
+        except (OSError, RuntimeError):
+            is_sample = False
+        requirements = sample_requirements(
+            args.department,
+            args.start_date,
+            args.end_date,
+            args.data_origin or ("simulated" if is_sample else "provided"),
+        )
+        if args.mode == "mock":
+            settings = Settings(base_url="https://mock.invalid", model="scripted-fixture")
+            transport = make_mock_transport(requirements, args.data_dir, args.case, args.role)
+        else:
+            settings = Settings.from_env()
+            transport = None
+        expected_requests = 6 if args.role == "all" else (2 if args.role == "data" else 1)
+        session = AgentSession(
+            settings,
+            profile=args.profile,
+            mode="offline_mock" if args.mode == "mock" else "live",
+            max_requests=args.max_requests if args.max_requests is not None else expected_requests,
+            transport=transport,
+        )
+        report = run_role_examples(
+            session,
+            role=args.role,
+            data_root=args.data_dir,
+            requirements=requirements,
+            case=args.case,
+            user_text=args.request,
+        )
+    except ValidationError:
+        print("Invalid agent example request; check department and ordered YYYY-MM-DD dates.")
+        return 1
+    except ConfigurationError as exc:
+        print(f"Agent configuration failed: {exc}")
+        return 1
+    except Exception:
+        print("Agent example could not start; no role result accepted.")
+        return 1
+    finally:
+        if session is not None:
+            session.close()
+    print(f"Mode: {report.mode}; status: {report.status}.")
+    print(report.description)
+    for run in report.runs:
+        print(f"{run.role}: {run.status}" + (f"; {run.error}" if run.error else ""))
+    print(
+        f"HTTP requests: {report.request_count}; "
+        f"reserved output limit: {report.reserved_output_tokens}."
+    )
+    if report.mode == "offline_mock":
+        print("Scripted local HTTP fixtures; no real model requests or model-generated evidence.")
+    for key in ("prompt_tokens", "completion_tokens", "total_tokens", "reasoning_tokens"):
+        value = report.usage.get(key)
+        print(f"{key}: {value if value is not None else 'unavailable'}")
+    try:
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        (args.output_dir / f"agents-{report.run_id}.json").write_text(
+            report.model_dump_json(indent=2), encoding="utf-8"
+        )
+    except OSError:
+        print("Agent report could not be saved; check output directory permissions.")
+        return 1
+    print(f"Agent report saved with run_id={report.run_id}.")
+    return 0 if report.status == "passed" else 1
+
+
 def _data_check(args: argparse.Namespace) -> int:
     """Run deterministic data tools without loading model configuration."""
     from office_agents.tools.metrics import run_data_tools
@@ -67,6 +146,27 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="office-agents")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor", help="Check configuration locally without making model requests.")
+    agent_command = commands.add_parser(
+        "agent-demo", help="Run independent role examples (mock by default)."
+    )
+    agent_command.add_argument(
+        "--role", choices=("manager", "planner", "data", "writer", "checker", "all"), default="all"
+    )
+    agent_command.add_argument("--mode", choices=("mock", "live"), default="mock")
+    agent_command.add_argument("--profile", choices=("deepseek", "generic"), default="deepseek")
+    agent_command.add_argument(
+        "--case", choices=("normal", "bad-draft", "missing-requirements"), default="normal"
+    )
+    agent_command.add_argument("--data-dir", type=Path, default=Path("data/samples"))
+    agent_command.add_argument("--department", default="研发部")
+    agent_command.add_argument("--start-date", default="2026-04-01")
+    agent_command.add_argument("--end-date", default="2026-07-01")
+    agent_command.add_argument("--data-origin", choices=("simulated", "provided"))
+    agent_command.add_argument(
+        "--request", help="Custom natural-language text for the Manager example."
+    )
+    agent_command.add_argument("--max-requests", type=int)
+    agent_command.add_argument("--output-dir", type=Path, default=Path("outputs"))
     data_command = commands.add_parser(
         "data-check", help="Validate and calculate offline data metrics."
     )
@@ -82,6 +182,8 @@ def main(argv: list[str] | None = None) -> int:
         if name == "smoke":
             command.add_argument("--profile", choices=("generic", "deepseek"), default="generic")
     args = parser.parse_args(argv)
+    if args.command == "agent-demo":
+        return _agent_demo(args)
     if args.command == "data-check":
         return _data_check(args)
     if args.command == "doctor":
