@@ -10,11 +10,36 @@
 - Checker 注入错误指标与缺章节得到 review_failed；Manager 缺字段得到 needs_input，CLI 退出码均为预期的 1。
 - mock 使用 mode=offline_mock，响应是人工固定样例，不是模型生成，不读取模型密钥。
 
-新克隆复现和真实模型验收将在完成后补充实际证据，未完成前不写作成功。
+实际验收代码 commit 为 `9da16a4`。固定响应样例的命令、退出码和运行编号见 [mock-acceptance.json](../evidence/v0.3/mock-acceptance.json)，实际 CLI 输出见 [mock-cli-output.txt](../evidence/v0.3/mock-cli-output.txt)。normal / bad-draft / missing-requirements 三份 JSON 明确标记 offline_mock，不作为真实模型输出。
+
+在独立临时目录以 --no-hardlinks 对 `9da16a4` 全新本地 Git clone，未复制 .env、.venv 或 outputs，移除 LLM 环境变量。锁定安装、305 项测试、Ruff、格式检查及五角色 mock 命令全部通过，实际命令及输出见 [clean-clone.json](../evidence/v0.3/clean-clone.json)。
 
 ## 真实验收预算
 
 DeepSeek V4 Pro，一轮最多 7 请求；关闭思考、temperature=0、零重试。五个角色正常样例最多 6 请求，再加一份 Checker 错数字/缺章节样例；预留输出上限总计 2240 token，输入另计。失败立即停，保留失败，不自动重跑付费调用。
+
+## 真实模型实际验收
+
+只执行一次真实验收，设置总请求上限 7、预留输出上限 2240。普通角色与错误注入共用一个 Session，第二份报告的请求数/usage 是累计值，不能与第一份报告再相加。实际证据见 [live/acceptance.json](../evidence/v0.3/live/acceptance.json)、[正常角色输出](../evidence/v0.3/live/normal.json)、[Checker 错误注入输出](../evidence/v0.3/live/bad-draft.json)。
+
+| 实际验证 | 结果 |
+| --- | --- |
+| Manager | ready，部门和日期有原文依据，章节及来源声明合法 |
+| Planner | 必需四章完整，四个指标各有唯一归属 |
+| Data | 实际执行一次 run_data_tools；指标为 3 / 2 / 2÷3 / 2，模型摘要返回 |
+| Writer | 实际模型生成结构化草稿；本地核对实际草稿的章节、核心事实、单位和来源全部通过 |
+| Checker 正常独立输入 | passed，程序和模型审核通过 |
+| Checker 注入错误数字/缺章节 | review_failed，为预期拒绝；定位 fact_value、required_sections 等问题 |
+| 请求数 | 7 次，零自动重试，无重复付费验证 |
+| 输入 token | 3642 |
+| 输出 token | 1169 |
+| 总 token | 4811，来自服务 usage，包含全部 7 请求 |
+| reasoning token | 服务未提供统计，标为不可用 |
+| 预留输出上限 | 2240，不是实际消耗 |
+
+正常五角色阶段为 6 请求、3777 总 token；随后一份坏草稿增加 1 请求、1034 token。错误注入的 review_failed 是审核能力通过的证据，不是接口调用失败。真实 DataResult 中 mode=offline 表示统计由本地确定性程序产生；外层 AgentRunReport.mode=live 表示该轮调用了真实模型。
+
+归档只包含模拟输入、经校验的角色输出、实际事件及白名单用量，不包含密钥、服务原始错误或隐藏思考。没有因录制证据再发真实请求。
 
 ## 范围与证据
 

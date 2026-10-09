@@ -1,0 +1,44 @@
+{
+  "run_id": "4fa8866b-9a4c-44f1-acc2-985b8e097833",
+  "created_at": "2026-10-09T07:39:39.168232+00:00",
+  "mode": "offline_mock",
+  "description": "Independent fixed role examples; not an orchestrated business workflow.",
+  "status": "needs_input",
+  "runs": [
+    {
+      "role": "manager",
+      "status": "needs_input",
+      "output": {
+        "status": "needs_input",
+        "requirements": null,
+        "missing_fields": [
+          "department",
+          "date_range"
+        ],
+        "questions": [
+          "请提供部门和明确日期范围。"
+        ]
+      },
+      "error": null
+    }
+  ],
+  "events": [
+    {
+      "role": "manager",
+      "event_type": "model_request",
+      "status": "passed",
+      "created_at": "2026-10-09T07:39:39.168045+00:00",
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    }
+  ],
+  "request_count": 1,
+  "reserved_output_tokens": 256,
+  "usage": {
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "total_tokens": null,
+    "reasoning_tokens": null
+  }
+}

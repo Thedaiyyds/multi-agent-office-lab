@@ -1,0 +1,42 @@
+Scenario: normal
+Command: uv run --locked office-agents agent-demo --mode mock --output-dir outputs/v0.3-acceptance --role all
+Mode: offline_mock; status: passed.
+Independent fixed role examples; not an orchestrated business workflow.
+manager: passed
+planner: passed
+data: passed
+writer: passed
+checker: passed
+HTTP requests: 6; reserved output limit: 1984.
+Scripted local HTTP fixtures; no real model requests or model-generated evidence.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Agent report saved with run_id=f3407c0a-d90b-4fb1-8fa1-ee040ff7db7d.
+
+Scenario: bad-draft
+Command: uv run --locked office-agents agent-demo --mode mock --output-dir outputs/v0.3-acceptance --role checker --case bad-draft
+Mode: offline_mock; status: review_failed.
+Independent fixed role examples; not an orchestrated business workflow.
+checker: review_failed
+HTTP requests: 1; reserved output limit: 256.
+Scripted local HTTP fixtures; no real model requests or model-generated evidence.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Agent report saved with run_id=74046145-89a4-44b3-9a16-809ee5d292c9.
+
+Scenario: missing-requirements
+Command: uv run --locked office-agents agent-demo --mode mock --output-dir outputs/v0.3-acceptance --role manager --case missing-requirements
+Mode: offline_mock; status: needs_input.
+Independent fixed role examples; not an orchestrated business workflow.
+manager: needs_input
+HTTP requests: 1; reserved output limit: 256.
+Scripted local HTTP fixtures; no real model requests or model-generated evidence.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Agent report saved with run_id=4fa8866b-9a4c-44f1-acc2-985b8e097833.

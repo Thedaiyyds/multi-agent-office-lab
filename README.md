@@ -4,6 +4,8 @@
 
 当前里程碑为 v0.3：实现 Manager、Planner、Data、Writer、Checker 五个独立角色。v0.2 的数据读取、统计和来源追踪继续复用；完整 LangGraph 协作、审核返工和 Streamlit 界面按后续版本实现。实际验收结果见版本验证记录。
 
+v0.3 的 305 项测试与新克隆复现通过；一次真实 DeepSeek 验收完成五个角色和 Checker 错误注入，共 7 请求、4811 token。结果已归档，无需重复真实调用查看。
+
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
 ## 快速开始

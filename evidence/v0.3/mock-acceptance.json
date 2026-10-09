@@ -1,0 +1,68 @@
+{
+  "code_commit": "9da16a4430fb3f1353f08f4f3d26f5059d3919be",
+  "mode": "offline_mock",
+  "model_requests": 0,
+  "cases": [
+    {
+      "scenario": "normal",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "agent-demo",
+        "--mode",
+        "mock",
+        "--output-dir",
+        "outputs/v0.3-acceptance",
+        "--role",
+        "all"
+      ],
+      "exit_code": 0,
+      "run_id": "f3407c0a-d90b-4fb1-8fa1-ee040ff7db7d",
+      "evidence": "mock-normal.json"
+    },
+    {
+      "scenario": "bad-draft",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "agent-demo",
+        "--mode",
+        "mock",
+        "--output-dir",
+        "outputs/v0.3-acceptance",
+        "--role",
+        "checker",
+        "--case",
+        "bad-draft"
+      ],
+      "exit_code": 1,
+      "run_id": "74046145-89a4-44b3-9a16-809ee5d292c9",
+      "evidence": "mock-bad-draft.json"
+    },
+    {
+      "scenario": "missing-requirements",
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "agent-demo",
+        "--mode",
+        "mock",
+        "--output-dir",
+        "outputs/v0.3-acceptance",
+        "--role",
+        "manager",
+        "--case",
+        "missing-requirements"
+      ],
+      "exit_code": 1,
+      "run_id": "4fa8866b-9a4c-44f1-acc2-985b8e097833",
+      "evidence": "mock-missing-requirements.json"
+    }
+  ]
+}
