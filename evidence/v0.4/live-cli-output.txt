@@ -1,0 +1,13 @@
+Mode: live; status: completed; run_id=787bcbe9-2196-4d0d-a5f5-e00a15934f7c.
+manager: passed; duration_ms=3137.52.
+planner: passed; duration_ms=3125.95.
+data: passed; duration_ms=5334.04.
+writer: passed; duration_ms=5894.36.
+checker: passed; duration_ms=2192.06.
+HTTP requests: 6; reserved output limit: 1984.
+prompt_tokens: 2984
+completion_tokens: 995
+total_tokens: 3979
+reasoning_tokens: unavailable
+Workflow artifacts: outputs/v0.4-live/787bcbe9-2196-4d0d-a5f5-e00a15934f7c
+Final report: report.md

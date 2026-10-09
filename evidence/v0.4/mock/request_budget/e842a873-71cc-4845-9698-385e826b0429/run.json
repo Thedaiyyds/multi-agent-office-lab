@@ -1,0 +1,169 @@
+{
+  "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+  "created_at": "2026-10-09T10:09:49.858154+00:00",
+  "mode": "offline_mock",
+  "status": "failed",
+  "user_text": "生成研发部2026年第二季度工作报告",
+  "data_origin": "simulated",
+  "manager_decision": {
+    "status": "ready",
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-04-01",
+      "end_date": "2026-07-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    },
+    "missing_fields": [],
+    "questions": []
+  },
+  "requirements": {
+    "department": "研发部",
+    "start_date": "2026-04-01",
+    "end_date": "2026-07-01",
+    "data_origin": "simulated",
+    "required_sections": [
+      "工作概况",
+      "主要成果",
+      "问题与风险",
+      "后续计划"
+    ],
+    "output_format": "markdown"
+  },
+  "outline": null,
+  "data_result": null,
+  "metrics": [],
+  "sources": [],
+  "data_issues": [],
+  "draft": null,
+  "review": null,
+  "revision_count": 0,
+  "nodes": [
+    {
+      "role": "manager",
+      "started_at": "2026-10-09T10:09:49.859855+00:00",
+      "finished_at": "2026-10-09T10:09:49.860080+00:00",
+      "duration_ms": 0.22395816631615162,
+      "status": "passed",
+      "input": {
+        "user_text": "生成研发部2026年第二季度工作报告",
+        "data_origin": "simulated"
+      },
+      "output": {
+        "status": "ready",
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        },
+        "missing_fields": [],
+        "questions": []
+      },
+      "error": null
+    },
+    {
+      "role": "planner",
+      "started_at": "2026-10-09T10:09:49.860224+00:00",
+      "finished_at": "2026-10-09T10:09:49.860256+00:00",
+      "duration_ms": 0.030125025659799576,
+      "status": "failed",
+      "input": {
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        }
+      },
+      "output": null,
+      "error": "Planner node failed: request budget exhausted; inspect safe audit events and inputs."
+    }
+  ],
+  "events": [
+    {
+      "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+      "created_at": "2026-10-09T10:09:49.859855+00:00",
+      "role": "manager",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started manager with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+      "created_at": "2026-10-09T10:09:49.860030+00:00",
+      "role": "manager",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+      "created_at": "2026-10-09T10:09:49.860080+00:00",
+      "role": "manager",
+      "event_type": "node_finished",
+      "status": "passed",
+      "duration_ms": 0.22395816631615162,
+      "summary": "Finished manager; workflow decision: passed.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+      "created_at": "2026-10-09T10:09:49.860224+00:00",
+      "role": "planner",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started planner with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+      "created_at": "2026-10-09T10:09:49.860256+00:00",
+      "role": "planner",
+      "event_type": "node_finished",
+      "status": "failed",
+      "duration_ms": 0.030125025659799576,
+      "summary": "Planner node failed: request budget exhausted; inspect safe audit events and inputs.",
+      "tool_name": null,
+      "arguments": null
+    }
+  ],
+  "request_count": 1,
+  "reserved_output_tokens": 256,
+  "usage": {
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "total_tokens": null,
+    "reasoning_tokens": null
+  },
+  "error": "Planner node failed: request budget exhausted; inspect safe audit events and inputs."
+}

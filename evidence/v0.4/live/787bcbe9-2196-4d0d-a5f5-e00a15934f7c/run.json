@@ -1,0 +1,1370 @@
+{
+  "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+  "created_at": "2026-10-09T10:15:05.042464+00:00",
+  "mode": "live",
+  "status": "completed",
+  "user_text": "生成研发部2026年第二季度工作报告。日期范围为2026-04-01（含）至2026-07-01（不含）；章节依次为工作概况、主要成果、问题与风险、后续计划。",
+  "data_origin": "simulated",
+  "manager_decision": {
+    "status": "ready",
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-04-01",
+      "end_date": "2026-07-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    },
+    "missing_fields": [],
+    "questions": []
+  },
+  "requirements": {
+    "department": "研发部",
+    "start_date": "2026-04-01",
+    "end_date": "2026-07-01",
+    "data_origin": "simulated",
+    "required_sections": [
+      "工作概况",
+      "主要成果",
+      "问题与风险",
+      "后续计划"
+    ],
+    "output_format": "markdown"
+  },
+  "outline": {
+    "sections": [
+      {
+        "section_id": "overview",
+        "title": "工作概况",
+        "purpose": "概述研发部在统计周期内的整体工作情况",
+        "metric_ids": [
+          "project_count"
+        ]
+      },
+      {
+        "section_id": "achievements",
+        "title": "主要成果",
+        "purpose": "展示研发部取得的主要成果和完成情况",
+        "metric_ids": [
+          "completed_project_count",
+          "completion_rate"
+        ]
+      },
+      {
+        "section_id": "issues_risks",
+        "title": "问题与风险",
+        "purpose": "分析当前存在的问题与潜在风险",
+        "metric_ids": []
+      },
+      {
+        "section_id": "future_plans",
+        "title": "后续计划",
+        "purpose": "规划后续工作重点和改进方向",
+        "metric_ids": [
+          "achievement_count"
+        ]
+      }
+    ]
+  },
+  "data_result": {
+    "summary": "研发部在2026-04-01至2026-07-01期间共有3个项目，其中2个已完成，完成率为0.6666666666666666；另有2项成就记录。",
+    "limitations": [
+      "issue_codes为空，未发现该部门在此日期范围内的已编码问题。",
+      "issue_material_scope为unfiltered，原始问题材料未经过滤，不能作为该部门或日期范围内存在问题的证据。",
+      "数据来源为模拟数据（data_origin: simulated），可能不代表真实业务情况。"
+    ],
+    "status": "ready",
+    "data": {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:13.477558+00:00",
+      "mode": "offline",
+      "status": "ok",
+      "request": {
+        "department": "研发部",
+        "start_date": "2026-04-01",
+        "end_date": "2026-07-01",
+        "data_origin": "simulated"
+      },
+      "metrics": [
+        {
+          "metric_id": "project_count",
+          "value": 3,
+          "unit": "count",
+          "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+          "source_ids": [
+            "projects.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "projects.csv",
+              "line_number": 3
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 4
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 5
+            }
+          ]
+        },
+        {
+          "metric_id": "completed_project_count",
+          "value": 2,
+          "unit": "count",
+          "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+          "source_ids": [
+            "projects.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "projects.csv",
+              "line_number": 3
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 4
+            }
+          ]
+        },
+        {
+          "metric_id": "completion_rate",
+          "value": 0.6666666666666666,
+          "unit": "ratio",
+          "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+          "source_ids": [
+            "projects.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "projects.csv",
+              "line_number": 3
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 4
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 5
+            }
+          ]
+        },
+        {
+          "metric_id": "achievement_count",
+          "value": 2,
+          "unit": "count",
+          "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+          "source_ids": [
+            "achievements.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "achievements.csv",
+              "line_number": 2
+            },
+            {
+              "source_id": "achievements.csv",
+              "line_number": 3
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "achievements.csv",
+          "file_name": "achievements.csv",
+          "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+          "record_count": 5
+        },
+        {
+          "source_id": "issues.txt",
+          "file_name": "issues.txt",
+          "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+          "record_count": 0
+        },
+        {
+          "source_id": "projects.csv",
+          "file_name": "projects.csv",
+          "sha256": "5a60adbc3b496ad6bbc46115941552f0a6f540851fb8640eb54fb5dcb84cdd95",
+          "record_count": 8
+        }
+      ],
+      "data_issues": [],
+      "issue_materials": [
+        {
+          "source_id": "issues.txt",
+          "scope": "unfiltered",
+          "text": "以下均为课程实验模拟材料，不含真实人员、客户或项目数据。\n研发部：模拟项目 P003 的联调进度需要持续跟踪。\n市场部：模拟项目 P005 等待活动资源确认。\n跨季度事项：模拟数据口径需要在季度报告中说明。\n本文件是未按部门或日期筛选的原始材料，不参与项目数、成果数或完成率统计。\n"
+        }
+      ]
+    }
+  },
+  "metrics": [
+    {
+      "metric_id": "project_count",
+      "value": 3,
+      "unit": "count",
+      "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+      "source_ids": [
+        "projects.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "projects.csv",
+          "line_number": 3
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 4
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 5
+        }
+      ]
+    },
+    {
+      "metric_id": "completed_project_count",
+      "value": 2,
+      "unit": "count",
+      "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+      "source_ids": [
+        "projects.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "projects.csv",
+          "line_number": 3
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 4
+        }
+      ]
+    },
+    {
+      "metric_id": "completion_rate",
+      "value": 0.6666666666666666,
+      "unit": "ratio",
+      "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+      "source_ids": [
+        "projects.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "projects.csv",
+          "line_number": 3
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 4
+        },
+        {
+          "source_id": "projects.csv",
+          "line_number": 5
+        }
+      ]
+    },
+    {
+      "metric_id": "achievement_count",
+      "value": 2,
+      "unit": "count",
+      "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+      "source_ids": [
+        "achievements.csv"
+      ],
+      "source_refs": [
+        {
+          "source_id": "achievements.csv",
+          "line_number": 2
+        },
+        {
+          "source_id": "achievements.csv",
+          "line_number": 3
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "achievements.csv",
+      "file_name": "achievements.csv",
+      "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+      "record_count": 5
+    },
+    {
+      "source_id": "issues.txt",
+      "file_name": "issues.txt",
+      "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+      "record_count": 0
+    },
+    {
+      "source_id": "projects.csv",
+      "file_name": "projects.csv",
+      "sha256": "5a60adbc3b496ad6bbc46115941552f0a6f540851fb8640eb54fb5dcb84cdd95",
+      "record_count": 8
+    }
+  ],
+  "data_issues": [],
+  "draft": {
+    "sections": [
+      {
+        "section_id": "overview",
+        "title": "工作概况",
+        "text": "本周期内研发部共承担3个项目，整体工作按计划推进。"
+      },
+      {
+        "section_id": "achievements",
+        "title": "主要成果",
+        "text": "已完成2个项目，完成率为66.67%。"
+      },
+      {
+        "section_id": "issues_risks",
+        "title": "问题与风险",
+        "text": "存在项目延期风险，部分项目资源分配紧张。"
+      },
+      {
+        "section_id": "future_plans",
+        "title": "后续计划",
+        "text": "计划加强项目管理，优化资源分配，确保剩余项目按时交付。"
+      }
+    ],
+    "fact_claims": [
+      {
+        "section_id": "overview",
+        "metric_id": "project_count",
+        "value": 3,
+        "unit": "count",
+        "source_ids": [
+          "projects.csv"
+        ]
+      },
+      {
+        "section_id": "achievements",
+        "metric_id": "completed_project_count",
+        "value": 2,
+        "unit": "count",
+        "source_ids": [
+          "projects.csv"
+        ]
+      },
+      {
+        "section_id": "achievements",
+        "metric_id": "completion_rate",
+        "value": 0.6666666666666666,
+        "unit": "ratio",
+        "source_ids": [
+          "projects.csv"
+        ]
+      },
+      {
+        "section_id": "future_plans",
+        "metric_id": "achievement_count",
+        "value": 2,
+        "unit": "count",
+        "source_ids": [
+          "achievements.csv"
+        ]
+      }
+    ],
+    "suggestions": [
+      {
+        "section_id": "issues_risks",
+        "text": "建议定期审查项目进度，及时调整资源以降低延期风险。"
+      },
+      {
+        "section_id": "future_plans",
+        "text": "建议引入敏捷开发方法，提高项目交付效率。"
+      }
+    ],
+    "issue_scope": "unfiltered",
+    "markdown": "# 工作报告草稿\n\n问题材料范围：未筛选，不可归因于当前部门或日期范围。\n\n## 工作概况\n\n本周期内研发部共承担3个项目，整体工作按计划推进。\n\n- 事实：项目数 = 3 [count]；来源：projects.csv\n\n## 主要成果\n\n已完成2个项目，完成率为66.67%。\n\n- 事实：完成项目数 = 2 [count]；来源：projects.csv\n- 事实：完成率 = 0.6666666666666666 [ratio]；来源：projects.csv\n\n## 问题与风险\n\n存在项目延期风险，部分项目资源分配紧张。\n\n- 建议（尚未实施）：建议定期审查项目进度，及时调整资源以降低延期风险。\n\n## 后续计划\n\n计划加强项目管理，优化资源分配，确保剩余项目按时交付。\n\n- 事实：成果数 = 2 [count]；来源：achievements.csv\n- 建议（尚未实施）：建议引入敏捷开发方法，提高项目交付效率。"
+  },
+  "review": {
+    "passed": true,
+    "issues": [],
+    "revision_instructions": [],
+    "needs_input": false
+  },
+  "revision_count": 0,
+  "nodes": [
+    {
+      "role": "manager",
+      "started_at": "2026-10-09T10:15:05.045727+00:00",
+      "finished_at": "2026-10-09T10:15:08.183226+00:00",
+      "duration_ms": 3137.524916091934,
+      "status": "passed",
+      "input": {
+        "user_text": "生成研发部2026年第二季度工作报告。日期范围为2026-04-01（含）至2026-07-01（不含）；章节依次为工作概况、主要成果、问题与风险、后续计划。",
+        "data_origin": "simulated"
+      },
+      "output": {
+        "status": "ready",
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        },
+        "missing_fields": [],
+        "questions": []
+      },
+      "error": null
+    },
+    {
+      "role": "planner",
+      "started_at": "2026-10-09T10:15:08.184426+00:00",
+      "finished_at": "2026-10-09T10:15:11.310354+00:00",
+      "duration_ms": 3125.950708054006,
+      "status": "passed",
+      "input": {
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        }
+      },
+      "output": {
+        "sections": [
+          {
+            "section_id": "overview",
+            "title": "工作概况",
+            "purpose": "概述研发部在统计周期内的整体工作情况",
+            "metric_ids": [
+              "project_count"
+            ]
+          },
+          {
+            "section_id": "achievements",
+            "title": "主要成果",
+            "purpose": "展示研发部取得的主要成果和完成情况",
+            "metric_ids": [
+              "completed_project_count",
+              "completion_rate"
+            ]
+          },
+          {
+            "section_id": "issues_risks",
+            "title": "问题与风险",
+            "purpose": "分析当前存在的问题与潜在风险",
+            "metric_ids": []
+          },
+          {
+            "section_id": "future_plans",
+            "title": "后续计划",
+            "purpose": "规划后续工作重点和改进方向",
+            "metric_ids": [
+              "achievement_count"
+            ]
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "role": "data",
+      "started_at": "2026-10-09T10:15:11.311611+00:00",
+      "finished_at": "2026-10-09T10:15:16.645607+00:00",
+      "duration_ms": 5334.0398338623345,
+      "status": "passed",
+      "input": {
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        },
+        "data_root": "data/samples"
+      },
+      "output": {
+        "summary": "研发部在2026-04-01至2026-07-01期间共有3个项目，其中2个已完成，完成率为0.6666666666666666；另有2项成就记录。",
+        "limitations": [
+          "issue_codes为空，未发现该部门在此日期范围内的已编码问题。",
+          "issue_material_scope为unfiltered，原始问题材料未经过滤，不能作为该部门或日期范围内存在问题的证据。",
+          "数据来源为模拟数据（data_origin: simulated），可能不代表真实业务情况。"
+        ],
+        "status": "ready",
+        "data": {
+          "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+          "created_at": "2026-10-09T10:15:13.477558+00:00",
+          "mode": "offline",
+          "status": "ok",
+          "request": {
+            "department": "研发部",
+            "start_date": "2026-04-01",
+            "end_date": "2026-07-01",
+            "data_origin": "simulated"
+          },
+          "metrics": [
+            {
+              "metric_id": "project_count",
+              "value": 3,
+              "unit": "count",
+              "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 5
+                }
+              ]
+            },
+            {
+              "metric_id": "completed_project_count",
+              "value": 2,
+              "unit": "count",
+              "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                }
+              ]
+            },
+            {
+              "metric_id": "completion_rate",
+              "value": 0.6666666666666666,
+              "unit": "ratio",
+              "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 5
+                }
+              ]
+            },
+            {
+              "metric_id": "achievement_count",
+              "value": 2,
+              "unit": "count",
+              "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+              "source_ids": [
+                "achievements.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "achievements.csv",
+                  "line_number": 2
+                },
+                {
+                  "source_id": "achievements.csv",
+                  "line_number": 3
+                }
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "source_id": "achievements.csv",
+              "file_name": "achievements.csv",
+              "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+              "record_count": 5
+            },
+            {
+              "source_id": "issues.txt",
+              "file_name": "issues.txt",
+              "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+              "record_count": 0
+            },
+            {
+              "source_id": "projects.csv",
+              "file_name": "projects.csv",
+              "sha256": "5a60adbc3b496ad6bbc46115941552f0a6f540851fb8640eb54fb5dcb84cdd95",
+              "record_count": 8
+            }
+          ],
+          "data_issues": [],
+          "issue_materials": [
+            {
+              "source_id": "issues.txt",
+              "scope": "unfiltered",
+              "text": "以下均为课程实验模拟材料，不含真实人员、客户或项目数据。\n研发部：模拟项目 P003 的联调进度需要持续跟踪。\n市场部：模拟项目 P005 等待活动资源确认。\n跨季度事项：模拟数据口径需要在季度报告中说明。\n本文件是未按部门或日期筛选的原始材料，不参与项目数、成果数或完成率统计。\n"
+            }
+          ]
+        }
+      },
+      "error": null
+    },
+    {
+      "role": "writer",
+      "started_at": "2026-10-09T10:15:16.647120+00:00",
+      "finished_at": "2026-10-09T10:15:22.541442+00:00",
+      "duration_ms": 5894.361249869689,
+      "status": "passed",
+      "input": {
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        },
+        "outline": {
+          "sections": [
+            {
+              "section_id": "overview",
+              "title": "工作概况",
+              "purpose": "概述研发部在统计周期内的整体工作情况",
+              "metric_ids": [
+                "project_count"
+              ]
+            },
+            {
+              "section_id": "achievements",
+              "title": "主要成果",
+              "purpose": "展示研发部取得的主要成果和完成情况",
+              "metric_ids": [
+                "completed_project_count",
+                "completion_rate"
+              ]
+            },
+            {
+              "section_id": "issues_risks",
+              "title": "问题与风险",
+              "purpose": "分析当前存在的问题与潜在风险",
+              "metric_ids": []
+            },
+            {
+              "section_id": "future_plans",
+              "title": "后续计划",
+              "purpose": "规划后续工作重点和改进方向",
+              "metric_ids": [
+                "achievement_count"
+              ]
+            }
+          ]
+        },
+        "data": {
+          "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+          "created_at": "2026-10-09T10:15:13.477558+00:00",
+          "mode": "offline",
+          "status": "ok",
+          "request": {
+            "department": "研发部",
+            "start_date": "2026-04-01",
+            "end_date": "2026-07-01",
+            "data_origin": "simulated"
+          },
+          "metrics": [
+            {
+              "metric_id": "project_count",
+              "value": 3,
+              "unit": "count",
+              "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 5
+                }
+              ]
+            },
+            {
+              "metric_id": "completed_project_count",
+              "value": 2,
+              "unit": "count",
+              "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                }
+              ]
+            },
+            {
+              "metric_id": "completion_rate",
+              "value": 0.6666666666666666,
+              "unit": "ratio",
+              "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 5
+                }
+              ]
+            },
+            {
+              "metric_id": "achievement_count",
+              "value": 2,
+              "unit": "count",
+              "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+              "source_ids": [
+                "achievements.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "achievements.csv",
+                  "line_number": 2
+                },
+                {
+                  "source_id": "achievements.csv",
+                  "line_number": 3
+                }
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "source_id": "achievements.csv",
+              "file_name": "achievements.csv",
+              "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+              "record_count": 5
+            },
+            {
+              "source_id": "issues.txt",
+              "file_name": "issues.txt",
+              "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+              "record_count": 0
+            },
+            {
+              "source_id": "projects.csv",
+              "file_name": "projects.csv",
+              "sha256": "5a60adbc3b496ad6bbc46115941552f0a6f540851fb8640eb54fb5dcb84cdd95",
+              "record_count": 8
+            }
+          ],
+          "data_issues": [],
+          "issue_materials": [
+            {
+              "source_id": "issues.txt",
+              "scope": "unfiltered",
+              "text": "以下均为课程实验模拟材料，不含真实人员、客户或项目数据。\n研发部：模拟项目 P003 的联调进度需要持续跟踪。\n市场部：模拟项目 P005 等待活动资源确认。\n跨季度事项：模拟数据口径需要在季度报告中说明。\n本文件是未按部门或日期筛选的原始材料，不参与项目数、成果数或完成率统计。\n"
+            }
+          ]
+        }
+      },
+      "output": {
+        "sections": [
+          {
+            "section_id": "overview",
+            "title": "工作概况",
+            "text": "本周期内研发部共承担3个项目，整体工作按计划推进。"
+          },
+          {
+            "section_id": "achievements",
+            "title": "主要成果",
+            "text": "已完成2个项目，完成率为66.67%。"
+          },
+          {
+            "section_id": "issues_risks",
+            "title": "问题与风险",
+            "text": "存在项目延期风险，部分项目资源分配紧张。"
+          },
+          {
+            "section_id": "future_plans",
+            "title": "后续计划",
+            "text": "计划加强项目管理，优化资源分配，确保剩余项目按时交付。"
+          }
+        ],
+        "fact_claims": [
+          {
+            "section_id": "overview",
+            "metric_id": "project_count",
+            "value": 3,
+            "unit": "count",
+            "source_ids": [
+              "projects.csv"
+            ]
+          },
+          {
+            "section_id": "achievements",
+            "metric_id": "completed_project_count",
+            "value": 2,
+            "unit": "count",
+            "source_ids": [
+              "projects.csv"
+            ]
+          },
+          {
+            "section_id": "achievements",
+            "metric_id": "completion_rate",
+            "value": 0.6666666666666666,
+            "unit": "ratio",
+            "source_ids": [
+              "projects.csv"
+            ]
+          },
+          {
+            "section_id": "future_plans",
+            "metric_id": "achievement_count",
+            "value": 2,
+            "unit": "count",
+            "source_ids": [
+              "achievements.csv"
+            ]
+          }
+        ],
+        "suggestions": [
+          {
+            "section_id": "issues_risks",
+            "text": "建议定期审查项目进度，及时调整资源以降低延期风险。"
+          },
+          {
+            "section_id": "future_plans",
+            "text": "建议引入敏捷开发方法，提高项目交付效率。"
+          }
+        ],
+        "issue_scope": "unfiltered",
+        "markdown": "# 工作报告草稿\n\n问题材料范围：未筛选，不可归因于当前部门或日期范围。\n\n## 工作概况\n\n本周期内研发部共承担3个项目，整体工作按计划推进。\n\n- 事实：项目数 = 3 [count]；来源：projects.csv\n\n## 主要成果\n\n已完成2个项目，完成率为66.67%。\n\n- 事实：完成项目数 = 2 [count]；来源：projects.csv\n- 事实：完成率 = 0.6666666666666666 [ratio]；来源：projects.csv\n\n## 问题与风险\n\n存在项目延期风险，部分项目资源分配紧张。\n\n- 建议（尚未实施）：建议定期审查项目进度，及时调整资源以降低延期风险。\n\n## 后续计划\n\n计划加强项目管理，优化资源分配，确保剩余项目按时交付。\n\n- 事实：成果数 = 2 [count]；来源：achievements.csv\n- 建议（尚未实施）：建议引入敏捷开发方法，提高项目交付效率。"
+      },
+      "error": null
+    },
+    {
+      "role": "checker",
+      "started_at": "2026-10-09T10:15:22.542879+00:00",
+      "finished_at": "2026-10-09T10:15:24.734934+00:00",
+      "duration_ms": 2192.063624970615,
+      "status": "passed",
+      "input": {
+        "requirements": {
+          "department": "研发部",
+          "start_date": "2026-04-01",
+          "end_date": "2026-07-01",
+          "data_origin": "simulated",
+          "required_sections": [
+            "工作概况",
+            "主要成果",
+            "问题与风险",
+            "后续计划"
+          ],
+          "output_format": "markdown"
+        },
+        "outline": {
+          "sections": [
+            {
+              "section_id": "overview",
+              "title": "工作概况",
+              "purpose": "概述研发部在统计周期内的整体工作情况",
+              "metric_ids": [
+                "project_count"
+              ]
+            },
+            {
+              "section_id": "achievements",
+              "title": "主要成果",
+              "purpose": "展示研发部取得的主要成果和完成情况",
+              "metric_ids": [
+                "completed_project_count",
+                "completion_rate"
+              ]
+            },
+            {
+              "section_id": "issues_risks",
+              "title": "问题与风险",
+              "purpose": "分析当前存在的问题与潜在风险",
+              "metric_ids": []
+            },
+            {
+              "section_id": "future_plans",
+              "title": "后续计划",
+              "purpose": "规划后续工作重点和改进方向",
+              "metric_ids": [
+                "achievement_count"
+              ]
+            }
+          ]
+        },
+        "data": {
+          "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+          "created_at": "2026-10-09T10:15:13.477558+00:00",
+          "mode": "offline",
+          "status": "ok",
+          "request": {
+            "department": "研发部",
+            "start_date": "2026-04-01",
+            "end_date": "2026-07-01",
+            "data_origin": "simulated"
+          },
+          "metrics": [
+            {
+              "metric_id": "project_count",
+              "value": 3,
+              "unit": "count",
+              "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 5
+                }
+              ]
+            },
+            {
+              "metric_id": "completed_project_count",
+              "value": 2,
+              "unit": "count",
+              "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                }
+              ]
+            },
+            {
+              "metric_id": "completion_rate",
+              "value": 0.6666666666666666,
+              "unit": "ratio",
+              "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+              "source_ids": [
+                "projects.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 3
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 4
+                },
+                {
+                  "source_id": "projects.csv",
+                  "line_number": 5
+                }
+              ]
+            },
+            {
+              "metric_id": "achievement_count",
+              "value": 2,
+              "unit": "count",
+              "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+              "source_ids": [
+                "achievements.csv"
+              ],
+              "source_refs": [
+                {
+                  "source_id": "achievements.csv",
+                  "line_number": 2
+                },
+                {
+                  "source_id": "achievements.csv",
+                  "line_number": 3
+                }
+              ]
+            }
+          ],
+          "sources": [
+            {
+              "source_id": "achievements.csv",
+              "file_name": "achievements.csv",
+              "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+              "record_count": 5
+            },
+            {
+              "source_id": "issues.txt",
+              "file_name": "issues.txt",
+              "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+              "record_count": 0
+            },
+            {
+              "source_id": "projects.csv",
+              "file_name": "projects.csv",
+              "sha256": "5a60adbc3b496ad6bbc46115941552f0a6f540851fb8640eb54fb5dcb84cdd95",
+              "record_count": 8
+            }
+          ],
+          "data_issues": [],
+          "issue_materials": [
+            {
+              "source_id": "issues.txt",
+              "scope": "unfiltered",
+              "text": "以下均为课程实验模拟材料，不含真实人员、客户或项目数据。\n研发部：模拟项目 P003 的联调进度需要持续跟踪。\n市场部：模拟项目 P005 等待活动资源确认。\n跨季度事项：模拟数据口径需要在季度报告中说明。\n本文件是未按部门或日期筛选的原始材料，不参与项目数、成果数或完成率统计。\n"
+            }
+          ]
+        },
+        "draft": {
+          "sections": [
+            {
+              "section_id": "overview",
+              "title": "工作概况",
+              "text": "本周期内研发部共承担3个项目，整体工作按计划推进。"
+            },
+            {
+              "section_id": "achievements",
+              "title": "主要成果",
+              "text": "已完成2个项目，完成率为66.67%。"
+            },
+            {
+              "section_id": "issues_risks",
+              "title": "问题与风险",
+              "text": "存在项目延期风险，部分项目资源分配紧张。"
+            },
+            {
+              "section_id": "future_plans",
+              "title": "后续计划",
+              "text": "计划加强项目管理，优化资源分配，确保剩余项目按时交付。"
+            }
+          ],
+          "fact_claims": [
+            {
+              "section_id": "overview",
+              "metric_id": "project_count",
+              "value": 3,
+              "unit": "count",
+              "source_ids": [
+                "projects.csv"
+              ]
+            },
+            {
+              "section_id": "achievements",
+              "metric_id": "completed_project_count",
+              "value": 2,
+              "unit": "count",
+              "source_ids": [
+                "projects.csv"
+              ]
+            },
+            {
+              "section_id": "achievements",
+              "metric_id": "completion_rate",
+              "value": 0.6666666666666666,
+              "unit": "ratio",
+              "source_ids": [
+                "projects.csv"
+              ]
+            },
+            {
+              "section_id": "future_plans",
+              "metric_id": "achievement_count",
+              "value": 2,
+              "unit": "count",
+              "source_ids": [
+                "achievements.csv"
+              ]
+            }
+          ],
+          "suggestions": [
+            {
+              "section_id": "issues_risks",
+              "text": "建议定期审查项目进度，及时调整资源以降低延期风险。"
+            },
+            {
+              "section_id": "future_plans",
+              "text": "建议引入敏捷开发方法，提高项目交付效率。"
+            }
+          ],
+          "issue_scope": "unfiltered",
+          "markdown": "# 工作报告草稿\n\n问题材料范围：未筛选，不可归因于当前部门或日期范围。\n\n## 工作概况\n\n本周期内研发部共承担3个项目，整体工作按计划推进。\n\n- 事实：项目数 = 3 [count]；来源：projects.csv\n\n## 主要成果\n\n已完成2个项目，完成率为66.67%。\n\n- 事实：完成项目数 = 2 [count]；来源：projects.csv\n- 事实：完成率 = 0.6666666666666666 [ratio]；来源：projects.csv\n\n## 问题与风险\n\n存在项目延期风险，部分项目资源分配紧张。\n\n- 建议（尚未实施）：建议定期审查项目进度，及时调整资源以降低延期风险。\n\n## 后续计划\n\n计划加强项目管理，优化资源分配，确保剩余项目按时交付。\n\n- 事实：成果数 = 2 [count]；来源：achievements.csv\n- 建议（尚未实施）：建议引入敏捷开发方法，提高项目交付效率。"
+        }
+      },
+      "output": {
+        "passed": true,
+        "issues": [],
+        "revision_instructions": [],
+        "needs_input": false
+      },
+      "error": null
+    }
+  ],
+  "events": [
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:05.045727+00:00",
+      "role": "manager",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started manager with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:08.180123+00:00",
+      "role": "manager",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:08.183226+00:00",
+      "role": "manager",
+      "event_type": "node_finished",
+      "status": "passed",
+      "duration_ms": 3137.524916091934,
+      "summary": "Finished manager; workflow decision: passed.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:08.184426+00:00",
+      "role": "planner",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started planner with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:11.309807+00:00",
+      "role": "planner",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:11.310354+00:00",
+      "role": "planner",
+      "event_type": "node_finished",
+      "status": "passed",
+      "duration_ms": 3125.950708054006,
+      "summary": "Finished planner; workflow decision: passed.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:11.311611+00:00",
+      "role": "data",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started data with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:13.473836+00:00",
+      "role": "data",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:13.477596+00:00",
+      "role": "data",
+      "event_type": "tool_execution",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Validated authorized dataset and calculated statistics.",
+      "tool_name": "run_data_tools",
+      "arguments": {
+        "department": "研发部",
+        "start_date": "2026-04-01",
+        "end_date": "2026-07-01"
+      }
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:16.644584+00:00",
+      "role": "data",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:16.645607+00:00",
+      "role": "data",
+      "event_type": "node_finished",
+      "status": "passed",
+      "duration_ms": 5334.0398338623345,
+      "summary": "Finished data; workflow decision: passed.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:16.647120+00:00",
+      "role": "writer",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started writer with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:22.540254+00:00",
+      "role": "writer",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:22.541442+00:00",
+      "role": "writer",
+      "event_type": "node_finished",
+      "status": "passed",
+      "duration_ms": 5894.361249869689,
+      "summary": "Finished writer; workflow decision: passed.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:22.542879+00:00",
+      "role": "checker",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started checker with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:24.734622+00:00",
+      "role": "checker",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null
+    },
+    {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:24.734934+00:00",
+      "role": "checker",
+      "event_type": "node_finished",
+      "status": "passed",
+      "duration_ms": 2192.063624970615,
+      "summary": "Finished checker; workflow decision: passed.",
+      "tool_name": null,
+      "arguments": null
+    }
+  ],
+  "request_count": 6,
+  "reserved_output_tokens": 1984,
+  "usage": {
+    "prompt_tokens": 2984,
+    "completion_tokens": 995,
+    "total_tokens": 3979,
+    "reasoning_tokens": null
+  },
+  "error": null
+}

@@ -1,0 +1,15 @@
+{
+  "source_commit": "9a207c56c02d3501316f0165f1973148cf8d3758",
+  "mode": "live",
+  "run_id": "de056d93-6c7f-4e60-ab86-aa7b7edcb4da",
+  "status": "failed",
+  "request_count": 1,
+  "usage": {
+    "prompt_tokens": 279,
+    "completion_tokens": 93,
+    "total_tokens": 372,
+    "reasoning_tokens": null
+  },
+  "directory": "evidence/v0.4/live/de056d93-6c7f-4e60-ab86-aa7b7edcb4da",
+  "note": "Manager result rejected by local validation; no downstream calls, no final report; raw model response intentionally not stored, so specific rejected field is not known."
+}

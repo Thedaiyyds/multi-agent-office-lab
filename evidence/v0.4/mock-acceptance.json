@@ -1,0 +1,136 @@
+{
+  "source_commit": "9a207c56c02d3501316f0165f1973148cf8d3758",
+  "created_at": "2026-10-09T10:09:49.861133+00:00",
+  "mode": "offline_mock",
+  "description": "Actual graph/tools; scripted local HTTP responses.",
+  "cases": [
+    {
+      "case": "normal",
+      "run_id": "7cef98de-e464-45b3-b720-e1df1536c79b",
+      "status": "completed",
+      "request_count": 6,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager",
+        "planner",
+        "data",
+        "writer",
+        "checker"
+      ],
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "directory": "evidence/v0.4/mock/normal/7cef98de-e464-45b3-b720-e1df1536c79b"
+    },
+    {
+      "case": "market",
+      "run_id": "2811a5c3-3889-41a0-ac71-36c5f63a9a2f",
+      "status": "completed",
+      "request_count": 6,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager",
+        "planner",
+        "data",
+        "writer",
+        "checker"
+      ],
+      "metrics": {
+        "project_count": 1,
+        "completed_project_count": 0,
+        "completion_rate": 0.0,
+        "achievement_count": 1
+      },
+      "directory": "evidence/v0.4/mock/market/2811a5c3-3889-41a0-ac71-36c5f63a9a2f"
+    },
+    {
+      "case": "quarter_one",
+      "run_id": "c7415003-1ff8-4883-ba01-1d25669fe666",
+      "status": "completed",
+      "request_count": 6,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager",
+        "planner",
+        "data",
+        "writer",
+        "checker"
+      ],
+      "metrics": {
+        "project_count": 2,
+        "completed_project_count": 1,
+        "completion_rate": 0.5,
+        "achievement_count": 1
+      },
+      "directory": "evidence/v0.4/mock/quarter_one/c7415003-1ff8-4883-ba01-1d25669fe666"
+    },
+    {
+      "case": "missing_requirements",
+      "run_id": "e44cda26-51a3-445a-960d-60056c23f425",
+      "status": "needs_input",
+      "request_count": 1,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager"
+      ],
+      "metrics": {},
+      "directory": "evidence/v0.4/mock/missing_requirements/e44cda26-51a3-445a-960d-60056c23f425"
+    },
+    {
+      "case": "no_data",
+      "run_id": "d3932dd6-5507-40a9-9127-4394a81d5324",
+      "status": "needs_input",
+      "request_count": 4,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager",
+        "planner",
+        "data"
+      ],
+      "metrics": {
+        "project_count": 0,
+        "completed_project_count": 0,
+        "completion_rate": null,
+        "achievement_count": 0
+      },
+      "directory": "evidence/v0.4/mock/no_data/d3932dd6-5507-40a9-9127-4394a81d5324"
+    },
+    {
+      "case": "bad_draft",
+      "run_id": "0243670a-41ca-470a-b03d-cbaa6b04d879",
+      "status": "review_failed",
+      "request_count": 6,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager",
+        "planner",
+        "data",
+        "writer",
+        "checker"
+      ],
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "directory": "evidence/v0.4/mock/bad_draft/0243670a-41ca-470a-b03d-cbaa6b04d879"
+    },
+    {
+      "case": "request_budget",
+      "run_id": "e842a873-71cc-4845-9698-385e826b0429",
+      "status": "failed",
+      "request_count": 1,
+      "model_network_requests": 0,
+      "node_order": [
+        "manager",
+        "planner"
+      ],
+      "metrics": {},
+      "directory": "evidence/v0.4/mock/request_budget/e842a873-71cc-4845-9698-385e826b0429"
+    }
+  ]
+}
