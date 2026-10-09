@@ -106,11 +106,19 @@ def _report(result: WorkflowResult) -> str:
         f"{requirements.start_date.isoformat()}（含）至 "
         f"{requirements.end_date.isoformat()}（不含）。",
         "",
-        "审核状态：通过程序事实校验与 Checker 审核；模型叙述仍以所列来源为依据。",
+        "审核状态：四项结构化指标及其来源通过程序校验；Checker 模型审核通过。"
+        "正文模型叙述待人工核实。",
         "",
     ]
     # check_draft already required exact deterministic rendering, including this heading.
     body = result.draft.markdown.removeprefix("# 工作报告草稿").lstrip()
+    for section in result.draft.sections:
+        heading_and_text = f"## {_plain_text(section.title)}\n\n{_plain_text(section.text)}"
+        labelled = (
+            f"## {_plain_text(section.title)}\n\n"
+            f"模型叙述（待人工核实）：{_plain_text(section.text)}"
+        )
+        body = body.replace(heading_and_text, labelled, 1)
     lines = metadata + [body, "", "## 数据来源记录", ""]
     for source in data.sources:
         lines.extend(

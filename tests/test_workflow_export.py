@@ -102,6 +102,51 @@ def test_success_artifacts_preserve_actual_records_and_provenance(tmp_path, comp
     assert "projects.csv:3" in report
     assert "完成项目数 = 2" in report
     assert "未筛选，不可归因" in report
+    assert "四项结构化指标及其来源通过程序校验；Checker 模型审核通过" in report
+    assert "模型叙述仍以所列来源为依据" not in report
+    assert report.count("模型叙述（待人工核实）：") == len(result.draft.sections)
+    for line in result.draft.markdown.splitlines():
+        if line.startswith(("- 事实：", "- 建议（尚未实施）：")):
+            assert line in report
+
+
+def test_long_section_text_labels_only_report_without_changing_actual_evidence(
+    tmp_path, completed_result
+):
+    result = completed_result
+    result.draft.sections[0].text = "待" * 500
+    result.draft.markdown = render_draft(result.draft)
+    result.nodes[3].output = result.draft.model_dump(mode="json")
+    before = result.model_dump(mode="json")
+    directory = save_workflow(result, tmp_path)
+    report = (directory / "report.md").read_text()
+    assert "模型叙述（待人工核实）：" + "待" * 500 in report
+    assert (directory / "draft.md").read_text().endswith(result.draft.markdown + "\n")
+    assert "模型叙述（待人工核实）：" not in result.draft.markdown
+    assert json.loads((directory / "run.json").read_text()) == before
+    assert json.loads((directory / "nodes" / "04-writer.json").read_text()) == before["nodes"][3]
+    assert result.model_dump(mode="json") == before
+
+
+def test_unsupported_model_prose_remains_visible_with_human_verification_label(
+    tmp_path, completed_result
+):
+    result = completed_result
+    texts = ["整体工作按计划推进", "存在项目延期风险，部分项目资源分配紧张"]
+    for section, text in zip(result.draft.sections, texts):
+        section.text = text
+    result.draft.markdown = render_draft(result.draft)
+    result.nodes[3].output = result.draft.model_dump(mode="json")
+    original = result.model_dump(mode="json")
+    directory = save_workflow(result, tmp_path)
+    report = (directory / "report.md").read_text()
+    for text in texts:
+        assert f"模型叙述（待人工核实）：{text}" in report
+    for line in result.draft.markdown.splitlines():
+        if line.startswith("- 事实："):
+            assert line in report
+    assert json.loads((directory / "run.json").read_text()) == original
+    assert (directory / "draft.md").read_text().endswith(result.draft.markdown + "\n")
 
 
 def test_provided_live_metadata_is_explicit(tmp_path, completed_result):
