@@ -92,7 +92,7 @@ class DraftSection(ContractModel):
 class FactClaim(ContractModel):
     section_id: str = Field(pattern=r"^[a-z][a-z0-9_]{0,23}$")
     metric_id: MetricId
-    value: StrictInt | StrictFloat | None
+    value: StrictInt | StrictFloat | None = Field(allow_inf_nan=False)
     unit: Literal["count", "ratio"]
     source_ids: list[str] = Field(min_length=1, max_length=3)
 

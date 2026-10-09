@@ -25,3 +25,4 @@ jobs:
       - run: uv run --locked pytest -q
       - run: uv run --locked office-agents graph-demo
       - run: uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
+      - run: uv run --locked office-agents agent-demo --mode mock --role all
