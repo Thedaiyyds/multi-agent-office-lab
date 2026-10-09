@@ -1,0 +1,159 @@
+{
+  "role": "data",
+  "started_at": "2026-10-09T10:15:11.311611+00:00",
+  "finished_at": "2026-10-09T10:15:16.645607+00:00",
+  "duration_ms": 5334.0398338623345,
+  "status": "passed",
+  "input": {
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-04-01",
+      "end_date": "2026-07-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    },
+    "data_root": "data/samples"
+  },
+  "output": {
+    "summary": "研发部在2026-04-01至2026-07-01期间共有3个项目，其中2个已完成，完成率为0.6666666666666666；另有2项成就记录。",
+    "limitations": [
+      "issue_codes为空，未发现该部门在此日期范围内的已编码问题。",
+      "issue_material_scope为unfiltered，原始问题材料未经过滤，不能作为该部门或日期范围内存在问题的证据。",
+      "数据来源为模拟数据（data_origin: simulated），可能不代表真实业务情况。"
+    ],
+    "status": "ready",
+    "data": {
+      "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+      "created_at": "2026-10-09T10:15:13.477558+00:00",
+      "mode": "offline",
+      "status": "ok",
+      "request": {
+        "department": "研发部",
+        "start_date": "2026-04-01",
+        "end_date": "2026-07-01",
+        "data_origin": "simulated"
+      },
+      "metrics": [
+        {
+          "metric_id": "project_count",
+          "value": 3,
+          "unit": "count",
+          "definition": "部门精确匹配，快照日期属于 [start_date, end_date)；每个 project_id 仅选区间内最新快照，按项目编号计数。",
+          "source_ids": [
+            "projects.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "projects.csv",
+              "line_number": 3
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 4
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 5
+            }
+          ]
+        },
+        {
+          "metric_id": "completed_project_count",
+          "value": 2,
+          "unit": "count",
+          "definition": "所选项目区间内最新快照的 status=completed 的项目数。",
+          "source_ids": [
+            "projects.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "projects.csv",
+              "line_number": 3
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 4
+            }
+          ]
+        },
+        {
+          "metric_id": "completion_rate",
+          "value": 0.6666666666666666,
+          "unit": "ratio",
+          "definition": "completed_project_count / project_count，返回 0～1 原始比例；来源包含全部分母项目，分子由这些最新快照的状态决定；项目数为零时返回 null。",
+          "source_ids": [
+            "projects.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "projects.csv",
+              "line_number": 3
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 4
+            },
+            {
+              "source_id": "projects.csv",
+              "line_number": 5
+            }
+          ]
+        },
+        {
+          "metric_id": "achievement_count",
+          "value": 2,
+          "unit": "count",
+          "definition": "部门精确匹配，成果日期属于 [start_date, end_date)；按已校验且去重的 achievement_id 计数。",
+          "source_ids": [
+            "achievements.csv"
+          ],
+          "source_refs": [
+            {
+              "source_id": "achievements.csv",
+              "line_number": 2
+            },
+            {
+              "source_id": "achievements.csv",
+              "line_number": 3
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "source_id": "achievements.csv",
+          "file_name": "achievements.csv",
+          "sha256": "cc27116b6bf6dfd87cefb48e6857ce989779cd2d5a8fb06f06739b5a3dc15b36",
+          "record_count": 5
+        },
+        {
+          "source_id": "issues.txt",
+          "file_name": "issues.txt",
+          "sha256": "b7c8f277cdfea462d8ddac856282b905ef582692f5352228fffafa689a6f820a",
+          "record_count": 0
+        },
+        {
+          "source_id": "projects.csv",
+          "file_name": "projects.csv",
+          "sha256": "5a60adbc3b496ad6bbc46115941552f0a6f540851fb8640eb54fb5dcb84cdd95",
+          "record_count": 8
+        }
+      ],
+      "data_issues": [],
+      "issue_materials": [
+        {
+          "source_id": "issues.txt",
+          "scope": "unfiltered",
+          "text": "以下均为课程实验模拟材料，不含真实人员、客户或项目数据。\n研发部：模拟项目 P003 的联调进度需要持续跟踪。\n市场部：模拟项目 P005 等待活动资源确认。\n跨季度事项：模拟数据口径需要在季度报告中说明。\n本文件是未按部门或日期筛选的原始材料，不参与项目数、成果数或完成率统计。\n"
+        }
+      ]
+    }
+  },
+  "error": null
+}

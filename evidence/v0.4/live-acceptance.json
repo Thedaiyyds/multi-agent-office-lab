@@ -1,0 +1,41 @@
+{
+  "source_commit": "eaf45d796b34d4d19c4de31c49c2c4f7c00bed58",
+  "mode": "live",
+  "provider_model": "deepseek-v4-pro",
+  "normal_run": {
+    "run_id": "787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+    "status": "completed",
+    "request_count": 6,
+    "usage": {
+      "prompt_tokens": 2984,
+      "completion_tokens": 995,
+      "total_tokens": 3979,
+      "reasoning_tokens": null
+    },
+    "directory": "evidence/v0.4/live/787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+    "event_count": 17,
+    "local_fact_validation": true
+  },
+  "initial_failure": "live-initial-failure.json",
+  "total_validation_requests": 7,
+  "total_validation_usage": {
+    "prompt_tokens": 3263,
+    "completion_tokens": 1088,
+    "total_tokens": 4351,
+    "reasoning_tokens": null
+  },
+  "total_reserved_output_tokens": 2240,
+  "retries": 0,
+  "thinking": "disabled",
+  "screenshots": "not captured; JSON and terminal text are not screenshots",
+  "export_recheck": {
+    "workflow_source_commit": "eaf45d796b34d4d19c4de31c49c2c4f7c00bed58",
+    "export_source_commit": "ef146aa99dde6b2e1403da9e46a337dfd5e44594",
+    "directory": "evidence/v0.4/export-recheck/787bcbe9-2196-4d0d-a5f5-e00a15934f7c",
+    "method": "Local re-export of the exact saved WorkflowResult; no model calls or prose edits; add review-scope disclosure and unverified-prose labels.",
+    "additional_model_requests": 0,
+    "final_export_validation_commit": "131eb83a0a3f1f4aed2b33021d77f6650a022831",
+    "final_export_validation": "Re-exported to a fresh temporary root; every artifact byte-identical to archived export-recheck; zero model requests."
+  },
+  "observed_limitation": "Checker passed unsupported prose about on-plan progress/resource constraints; core structured facts correct. Disclosure does not correct semantic hallucinations."
+}

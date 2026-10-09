@@ -10,6 +10,79 @@ from office_agents.probes import ProbeResult, RunReport, run_graph_demo, run_liv
 from office_agents.schemas import DataRequest
 
 
+def _run(args: argparse.Namespace) -> int:
+    from office_agents.agent_runtime import AgentSession
+    from office_agents.workflow import run_workflow
+    from office_agents.workflow_examples import make_workflow_mock_transport
+    from office_agents.workflow_export import WorkflowExportError, save_workflow
+
+    session = None
+    try:
+        try:
+            is_sample = args.data_dir.resolve() == Path("data/samples").resolve()
+        except (OSError, RuntimeError):
+            is_sample = False
+        origin = args.data_origin or ("simulated" if is_sample else "provided")
+        settings = (
+            Settings(base_url="https://mock.invalid", model="scripted-workflow")
+            if args.mode == "mock"
+            else Settings.from_env()
+        )
+        session = AgentSession(
+            settings,
+            profile=args.profile,
+            mode="offline_mock" if args.mode == "mock" else "live",
+            max_requests=args.max_requests,
+            max_total_output_tokens=1984,
+            transport=make_workflow_mock_transport() if args.mode == "mock" else None,
+        )
+        result = run_workflow(args.request, args.data_dir, session, data_origin=origin)
+    except ConfigurationError as exc:
+        print(f"Workflow configuration failed: {exc}")
+        return 1
+    except Exception:
+        print("Workflow could not start; no final report accepted.")
+        return 1
+    finally:
+        if session is not None:
+            session.close()
+    print(f"Mode: {result.mode}; status: {result.status}; run_id={result.run_id}.")
+    if result.mode == "offline_mock":
+        print("Local scripted HTTP fixtures; no real model requests.")
+    for node in result.nodes:
+        print(f"{node.role}: {node.status}; duration_ms={node.duration_ms:.2f}.")
+    if result.manager_decision and result.manager_decision.status == "needs_input":
+        for question in result.manager_decision.questions:
+            print(question)
+    if result.data_result and result.status == "needs_input":
+        print(result.data_result.summary)
+        for issue in result.data_issues:
+            print(f"{issue.severity.upper()} {issue.code}: {issue.message}")
+    if result.review and not result.review.passed:
+        print("审核未通过；本版不自动返工。")
+        for issue in result.review.issues:
+            print(f"{issue.code} [{issue.location}]: {issue.message}")
+    if result.error:
+        print(result.error)
+    print(
+        f"HTTP requests: {result.request_count}; reserved output limit: "
+        f"{result.reserved_output_tokens}."
+    )
+    for key in ("prompt_tokens", "completion_tokens", "total_tokens", "reasoning_tokens"):
+        value = result.usage.get(key)
+        print(f"{key}: {value if value is not None else 'unavailable'}")
+    try:
+        path = save_workflow(result, args.output_dir)
+    except WorkflowExportError:
+        print("Workflow artifacts could not be saved; no final report accepted.")
+        return 1
+    print(f"Workflow artifacts: {path}")
+    print(
+        "Final report: report.md" if result.status == "completed" else "No final report exported."
+    )
+    return 0 if result.status == "completed" else 1
+
+
 def _agent_demo(args: argparse.Namespace) -> int:
     from office_agents.agent_examples import (
         make_mock_transport,
@@ -146,6 +219,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="office-agents")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor", help="Check configuration locally without making model requests.")
+    run_command = commands.add_parser("run", help="Run the actual five-role LangGraph workflow.")
+    run_command.add_argument("--request", required=True)
+    run_command.add_argument("--data-dir", type=Path, default=Path("data/samples"))
+    run_command.add_argument("--data-origin", choices=("simulated", "provided"))
+    run_command.add_argument("--mode", choices=("mock", "live"), default="mock")
+    run_command.add_argument("--profile", choices=("deepseek", "generic"), default="deepseek")
+    run_command.add_argument("--max-requests", type=int, default=6)
+    run_command.add_argument("--output-dir", type=Path, default=Path("outputs"))
     agent_command = commands.add_parser(
         "agent-demo", help="Run independent role examples (mock by default)."
     )
@@ -182,6 +263,8 @@ def main(argv: list[str] | None = None) -> int:
         if name == "smoke":
             command.add_argument("--profile", choices=("generic", "deepseek"), default="generic")
     args = parser.parse_args(argv)
+    if args.command == "run":
+        return _run(args)
     if args.command == "agent-demo":
         return _agent_demo(args)
     if args.command == "data-check":

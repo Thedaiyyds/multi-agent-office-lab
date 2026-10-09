@@ -1,0 +1,13 @@
+{
+  "role": "manager",
+  "started_at": "2026-10-09T10:09:11.938945+00:00",
+  "finished_at": "2026-10-09T10:09:17.636780+00:00",
+  "duration_ms": 5697.888665832579,
+  "status": "failed",
+  "input": {
+    "user_text": "生成研发部2026年第二季度工作报告",
+    "data_origin": "simulated"
+  },
+  "output": null,
+  "error": "Manager node failed; inspect safe audit events and inputs."
+}

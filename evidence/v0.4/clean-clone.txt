@@ -1,0 +1,42 @@
+Source commit: 131eb83a0a3f1f4aed2b33021d77f6650a022831
+.env absent: true
+
+$ uv sync --locked --python 3.12
+Resolved 47 packages in 23ms
+Checked 45 packages in 5ms
+Exit code: 0
+
+$ uv run --locked ruff check .
+All checks passed!
+Exit code: 0
+
+$ uv run --locked ruff format --check .
+62 files already formatted
+Exit code: 0
+
+$ uv run --locked pytest -q
+........................................................................ [ 17%]
+........................................................................ [ 35%]
+........................................................................ [ 53%]
+........................................................................ [ 71%]
+........................................................................ [ 89%]
+..........................................                               [100%]
+402 passed in 0.75s
+Exit code: 0
+
+$ uv run --locked office-agents run --mode mock --request 生成研发部2026年第二季度工作报告
+Mode: offline_mock; status: completed; run_id=c67d4203-8865-40cb-be1c-116bca6dc673.
+Local scripted HTTP fixtures; no real model requests.
+manager: passed; duration_ms=0.66.
+planner: passed; duration_ms=0.20.
+data: passed; duration_ms=0.91.
+writer: passed; duration_ms=0.36.
+checker: passed; duration_ms=0.31.
+HTTP requests: 6; reserved output limit: 1984.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: outputs/c67d4203-8865-40cb-be1c-116bca6dc673
+Final report: report.md
+Exit code: 0

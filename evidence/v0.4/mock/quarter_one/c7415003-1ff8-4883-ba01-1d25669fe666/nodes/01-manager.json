@@ -1,0 +1,30 @@
+{
+  "role": "manager",
+  "started_at": "2026-10-09T10:09:49.838003+00:00",
+  "finished_at": "2026-10-09T10:09:49.838228+00:00",
+  "duration_ms": 0.22312509827315807,
+  "status": "passed",
+  "input": {
+    "user_text": "生成研发部2026年第一季度工作报告",
+    "data_origin": "simulated"
+  },
+  "output": {
+    "status": "ready",
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-01-01",
+      "end_date": "2026-04-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    },
+    "missing_fields": [],
+    "questions": []
+  },
+  "error": null
+}

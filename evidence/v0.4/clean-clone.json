@@ -1,0 +1,63 @@
+{
+  "source_commit": "131eb83a0a3f1f4aed2b33021d77f6650a022831",
+  "env_file_absent": true,
+  "results": [
+    {
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--python",
+        "3.12"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "run",
+        "--mode",
+        "mock",
+        "--request",
+        "生成研发部2026年第二季度工作报告"
+      ],
+      "exit_code": 0
+    }
+  ]
+}
