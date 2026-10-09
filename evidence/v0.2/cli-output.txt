@@ -1,0 +1,56 @@
+Scenario: rd-q2
+Command: uv run --locked office-agents data-check --data-dir data/samples --data-origin simulated --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01 --output-dir outputs/v0.2-acceptance
+Exit code: 0
+Mode: offline; status: ok; data origin: simulated.
+Deterministic data tools; no model request or business Agent execution.
+project_count: 3 (count)
+completed_project_count: 2 (count)
+completion_rate: 0.6666666666666666 (ratio)
+achievement_count: 2 (count)
+issues.txt: unfiltered source material; no department/date attribution or issue count.
+Data report saved with run_id=b1a0b728-2fa3-498b-ad98-2bcdc772ed93.
+
+Scenario: rd-q1
+Command: uv run --locked office-agents data-check --data-dir data/samples --data-origin simulated --department 研发部 --start-date 2026-01-01 --end-date 2026-04-01 --output-dir outputs/v0.2-acceptance
+Exit code: 0
+Mode: offline; status: ok; data origin: simulated.
+Deterministic data tools; no model request or business Agent execution.
+project_count: 2 (count)
+completed_project_count: 1 (count)
+completion_rate: 0.5 (ratio)
+achievement_count: 1 (count)
+issues.txt: unfiltered source material; no department/date attribution or issue count.
+Data report saved with run_id=b6a25f2f-dd4e-4f60-bf1a-825db08785a8.
+
+Scenario: marketing-q2
+Command: uv run --locked office-agents data-check --data-dir data/samples --data-origin simulated --department 市场部 --start-date 2026-04-01 --end-date 2026-07-01 --output-dir outputs/v0.2-acceptance
+Exit code: 0
+Mode: offline; status: ok; data origin: simulated.
+Deterministic data tools; no model request or business Agent execution.
+project_count: 1 (count)
+completed_project_count: 0 (count)
+completion_rate: 0.0 (ratio)
+achievement_count: 1 (count)
+issues.txt: unfiltered source material; no department/date attribution or issue count.
+Data report saved with run_id=d26f3a46-11de-4be7-a281-cf3889006f3f.
+
+Scenario: no-data
+Command: uv run --locked office-agents data-check --data-dir data/samples --data-origin simulated --department 财务部 --start-date 2026-04-01 --end-date 2026-07-01 --output-dir outputs/v0.2-acceptance
+Exit code: 0
+Mode: offline; status: no_data; data origin: simulated.
+Deterministic data tools; no model request or business Agent execution.
+project_count: 0 (count)
+completed_project_count: 0 (count)
+completion_rate: null (ratio)
+achievement_count: 0 (count)
+WARNING no_projects [projects.csv]: 所选部门和日期区间无项目快照，完成率没有分母，返回 null。
+issues.txt: unfiltered source material; no department/date attribution or issue count.
+Data report saved with run_id=0423f71c-5bc5-4f67-b5eb-76a839294f13.
+
+Scenario: invalid-out-of-scope
+Command: uv run --locked office-agents data-check --data-dir outputs/v0.2-invalid-fixture --data-origin simulated --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01 --output-dir outputs/v0.2-acceptance
+Exit code: 1
+Mode: offline; status: invalid_data; data origin: simulated.
+Deterministic data tools; no model request or business Agent execution.
+ERROR invalid_project [projects.csv:10:progress]: Record violates the required field or consistency rules.
+Data report saved with run_id=055e26a6-5ba8-4427-b20b-a7959599fbd9.

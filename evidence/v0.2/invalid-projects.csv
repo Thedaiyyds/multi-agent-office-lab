@@ -1,0 +1,10 @@
+project_id,department,snapshot_date,status,progress
+P001,研发部,2026-04-15,active,60
+P001,研发部,2026-06-20,completed,100
+P002,研发部,2026-04-01,completed,100
+P003,研发部,2026-06-30,active,75
+P001,研发部,2026-03-20,active,35
+P004,研发部,2026-01-01,completed,100
+P005,市场部,2026-05-10,active,40
+P006,研发部,2026-07-01,blocked,20
+BAD01,市场部,2025-01-01,active,nan
