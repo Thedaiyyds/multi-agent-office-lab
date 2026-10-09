@@ -1,0 +1,60 @@
+{
+  "role": "planner",
+  "started_at": "2026-10-09T10:56:01.425594+00:00",
+  "finished_at": "2026-10-09T10:56:04.101295+00:00",
+  "duration_ms": 2675.7099588867277,
+  "status": "passed",
+  "input": {
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-04-01",
+      "end_date": "2026-07-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    }
+  },
+  "output": {
+    "sections": [
+      {
+        "section_id": "overview",
+        "title": "工作概况",
+        "purpose": "概述研发部在统计周期内的整体工作情况",
+        "metric_ids": [
+          "project_count"
+        ]
+      },
+      {
+        "section_id": "achievements",
+        "title": "主要成果",
+        "purpose": "总结研发部取得的主要成果和完成情况",
+        "metric_ids": [
+          "completed_project_count",
+          "completion_rate"
+        ]
+      },
+      {
+        "section_id": "issues_risks",
+        "title": "问题与风险",
+        "purpose": "分析研发部面临的问题与潜在风险",
+        "metric_ids": []
+      },
+      {
+        "section_id": "future_plans",
+        "title": "后续计划",
+        "purpose": "规划研发部后续的工作计划和改进方向",
+        "metric_ids": [
+          "achievement_count"
+        ]
+      }
+    ]
+  },
+  "error": null,
+  "revision_index": 0,
+  "generated_output": null
+}

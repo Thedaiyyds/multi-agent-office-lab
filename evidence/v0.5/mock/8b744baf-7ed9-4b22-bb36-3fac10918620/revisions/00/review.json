@@ -1,0 +1,23 @@
+{
+  "passed": false,
+  "issues": [
+    {
+      "code": "sections_mismatch",
+      "location": "sections",
+      "message": "草稿章节编号、标题和顺序必须与大纲完全一致。",
+      "severity": "error"
+    },
+    {
+      "code": "required_sections",
+      "location": "sections",
+      "message": "草稿未按需求完整展示必需章节。",
+      "severity": "error"
+    }
+  ],
+  "revision_instructions": [
+    "sections: 草稿章节编号、标题和顺序必须与大纲完全一致。",
+    "sections: 草稿未按需求完整展示必需章节。",
+    "保持需求、大纲与权威数据不变；事实的数值、单位及来源逐项复制 metrics。"
+  ],
+  "needs_input": false
+}

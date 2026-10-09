@@ -1,0 +1,17 @@
+Mode: offline_mock; status: completed; run_id=745ff1f5-e8f4-47a1-a867-a653fce20606.
+Local scripted HTTP fixtures; no real model requests.
+Business revisions: 0/2; network retries: 0/0.
+manager[revision=0]: passed; duration_ms=0.92.
+planner[revision=0]: passed; duration_ms=0.22.
+data[revision=0]: passed; duration_ms=1.24.
+writer[revision=0]: passed; duration_ms=0.43.
+checker[revision=0]: passed; duration_ms=0.35.
+review[0]: passed=True; mode=program_and_model.
+HTTP requests: 6; reserved output limit: 1984.
+Logical model request attempts: 6.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: /Users/dai/Agent_SoftwareArc/outputs/v0.5-mock/normal/745ff1f5-e8f4-47a1-a867-a653fce20606
+Final report: report.md

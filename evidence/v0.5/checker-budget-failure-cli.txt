@@ -1,0 +1,23 @@
+Mode: offline_mock; status: failed; run_id=0eeca1dc-83a6-4f36-a07e-919cb9eaad43.
+Local scripted HTTP fixtures; no real model requests.
+Fault experiment: bad-fact; deliberate injection, not a natural model error.
+Business revisions: 1/2; network retries: 0/0.
+manager[revision=0]: passed; duration_ms=0.65.
+planner[revision=0]: passed; duration_ms=0.21.
+data[revision=0]: passed; duration_ms=0.84.
+writer[revision=0]: passed; duration_ms=0.50.
+checker[revision=0]: review_failed; duration_ms=0.20.
+writer[revision=1]: passed; duration_ms=0.37.
+checker[revision=1]: failed; duration_ms=0.19.
+review[0]: passed=False; mode=program_only.
+审核未通过；流程已停止，请查看逐轮草稿及审核意见。
+fact_value [fact_claims[0]]: 事实值与权威数据不一致或不是有限数值。
+Checker node failed: request budget exhausted; inspect safe audit events and inputs.
+HTTP requests: 6; reserved output limit: 2496.
+Logical model request attempts: 7.
+prompt_tokens: unavailable
+completion_tokens: unavailable
+total_tokens: unavailable
+reasoning_tokens: unavailable
+Workflow artifacts: /Users/dai/Agent_SoftwareArc/outputs/v0.5-mock/checker-budget-failure/0eeca1dc-83a6-4f36-a07e-919cb9eaad43
+No final report exported.

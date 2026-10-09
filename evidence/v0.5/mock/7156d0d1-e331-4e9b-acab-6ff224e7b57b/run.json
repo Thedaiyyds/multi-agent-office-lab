@@ -1,0 +1,116 @@
+{
+  "run_id": "7156d0d1-e331-4e9b-acab-6ff224e7b57b",
+  "created_at": "2026-10-09T10:56:35.112302+00:00",
+  "mode": "offline_mock",
+  "status": "needs_input",
+  "user_text": "生成工作报告",
+  "data_origin": "simulated",
+  "manager_decision": {
+    "status": "needs_input",
+    "requirements": null,
+    "missing_fields": [
+      "department",
+      "date_range"
+    ],
+    "questions": [
+      "请提供部门和明确年份季度或起止 ISO 日期。"
+    ]
+  },
+  "requirements": null,
+  "outline": null,
+  "data_result": null,
+  "metrics": [],
+  "sources": [],
+  "data_issues": [],
+  "draft": null,
+  "review": null,
+  "schema_version": "0.5",
+  "max_revisions": 2,
+  "revision_count": 0,
+  "revision_history": [],
+  "test_scenario": "none",
+  "narrative_policy": "constrained",
+  "nodes": [
+    {
+      "role": "manager",
+      "started_at": "2026-10-09T10:56:35.115103+00:00",
+      "finished_at": "2026-10-09T10:56:35.115671+00:00",
+      "duration_ms": 0.5660830065608025,
+      "status": "needs_input",
+      "input": {
+        "user_text": "生成工作报告",
+        "data_origin": "simulated"
+      },
+      "output": {
+        "status": "needs_input",
+        "requirements": null,
+        "missing_fields": [
+          "department",
+          "date_range"
+        ],
+        "questions": [
+          "请提供部门和明确年份季度或起止 ISO 日期。"
+        ]
+      },
+      "error": null,
+      "revision_index": 0,
+      "generated_output": null
+    }
+  ],
+  "events": [
+    {
+      "run_id": "7156d0d1-e331-4e9b-acab-6ff224e7b57b",
+      "created_at": "2026-10-09T10:56:35.115103+00:00",
+      "role": "manager",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started manager with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null,
+      "revision_index": 0,
+      "attempt": 1,
+      "max_output_tokens": null
+    },
+    {
+      "run_id": "7156d0d1-e331-4e9b-acab-6ff224e7b57b",
+      "created_at": "2026-10-09T10:56:35.115629+00:00",
+      "role": "manager",
+      "event_type": "model_request",
+      "status": "passed",
+      "duration_ms": null,
+      "summary": "Received completion; role output requires local validation.",
+      "tool_name": null,
+      "arguments": null,
+      "revision_index": 0,
+      "attempt": 1,
+      "max_output_tokens": 256
+    },
+    {
+      "run_id": "7156d0d1-e331-4e9b-acab-6ff224e7b57b",
+      "created_at": "2026-10-09T10:56:35.115671+00:00",
+      "role": "manager",
+      "event_type": "node_finished",
+      "status": "needs_input",
+      "duration_ms": 0.5660830065608025,
+      "summary": "Finished manager; workflow decision: needs_input.",
+      "tool_name": null,
+      "arguments": null,
+      "revision_index": 0,
+      "attempt": 1,
+      "max_output_tokens": null
+    }
+  ],
+  "request_count": 1,
+  "reserved_output_tokens": 256,
+  "logical_request_count": 1,
+  "retry_count": 0,
+  "retry_budget": 0,
+  "usage": {
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "total_tokens": null,
+    "reasoning_tokens": null
+  },
+  "error": null
+}
