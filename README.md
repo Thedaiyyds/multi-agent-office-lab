@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前里程碑为 v0.5：LangGraph 五角色协作，Checker 拒绝后将实际草稿和反馈送回 Writer，首次草稿之后最多返工两次。完整工作流使用受约束正文和结构化事实，审核通过并复核历史才导出 report.md；网络重试另计、默认关闭。实际测试与真实联调见 [v0.5 验收记录](docs/validation-v0.5.md)。Streamlit 页面安排在 v0.6。
+当前里程碑为 v0.6：Streamlit 中文办公工作台提供需求输入、样例/文件上传、真实节点进度、逐轮审核与 Markdown 下载。后台复用 v0.5 有界返工和事实门禁，每个页面会话一次只接纳一个任务，页面重运行或下载不会重新请求模型。验证见 [v0.6 验收记录](docs/validation-v0.6.md)。
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
@@ -24,6 +24,19 @@ uv run --locked ruff check .
 ```
 
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
+
+## v0.6 网页工作台
+
+```bash
+uv sync --locked --python 3.12
+uv run --locked streamlit run app.py --server.address 127.0.0.1
+```
+
+打开 http://127.0.0.1:8501 ，默认使用实验样例与离线模拟，无需密钥。输入需求后点击“开始协作”，查看角色进度、指标与来源、每轮草稿和审核、最终报告，并下载 Markdown。自有数据需上传同名 projects.csv、achievements.csv、issues.txt，UTF-8，每文件最多2 MiB；格式与业务值在模型调用前校验。
+
+任务在后台执行，运行时输入冻结；同一会话重复提交不重复运行，终态后“新建任务”才能再提交。只有完成核心审核与最终导出才提供最终报告下载。真实模式需明确选择并读取现有本地.env，默认网络重试为0；高级预算可以下调。故障实验明确标记主动注入，不冒充模型自然错误。
+
+[页面使用](docs/web-usage-v0.6.md)、[详细计划](docs/plan-v0.6.md)、[架构](docs/architecture-v0.6.md)、[协作审查](docs/review-v0.6.md)、[验收与截图](docs/validation-v0.6.md)。产物保存在 outputs/web/<run_id>/，仅精选模拟证据归档。本版为本机原型，无账号权限、跨重启任务恢复或PDF导出。
 
 ## v0.5 完整协作与有界返工
 

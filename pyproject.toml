@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "multi-agent-office-lab"
-version = "0.5.0"
+version = "0.6.0"
 description = "A reproducible multi-agent office collaboration course project"
 requires-python = ">=3.12,<3.14"
 dependencies = [
@@ -12,6 +12,7 @@ dependencies = [
     "langgraph>=1,<2",
     "pydantic>=2.10,<3",
     "python-dotenv>=1,<2",
+    "streamlit>=1.65,<2",
 ]
 
 [project.scripts]

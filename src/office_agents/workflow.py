@@ -5,6 +5,7 @@ boundary its validated copy is associated with this workflow's run_id; values,
 source references and creation time remain the actual tool output.
 """
 
+from collections.abc import Callable
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -113,6 +114,7 @@ def run_workflow(
     run_id: str | None = None,
     max_revisions: int = 2,
     test_scenario: Literal["none", "bad-fact", "missing-section", "always-bad"] = "none",
+    on_event: Callable[[WorkflowEvent], None] | None = None,
 ) -> WorkflowResult:
     """Run one dedicated session with at most two genuine Writer revisions.
 
@@ -139,12 +141,31 @@ def run_workflow(
     # Python-mode values preserve typed contracts for node consumers.
     state = {field: deepcopy(getattr(initial, field)) for field in type(initial).model_fields}
 
+    def notify(event):
+        if on_event is not None:
+            try:
+                on_event(event.model_copy(deep=True))
+            except Exception:
+                # A presentation observer must neither alter audit records nor
+                # replay an admitted model request when its UI has disconnected.
+                pass
+
     def execute(role: Role, inputs, action):
         def node(current):
             started_at, started = _utc_now(), monotonic()
             event_offset = len(session.events)
             snapshots = deepcopy(inputs(current))
             revision_index = current["revision_count"]
+            start_event = WorkflowEvent(
+                run_id=current["run_id"],
+                created_at=started_at,
+                role=role,
+                event_type="node_started",
+                status="running",
+                summary=f"Started {role} with validated workflow inputs.",
+                revision_index=revision_index,
+            )
+            notify(start_event)
             output = None
             generated_output = None
             updates = {}
@@ -173,17 +194,7 @@ def run_workflow(
                 revision_index=revision_index,
                 generated_output=generated_output,
             )
-            events = [
-                WorkflowEvent(
-                    run_id=current["run_id"],
-                    created_at=started_at,
-                    role=role,
-                    event_type="node_started",
-                    status="running",
-                    summary=f"Started {role} with validated workflow inputs.",
-                    revision_index=revision_index,
-                )
-            ]
+            events = [start_event]
             for event in session.events[event_offset:]:
                 events.append(
                     WorkflowEvent(
@@ -217,6 +228,8 @@ def run_workflow(
                     revision_index=revision_index,
                 )
             )
+            for event in events[1:]:
+                notify(event)
             return {
                 **updates,
                 "nodes": [*current["nodes"], record],

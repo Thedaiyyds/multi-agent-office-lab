@@ -5,6 +5,7 @@ import hashlib
 import io
 import stat
 from pathlib import Path
+from threading import RLock
 
 from pydantic import ValidationError
 
@@ -39,6 +40,7 @@ CSV_HEADERS = {
     ),
 }
 SOURCE_IDS = frozenset((*CSV_HEADERS, "issues.txt"))
+_CSV_PARSE_LOCK = RLock()
 
 
 def _issue(code, message, source_id=None, line_number=None, field=None, severity="error"):
@@ -117,11 +119,14 @@ def read_csv(data_root: str | Path, source_id: str) -> RawTable:
         return table
     # A valid bounded file may contain a field larger than csv's 128 KiB default.
     # Use the same bound for a CSV field and the complete input file.
-    previous_limit = csv.field_size_limit(MAX_FILE_BYTES)
-    try:
-        _parse_csv(text, source_id, table)
-    finally:
-        csv.field_size_limit(previous_limit)
+    # The CSV field limit is process-global. Serialize changing/parsing/restoring
+    # it when upload validation and independent web sessions run concurrently.
+    with _CSV_PARSE_LOCK:
+        previous_limit = csv.field_size_limit(MAX_FILE_BYTES)
+        try:
+            _parse_csv(text, source_id, table)
+        finally:
+            csv.field_size_limit(previous_limit)
     return table
 
 
