@@ -1,5 +1,6 @@
 """UI acceptance using real session controllers and the offline HTTP graph."""
 
+from importlib import import_module
 from pathlib import Path
 
 import pytest
@@ -13,15 +14,29 @@ from office_agents.web_schemas import SAMPLE_ROOT
 APP = Path(__file__).resolve().parents[1] / "app.py"
 
 
+@pytest.fixture(scope="module")
+def rendering_dependencies():
+    # Streamlit's arrow.dataframe lazily imports these on the first result render.
+    # Initialize third-party native/compiled dependencies on the pytest thread,
+    # outside AppTest's script-completion timeout. The app still renders actual
+    # dataframes and executes the unchanged graph; this is not a mocked renderer.
+    import_module("pandas")
+    import_module("pyarrow")
+
+
 @pytest.fixture
-def app(tmp_path, monkeypatch):
+def app(tmp_path, monkeypatch, rendering_dependencies):
     class LocalController(RunController):
         def start(self, *args, **kwargs):
             kwargs["output_root"] = tmp_path
             return super().start(*args, **kwargs)
 
     monkeypatch.setattr(web_ui, "RunController", LocalController)
-    return AppTest.from_file(str(APP), default_timeout=20).run()
+    instance = AppTest.from_file(str(APP), default_timeout=20).run()
+    yield instance
+    # Join a worker even if a UI assertion fails, before monkeypatch restores its
+    # factory. Tests must not leave a task running into the next browser session.
+    instance.session_state["office_run_controller"].wait(timeout=20)
 
 
 def widget(elements, label):
