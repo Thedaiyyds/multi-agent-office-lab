@@ -1,0 +1,246 @@
+$ git -c http.version=HTTP/1.1 clone --branch codex/v1.0-release https://github.com/Thedaiyyds/multi-agent-office-lab.git /var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo
+Cloning into '/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo'...
+
+
+$ uv sync --locked --python 3.12
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Using CPython 3.12.15
+Creating virtual environment at: .venv
+Resolved 76 packages in 2ms
+   Building multi-agent-office-lab @ file:///private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo
+      Built multi-agent-office-lab @ file:///private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo
+Prepared 1 package in 1.38s
+Installed 70 packages in 147ms
+ + altair==6.3.0
+ + annotated-types==0.8.0
+ + anyio==4.15.1
+ + attrs==26.1.0
+ + certifi==2026.7.22
+ + charset-normalizer==3.5.2
+ + click==8.5.0
+ + distro==1.9.0
+ + h11==0.16.0
+ + httpcore==1.0.9
+ + httpcore2==2.13.1
+ + httptools==0.9.0
+ + httpx==0.28.1
+ + httpx2==2.13.1
+ + idna==3.20
+ + iniconfig==2.3.1
+ + itsdangerous==2.2.0
+ + jinja2==3.1.6
+ + jsonpatch==1.33
+ + jsonpointer==3.2.0
+ + jsonschema==4.26.0
+ + jsonschema-specifications==2025.9.1
+ + langchain-core==1.6.9
+ + langchain-protocol==0.0.19
+ + langgraph==1.2.14
+ + langgraph-checkpoint==4.2.0
+ + langgraph-prebuilt==1.1.0
+ + langgraph-sdk==0.4.6
+ + langsmith==0.14.5
+ + markupsafe==3.0.4
+ + multi-agent-office-lab==1.0.0 (from file:///private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo)
+ + narwhals==2.26.0
+ + numpy==2.5.3
+ + orjson==3.13.0
+ + ormsgpack==1.12.2
+ + packaging==26.3
+ + pandas==3.0.6
+ + pillow==12.3.0
+ + pluggy==1.6.0
+ + protobuf==7.36.2
+ + pyarrow==25.0.1
+ + pydantic==2.14.0
+ + pydantic-core==2.50.0
+ + pydeck==0.9.3
+ + pygments==2.21.0
+ + pytest==9.1.1
+ + python-dateutil==2.9.0.post0
+ + python-dotenv==1.2.4
+ + python-multipart==0.0.32
+ + pyyaml==6.0.3
+ + referencing==0.37.0
+ + requests==2.34.2
+ + requests-toolbelt==1.0.0
+ + rpds-py==2026.9.1
+ + ruff==0.16.10
+ + six==1.17.0
+ + sniffio==1.3.1
+ + starlette==1.7.0
+ + streamlit==1.65.0
+ + tenacity==9.2.1
+ + toml==0.10.2
+ + truststore==0.10.4
+ + typing-extensions==4.16.0
+ + typing-inspection==0.4.4
+ + urllib3==2.8.0
+ + uuid-utils==0.17.1
+ + uvicorn==0.54.0
+ + websockets==16.1.1
+ + xxhash==4.0.1
+ + zstandard==0.25.0
+
+
+$ uv run --locked ruff check .
+All checks passed!
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+
+$ uv run --locked ruff format --check .
+184 files already formatted
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+
+$ uv run --locked pytest -q -o faulthandler_timeout=10
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 48%]
+........................................................................ [ 60%]
+........................................................................ [ 72%]
+........................................................................ [ 84%]
+........................................................................ [ 96%]
+...................                                                      [100%]
+595 passed in 31.91s
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Timeout (0:00:10)!
+Thread 0x00000001ed0f6180 (most recent call first):
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1293 in create_module
+  File "<frozen importlib._bootstrap>", line 813 in module_from_spec
+  File "<frozen importlib._bootstrap>", line 921 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1415 in _handle_fromlist
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pandas/_libs/tslibs/__init__.py", line 40 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 999 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1301 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1301 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 1301 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pandas/_libs/__init__.py", line 18 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 999 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap>", line 1310 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pandas/errors/__init__.py", line 12 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 999 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pandas/core/config_init.py", line 31 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 999 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pandas/__init__.py", line 44 in <module>
+  File "<frozen importlib._bootstrap>", line 488 in _call_with_frames_removed
+  File "<frozen importlib._bootstrap_external>", line 999 in exec_module
+  File "<frozen importlib._bootstrap>", line 935 in _load_unlocked
+  File "<frozen importlib._bootstrap>", line 1331 in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 1360 in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1387 in _gcd_import
+  File "/Users/dai/.local/share/uv/python/cpython-3.12.15-macos-aarch64-none/lib/python3.12/importlib/__init__.py", line 90 in import_module
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/tests/test_web_app.py", line 23 in rendering_dependencies
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/fixtures.py", line 1005 in call_fixture_func
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/fixtures.py", line 1328 in pytest_fixture_setup
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/fixtures.py", line 1232 in execute
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/fixtures.py", line 726 in _get_active_fixturedef
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/fixtures.py", line 630 in getfixturevalue
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/fixtures.py", line 806 in _fillfixtures
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/python.py", line 1710 in setup
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 536 in setup
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 170 in pytest_runtest_setup
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 250 in <lambda>
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 361 in from_call
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 249 in call_and_report
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 132 in runtestprotocol
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/runner.py", line 118 in pytest_runtest_protocol
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/main.py", line 408 in pytest_runtestloop
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/main.py", line 384 in _main
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/main.py", line 330 in wrap_session
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/main.py", line 377 in pytest_cmdline_main
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_callers.py", line 121 in _multicall
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_manager.py", line 120 in _hookexec
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/pluggy/_hooks.py", line 512 in __call__
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py", line 229 in _main
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/lib/python3.12/site-packages/_pytest/config/__init__.py", line 253 in _console_main
+  File "/private/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v10-clean-kxnzrdtr/repo/.venv/bin/pytest", line 10 in <module>
+
+
+$ uv run --locked office-agents graph-demo --output-dir outputs
+Mode: offline; result: passed.
+Deterministic two-node LangGraph check; no model or real multi-agent work.
+PASS two_node_graph: Expected sequence: increment then double; input 2 becomes 6.
+Report saved with run_id=78d94c0c-3aac-4168-9183-90c996f87b1a.
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+
+$ uv run --locked office-agents acceptance --output-dir outputs/acceptance
+Mode: offline_mock; external API requests: 0. No model configuration loaded.
+PASS research-q2: completed (expected completed).
+PASS research-q1: completed (expected completed).
+PASS marketing-q2: completed (expected completed).
+PASS invalid-upload: input_rejected (expected input_rejected).
+PASS missing-request: needs_input (expected needs_input).
+PASS bad-fact-repair: completed (expected completed).
+PASS persistent-error-limit: review_failed (expected review_failed).
+PASS model-timeout: failed (expected failed).
+Acceptance index: outputs/acceptance/2ba83f87-e1cc-4873-aa20-ba075e1ae2f0/summary.json
+Expected failures count as accepted only when their actual checks pass.
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+
+
+Fresh clone Streamlit loopback /_stcore/health: HTTP 200, body ok. Server terminated after probe.
+warning: `VIRTUAL_ENV=/Users/dai/Agent_SoftwareArc/.venv` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+2026-10-10 12:43:58.478 Uvicorn server started on 127.0.0.1:8520
+
+  You can now view your Streamlit app in your browser.
+
+  URL: http://127.0.0.1:8520
+
+  For better performance, install the Watchdog module:
+
+  $ xcode-select --install
+  $ pip install watchdog
+
+  Stopping...

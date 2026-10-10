@@ -40,7 +40,7 @@ app = AppTest(
         for _ in range(2):
 >           assert widget(app.text_area, "报告需求").value == request
 E           AssertionError: assert '生成研发部2026年第二...果、问题与风险、后续计划。' == '生成市场部2026年第二季度工作报告'
-E             
+E
 E             - 生成市场部2026年第二季度工作报告
 E             + 生成研发部2026年第二季度工作报告。日期范围为2026-04-01（含）至2026-07-01（不含）；章节依次为工作概况、主要成果、问题与风险、后续计划。
 
@@ -68,10 +68,10 @@ monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f1e9100>
         class Uploaded:
             def __init__(self, name, content):
                 self.name, self.content = name, content
-    
+
             def getvalue(self):
                 return self.content
-    
+
         files = [
             Uploaded(path.name, path.read_bytes())
             for path in (
@@ -90,7 +90,7 @@ monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f1e9100>
         assert snapshot.result.data_origin == "provided"
 >       assert widget(app.radio, "数据来源").value == "上传我的文件"
 E       AssertionError: assert '实验样例' == '上传我的文件'
-E         
+E
 E         - 上传我的文件
 E         + 实验样例
 

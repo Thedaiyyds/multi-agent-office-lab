@@ -20,11 +20,21 @@ REPORT_DIR = ROOT / "docs" / "report"
 
 
 def font(style, size, *, bold=False):
-    style.font.name = "Calibri"
+    style.font.name = "Arial Unicode MS"
     style.font.size = Pt(size)
     style.font.bold = bold
     style.font.color.rgb = RGBColor(0, 0, 0)
-    style.element.get_or_add_rPr().get_or_add_rFonts().set(qn("w:eastAsia"), "PingFang SC")
+    properties = style.element.get_or_add_rPr()
+    fonts = properties.get_or_add_rFonts()
+    # Remove theme font precedence: a static Unicode font renders Chinese in
+    # Word and the bundled headless renderer, unlike platform-specific faces.
+    for attribute in list(fonts.attrib):
+        if attribute.endswith("Theme") or attribute.endswith("theme"):
+            del fonts.attrib[attribute]
+    for attribute in ("ascii", "hAnsi", "eastAsia", "cs"):
+        fonts.set(qn(f"w:{attribute}"), "Arial Unicode MS")
+    for border in style.element.xpath("./w:pPr/w:pBdr"):
+        border.getparent().remove(border)
 
 
 def inline(paragraph, text):
@@ -35,7 +45,7 @@ def inline(paragraph, text):
         if token.startswith("**"):
             run.bold = True
         elif token.startswith("`"):
-            run.font.name = "Consolas"
+            run.font.name = "Liberation Mono"
             run.font.size = Pt(10)
 
 
@@ -149,7 +159,16 @@ def markdown(doc, source, *, skip_title=False):
             continue
         image_match = re.fullmatch(r"!\[([^\]]*)\]\(([^)]+)\)", line.strip())
         if image_match:
-            figure(doc, (source.parent / image_match[2]).resolve(), image_match[1])
+            caption = image_match[1]
+            following = index
+            while following < len(lines) and not lines[following].strip():
+                following += 1
+            if following < len(lines) and re.match(r"^图\d+[：:]", lines[following]):
+                # Keep the full provenance caption attached to its picture;
+                # the Markdown alt label is redundant in the printed report.
+                caption = lines[following]
+                index = following + 1
+            figure(doc, (source.parent / image_match[2]).resolve(), caption)
             continue
         if line.strip().startswith("|"):
             rows = []
@@ -199,13 +218,15 @@ def build(output):
     doc.styles["Caption"].paragraph_format.space_after = Pt(9)
     code_style = doc.styles.add_style("Code", 1)
     font(code_style, 9)
-    code_style.font.name = "Consolas"
+    code_style.font.name = "Liberation Mono"
     code_style.paragraph_format.line_spacing = 1.1
     code_style.paragraph_format.space_after = Pt(4)
     doc.add_paragraph("多智能体办公协作系统实验报告", style="Title")
-    doc.add_paragraph("软件体系结构研究生课程  LangGraph 与 Streamlit  v1.0.0")
+    doc.add_paragraph("软件体系结构研究生课程  LangGraph 与 Streamlit")
+    doc.add_paragraph("课程交付版本 v1.0.0")
     doc.add_paragraph("姓名 __________________  学号 __________________")
     doc.add_paragraph("班级 __________________  日期 2026年10月10日")
+    doc.add_paragraph("指导教师 __________________")
     doc.add_paragraph("代码仓库 https://github.com/Thedaiyyds/multi-agent-office-lab")
     markdown(doc, REPORT_DIR / "experiment-report.md", skip_title=True)
     doc.add_page_break()

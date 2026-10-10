@@ -1,0 +1,25 @@
+{
+  "role": "manager",
+  "started_at": "2026-10-10T04:43:00.531263+00:00",
+  "finished_at": "2026-10-10T04:43:00.531486+00:00",
+  "duration_ms": 0.22112508304417133,
+  "status": "needs_input",
+  "input": {
+    "user_text": "请生成工作报告",
+    "data_origin": "simulated"
+  },
+  "output": {
+    "status": "needs_input",
+    "requirements": null,
+    "missing_fields": [
+      "department",
+      "date_range"
+    ],
+    "questions": [
+      "请提供部门和明确年份季度或起止 ISO 日期。"
+    ]
+  },
+  "error": null,
+  "revision_index": 0,
+  "generated_output": null
+}

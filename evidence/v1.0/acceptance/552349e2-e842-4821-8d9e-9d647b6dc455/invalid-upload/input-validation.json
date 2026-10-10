@@ -1,0 +1,8 @@
+{
+  "status": "input_rejected",
+  "issue_codes": [
+    "invalid_headers"
+  ],
+  "http_requests": 0,
+  "run_id": null
+}
