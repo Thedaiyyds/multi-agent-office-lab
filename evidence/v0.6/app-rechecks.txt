@@ -1,0 +1,29 @@
+UI repetition 1
+$ uv run --locked pytest -q tests/test_web_app.py -o faulthandler_timeout=10
+.............                                                            [100%]
+13 passed in 1.54s
+
+
+UI repetition 2
+$ uv run --locked pytest -q tests/test_web_app.py -o faulthandler_timeout=10
+.............                                                            [100%]
+13 passed in 1.43s
+
+
+UI repetition 3
+$ uv run --locked pytest -q tests/test_web_app.py -o faulthandler_timeout=10
+.............                                                            [100%]
+13 passed in 1.27s
+
+
+UI repetition 4
+$ uv run --locked pytest -q tests/test_web_app.py -o faulthandler_timeout=10
+.............                                                            [100%]
+13 passed in 1.38s
+
+
+UI repetition 5
+$ uv run --locked pytest -q tests/test_web_app.py -o faulthandler_timeout=10
+.............                                                            [100%]
+13 passed in 1.33s
+

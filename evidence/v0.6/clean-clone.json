@@ -1,0 +1,113 @@
+{
+  "source_commit": "c850e05c93e562a7beda4464aac78f9adf93357b",
+  "clone_commit": "c850e05c93e562a7beda4464aac78f9adf93357b",
+  "date": "2026-10-10",
+  "clone_directory": "/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v06-clean-3cnbccsi/repo",
+  "env_file_present": false,
+  "external_api_requests": 0,
+  "commands": [
+    {
+      "command": [
+        "git",
+        "clone",
+        "--branch",
+        "feature/v0.6-web",
+        "https://github.com/Thedaiyyds/multi-agent-office-lab.git",
+        "/var/folders/ky/ykb5sq6j155fbs8f8th9qk5h0000gn/T/office-lab-v06-clean-3cnbccsi/repo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "sync",
+        "--locked",
+        "--python",
+        "3.12"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "pytest",
+        "-q",
+        "-o",
+        "faulthandler_timeout=10"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "run",
+        "--mode",
+        "mock",
+        "--request",
+        "生成研发部2026年第二季度工作报告"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--locked",
+        "office-agents",
+        "workflow-test",
+        "--mode",
+        "mock",
+        "--case",
+        "bad-fact",
+        "--request",
+        "生成研发部2026年第二季度工作报告"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "workflow_results": [
+    {
+      "run_id": "2cc5f96a-6e6a-4794-8878-315321c3ba52",
+      "status": "completed",
+      "scenario": "none",
+      "revision_count": 0,
+      "http_attempts": 6
+    },
+    {
+      "run_id": "87414c76-d542-485d-806f-5893e52651f1",
+      "status": "completed",
+      "scenario": "bad-fact",
+      "revision_count": 1,
+      "http_attempts": 7
+    }
+  ],
+  "passed": true
+}

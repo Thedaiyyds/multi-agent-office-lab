@@ -1,0 +1,59 @@
+{
+  "role": "planner",
+  "started_at": "2026-10-10T03:50:10.960318+00:00",
+  "finished_at": "2026-10-10T03:50:10.960560+00:00",
+  "duration_ms": 0.2406660933047533,
+  "status": "passed",
+  "input": {
+    "requirements": {
+      "department": "研发部",
+      "start_date": "2026-04-01",
+      "end_date": "2026-07-01",
+      "data_origin": "simulated",
+      "required_sections": [
+        "工作概况",
+        "主要成果",
+        "问题与风险",
+        "后续计划"
+      ],
+      "output_format": "markdown"
+    }
+  },
+  "output": {
+    "sections": [
+      {
+        "section_id": "part_1",
+        "title": "工作概况",
+        "purpose": "离线脚本按实际需求规划章节，指标由工具提供。",
+        "metric_ids": [
+          "project_count",
+          "completed_project_count",
+          "completion_rate"
+        ]
+      },
+      {
+        "section_id": "part_2",
+        "title": "主要成果",
+        "purpose": "离线脚本按实际需求规划章节，指标由工具提供。",
+        "metric_ids": [
+          "achievement_count"
+        ]
+      },
+      {
+        "section_id": "part_3",
+        "title": "问题与风险",
+        "purpose": "离线脚本按实际需求规划章节，指标由工具提供。",
+        "metric_ids": []
+      },
+      {
+        "section_id": "part_4",
+        "title": "后续计划",
+        "purpose": "离线脚本按实际需求规划章节，指标由工具提供。",
+        "metric_ids": []
+      }
+    ]
+  },
+  "error": null,
+  "revision_index": 0,
+  "generated_output": null
+}
