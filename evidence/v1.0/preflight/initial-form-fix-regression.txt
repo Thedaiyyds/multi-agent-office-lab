@@ -1,0 +1,105 @@
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 48%]
+........................................................................ [ 60%]
+....................................F.F................................. [ 72%]
+........................................................................ [ 84%]
+........................................................................ [ 96%]
+...................                                                      [100%]
+=================================== FAILURES ===================================
+_____ test_accepted_nondefault_input_stays_visible_until_explicit_new_task _____
+
+app = AppTest(
+    _script_path='/Users/dai/Agent_SoftwareArc/app.py',
+    default_timeout=20,
+    _session_state={$$ID-1381...              5: Caption()
+            }
+        ),
+        2: SpecialBlock(
+            type='event'
+        )
+    }
+)
+
+    def test_accepted_nondefault_input_stays_visible_until_explicit_new_task(app):
+        request = "生成市场部2026年第二季度工作报告"
+        widget(app.text_area, "报告需求").set_value(request)
+        widget(app.checkbox, "启用故意注入错误的实验").check()
+        widget(app.selectbox, "注入场景").set_value("缺失章节")
+        widget(app.number_input, "最多返工次数").set_value(1)
+        widget(app.number_input, "网络重试预算").set_value(1)
+        widget(app.number_input, "HTTP请求上限").set_value(8)
+        widget(app.number_input, "输出tokens预留上限").set_value(4033)
+        widget(app.number_input, "单次请求超时（秒）").set_value(17)
+        controller, result = submit(app)
+        assert result.status == "completed"
+        assert result.result.requirements.department == "市场部"
+        assert result.result.test_scenario == "missing-section"
+        assert result.result.max_revisions == 1 and result.result.retry_budget == 1
+        for _ in range(2):
+>           assert widget(app.text_area, "报告需求").value == request
+E           AssertionError: assert '生成研发部2026年第二...果、问题与风险、后续计划。' == '生成市场部2026年第二季度工作报告'
+E
+E             - 生成市场部2026年第二季度工作报告
+E             + 生成研发部2026年第二季度工作报告。日期范围为2026-04-01（含）至2026-07-01（不含）；章节依次为工作概况、主要成果、问题与风险、后续计划。
+
+tests/test_web_app.py:183: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-10 12:40:28.807 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+------------------------------ Captured log setup ------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:483 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+______________ test_uploaded_valid_files_change_statistics_in_ui _______________
+
+app = AppTest(
+    _script_path='/Users/dai/Agent_SoftwareArc/app.py',
+    default_timeout=20,
+    _session_state={$$ID-1381...              5: Caption()
+            }
+        ),
+        2: SpecialBlock(
+            type='event'
+        )
+    }
+)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10f1e9100>
+
+    def test_uploaded_valid_files_change_statistics_in_ui(app, monkeypatch):
+        class Uploaded:
+            def __init__(self, name, content):
+                self.name, self.content = name, content
+
+            def getvalue(self):
+                return self.content
+
+        files = [
+            Uploaded(path.name, path.read_bytes())
+            for path in (
+                SAMPLE_ROOT / name for name in ("projects.csv", "achievements.csv", "issues.txt")
+            )
+        ]
+        project = next(file for file in files if file.name == "projects.csv")
+        lines = project.content.decode().splitlines()
+        # Keep one source record for the requested department/date, not UI-generated metrics.
+        matching = next(line for line in lines[1:] if "研发部" in line and "2026-06" in line)
+        project.content = (lines[0] + "\n" + matching + "\n").encode()
+        monkeypatch.setattr(web_ui.st, "file_uploader", lambda *args, **kwargs: files)
+        widget(app.radio, "数据来源").set_value("上传我的文件")
+        _, snapshot = submit(app)
+        assert snapshot.status == "completed"
+        assert snapshot.result.data_origin == "provided"
+>       assert widget(app.radio, "数据来源").value == "上传我的文件"
+E       AssertionError: assert '实验样例' == '上传我的文件'
+E
+E         - 上传我的文件
+E         + 实验样例
+
+tests/test_web_app.py:241: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+2026-10-10 12:40:28.985 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+------------------------------ Captured log setup ------------------------------
+WARNING  streamlit.runtime.scriptrunner_utils.script_run_context:script_run_context.py:483 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+=========================== short test summary info ============================
+FAILED tests/test_web_app.py::test_accepted_nondefault_input_stays_visible_until_explicit_new_task
+FAILED tests/test_web_app.py::test_uploaded_valid_files_change_statistics_in_ui
+2 failed, 593 passed in 6.15s

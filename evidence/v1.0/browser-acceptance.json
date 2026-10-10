@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-10",
+  "source_commit": "dee1ab995929b60358b25a94e471960601acba67",
+  "browser": "Codex in-app browser",
+  "url": "http://127.0.0.1:8517/",
+  "mode": "offline_mock",
+  "external_api_requests": 0,
+  "mock_http_requests": 26,
+  "cases": [
+    {
+      "case_id": "research-q2",
+      "run_id": "5ebe1e80-b53c-476e-836c-f0bdf1c8eb1b",
+      "status": "completed",
+      "http_requests": 6,
+      "revision_count": 0,
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "has_final_report": true,
+      "artifact_dir": "browser-runs/5ebe1e80-b53c-476e-836c-f0bdf1c8eb1b"
+    },
+    {
+      "case_id": "marketing-q2",
+      "run_id": "41fbc07c-4c6c-4d94-8d5f-6a4be58ced9f",
+      "status": "completed",
+      "http_requests": 6,
+      "revision_count": 0,
+      "metrics": {
+        "project_count": 1,
+        "completed_project_count": 0,
+        "completion_rate": 0.0,
+        "achievement_count": 1
+      },
+      "has_final_report": true,
+      "artifact_dir": "browser-runs/41fbc07c-4c6c-4d94-8d5f-6a4be58ced9f"
+    },
+    {
+      "case_id": "bad-fact-repair",
+      "run_id": "0d2fc947-efdc-4ab0-bdee-1dc76c40186b",
+      "status": "completed",
+      "http_requests": 7,
+      "revision_count": 1,
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "has_final_report": true,
+      "artifact_dir": "browser-runs/0d2fc947-efdc-4ab0-bdee-1dc76c40186b"
+    },
+    {
+      "case_id": "persistent-error-limit",
+      "run_id": "752925ee-090c-4aec-87ee-efcc0b3d2060",
+      "status": "review_failed",
+      "http_requests": 7,
+      "revision_count": 2,
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "has_final_report": false,
+      "artifact_dir": "browser-runs/752925ee-090c-4aec-87ee-efcc0b3d2060"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/01-initial.jpg",
+      "width": 805,
+      "height": 717,
+      "sha256": "972d0b88006126afca54b0b5e82d76d66a9bd03f2941bd956200674a93887ad3"
+    },
+    {
+      "path": "screenshots/02-research-q2.jpg",
+      "width": 805,
+      "height": 717,
+      "sha256": "14d3404f70f820e33cca57515c68fbce3a57e30824bf70dd85a1a58aee2ed379"
+    },
+    {
+      "path": "screenshots/03-marketing-q2.jpg",
+      "width": 805,
+      "height": 717,
+      "sha256": "d0e8570fcdd11e1aab8c2e8dac6b3c80ca05fe8d6ec79b22a39eaf04acbde38a"
+    },
+    {
+      "path": "screenshots/04-review-detail.jpg",
+      "width": 805,
+      "height": 717,
+      "sha256": "597ad11db4df25fb684b053c56bb53c7fb47f708f561b88c753668669bfafd19"
+    },
+    {
+      "path": "screenshots/05-revision-limit.jpg",
+      "width": 805,
+      "height": 717,
+      "sha256": "9fe7ba5144a88afe90a16db9d8bed2727fc0b60c2d3dd18dae720cf5cd6b85c9"
+    },
+    {
+      "path": "screenshots/06-no-final-download.jpg",
+      "width": 805,
+      "height": 717,
+      "sha256": "ed2dfa82f503ef42085cf35baab866ac241edc2252eeca61fbced6a19ceadf0a"
+    }
+  ],
+  "market_request_retained_correctly": true,
+  "download": {
+    "run_id": "5ebe1e80-b53c-476e-836c-f0bdf1c8eb1b",
+    "matches_saved_report": true,
+    "sha256": "16df2f1845a173683d28c8bbe44ae0ec542d2ca8b37128d90ec48deb3c451205"
+  },
+  "screenshots_unedited": true,
+  "passed": true
+}

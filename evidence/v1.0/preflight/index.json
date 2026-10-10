@@ -1,0 +1,18 @@
+{
+  "source_commit": "08c9f9c329f293b8620d4fafa7643976a9cc0d56",
+  "date": "2026-10-10",
+  "mode": "offline_mock",
+  "external_api_requests": 0,
+  "mock_http_requests": 18,
+  "run_ids": [
+    "680f3fcd-4540-4bb4-b69e-1d0b4244804f",
+    "acbdf85a-6af6-4732-9670-c21d3f40dafb",
+    "e1323e4d-32e6-4695-8022-c33e2740a86d"
+  ],
+  "finding": "市场部实际冻结输入、指标和正文正确；提交后禁用form无稳定key，左侧需求重新显示默认研发部。保留修复前证据，不作为最终修复完成证明。",
+  "download": {
+    "run_id": "680f3fcd-4540-4bb4-b69e-1d0b4244804f",
+    "matches_saved_report": true,
+    "sha256": "95e549e6f7743963b5572698cb701b5146fad49be897767b58905e2fe4ff4119"
+  }
+}

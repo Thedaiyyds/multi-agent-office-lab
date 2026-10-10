@@ -252,10 +252,33 @@ def _data_check(args: argparse.Namespace) -> int:
     return 1 if result.status == "invalid_data" else 0
 
 
+def _acceptance(args: argparse.Namespace) -> int:
+    from office_agents.acceptance import run_acceptance
+
+    try:
+        summary, index_path = run_acceptance(args.output_dir)
+    except Exception:
+        print("Offline acceptance could not complete; check the installation and output directory.")
+        return 1
+    print("Mode: offline_mock; external API requests: 0. No model configuration loaded.")
+    for case in summary["cases"]:
+        verdict = "PASS" if case["passed"] else "FAIL"
+        print(
+            f"{verdict} {case['case_id']}: {case['status']} (expected {case['expected_status']})."
+        )
+    print(f"Acceptance index: {index_path}")
+    print("Expected failures count as accepted only when their actual checks pass.")
+    return 0 if summary["passed"] else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="office-agents")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("doctor", help="Check configuration locally without making model requests.")
+    acceptance_command = commands.add_parser(
+        "acceptance", help="Run eight reproducible offline acceptance scenarios; no live API."
+    )
+    acceptance_command.add_argument("--output-dir", type=Path, default=Path("outputs/acceptance"))
     for name in ("run", "workflow-test"):
         command = commands.add_parser(
             name, help="Run the workflow." if name == "run" else "Run an explicit fault experiment."
@@ -311,6 +334,8 @@ def main(argv: list[str] | None = None) -> int:
         if name == "smoke":
             command.add_argument("--profile", choices=("generic", "deepseek"), default="generic")
     args = parser.parse_args(argv)
+    if args.command == "acceptance":
+        return _acceptance(args)
     if args.command in {"run", "workflow-test"}:
         return _run(args)
     if args.command == "agent-demo":

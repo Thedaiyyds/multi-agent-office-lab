@@ -164,6 +164,49 @@ def test_new_task_explicitly_resets_retained_result(app):
     assert controller.submission_count == 2
 
 
+def test_accepted_nondefault_input_stays_visible_until_explicit_new_task(app):
+    request = "生成市场部2026年第二季度工作报告"
+    widget(app.text_area, "报告需求").set_value(request)
+    widget(app.checkbox, "启用故意注入错误的实验").check()
+    widget(app.selectbox, "注入场景").set_value("缺失章节")
+    widget(app.number_input, "最多返工次数").set_value(1)
+    widget(app.number_input, "网络重试预算").set_value(1)
+    widget(app.number_input, "HTTP请求上限").set_value(8)
+    widget(app.number_input, "输出tokens预留上限").set_value(4033)
+    widget(app.number_input, "单次请求超时（秒）").set_value(17)
+    controller, result = submit(app)
+    assert result.status == "completed"
+    assert result.result.requirements.department == "市场部"
+    assert result.result.test_scenario == "missing-section"
+    assert result.result.max_revisions == 1 and result.result.retry_budget == 1
+    for _ in range(2):
+        assert widget(app.text_area, "报告需求").value == request
+        assert widget(app.text_area, "报告需求").disabled
+        assert widget(app.checkbox, "启用故意注入错误的实验").value is True
+        assert widget(app.selectbox, "注入场景").value == "缺失章节"
+        for label, value in [
+            ("最多返工次数", 1),
+            ("网络重试预算", 1),
+            ("HTTP请求上限", 8),
+            ("输出tokens预留上限", 4033),
+            ("单次请求超时（秒）", 17),
+        ]:
+            assert widget(app.number_input, label).value == value
+            assert widget(app.number_input, label).disabled
+        app.run()
+    assert controller.submission_count == 1 and controller.snapshot().run_id == result.run_id
+    widget(app.button, "新建任务").click().run()
+    assert controller.snapshot() is None and controller.submission_count == 1
+    assert not widget(app.text_area, "报告需求").disabled
+    assert widget(app.text_area, "报告需求").value == request
+    assert not widget(app.checkbox, "启用故意注入错误的实验").disabled
+    assert not widget(app.selectbox, "注入场景").disabled
+    assert widget(app.checkbox, "启用故意注入错误的实验").value is True
+    assert widget(app.selectbox, "注入场景").value == "缺失章节"
+    widget(app.text_area, "报告需求").set_value("生成研发部2026年第一季度工作报告").run()
+    assert controller.snapshot() is None and controller.submission_count == 1
+
+
 def test_browser_sessions_have_independent_controllers(app):
     other = AppTest.from_file(str(APP), default_timeout=20).run()
     controller, first = submit(app)
@@ -198,6 +241,7 @@ def test_uploaded_valid_files_change_statistics_in_ui(app, monkeypatch):
     _, snapshot = submit(app)
     assert snapshot.status == "completed"
     assert snapshot.result.data_origin == "provided"
+    assert widget(app.radio, "数据来源").value == "上传我的文件"
     assert (
         next(
             metric.value
@@ -236,6 +280,10 @@ def test_active_task_freezes_form_and_terminal_poll_enables_new_task(app, monkey
         )
 
     monkeypatch.setattr(web_runtime, "_make_session", factory)
+    request = "生成市场部2026年第二季度工作报告"
+    widget(app.text_area, "报告需求").set_value(request)
+    widget(app.checkbox, "启用故意注入错误的实验").check()
+    widget(app.selectbox, "注入场景").set_value("缺失章节")
     widget(app.button, "开始协作").click().run()
     assert reached.wait(5)
     controller = app.session_state["office_run_controller"]
@@ -244,6 +292,9 @@ def test_active_task_freezes_form_and_terminal_poll_enables_new_task(app, monkey
         assert widget(app.button, "开始协作").disabled
         assert widget(app.button, "新建任务").disabled
         assert widget(app.text_area, "报告需求").disabled
+        assert widget(app.text_area, "报告需求").value == request
+        assert widget(app.checkbox, "启用故意注入错误的实验").value is True
+        assert widget(app.selectbox, "注入场景").value == "缺失章节"
         assert controller.snapshot().events[0].event_type == "node_started"
         app.run()
         assert controller.submission_count == 1

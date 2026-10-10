@@ -1,0 +1,11 @@
+Mode: offline_mock; external API requests: 0. No model configuration loaded.
+PASS research-q2: completed (expected completed).
+PASS research-q1: completed (expected completed).
+PASS marketing-q2: completed (expected completed).
+PASS invalid-upload: input_rejected (expected input_rejected).
+PASS missing-request: needs_input (expected needs_input).
+PASS bad-fact-repair: completed (expected completed).
+PASS persistent-error-limit: review_failed (expected review_failed).
+PASS model-timeout: failed (expected failed).
+Acceptance index: outputs/v1.0-final-acceptance/552349e2-e842-4821-8d9e-9d647b6dc455/summary.json
+Expected failures count as accepted only when their actual checks pass.

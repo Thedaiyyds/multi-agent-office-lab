@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "multi-agent-office-lab"
-version = "0.6.0"
+version = "1.0.0"
 description = "A reproducible multi-agent office collaboration course project"
 requires-python = ">=3.12,<3.14"
 dependencies = [
@@ -20,6 +20,7 @@ office-agents = "office_agents.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8,<10", "ruff>=0.11,<1"]
+report = ["python-docx>=1.2,<2"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/office_agents"]

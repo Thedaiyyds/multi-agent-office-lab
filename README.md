@@ -2,7 +2,9 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前里程碑为 v0.6：Streamlit 中文办公工作台提供需求输入、样例/文件上传、真实节点进度、逐轮审核与 Markdown 下载。后台复用 v0.5 有界返工和事实门禁，每个页面会话一次只接纳一个任务，页面重运行或下载不会重新请求模型。验证见 [v0.6 验收记录](docs/validation-v0.6.md)。
+当前里程碑为 v1.0.0 课程交付版：五角色LangGraph协作、中文网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。新增一条命令八场景离线验收，并归档最终实验报告、搭建说明、架构分析和真实截图。实际结果见 [v1.0验收](docs/validation-v1.0.md)。
+
+[最终实验报告 Word](docs/report/experiment-report.docx) · [可编辑 Markdown](docs/report/experiment-report.md) · [安装复现](docs/deployment-v1.0.md) · [现场演示](docs/demo-v1.0.md) · [课程提交清单](docs/submission-v1.0.md)。报告如实记录单人开发与AI辅助，三人组队要求仍需按老师安排处理。
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
@@ -15,6 +17,7 @@ git clone https://github.com/Thedaiyyds/multi-agent-office-lab.git
 cd multi-agent-office-lab
 uv python install 3.12
 uv sync --locked --python 3.12
+uv run --locked office-agents acceptance --output-dir outputs/acceptance
 uv run --locked office-agents graph-demo
 uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
 uv run --locked office-agents agent-demo --mode mock --role all
@@ -23,16 +26,18 @@ uv run --locked pytest
 uv run --locked ruff check .
 ```
 
+`acceptance`实际检查八个正常及预期失败场景，只有实际停点、指标、审核和导出门禁都符合预期才返回0。默认不需要.env，全部使用本地HTTP夹具，不产生API费用。
+
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
 
-## v0.6 网页工作台
+## 中文网页工作台
 
 ```bash
 uv sync --locked --python 3.12
 uv run --locked streamlit run app.py --server.address 127.0.0.1
 ```
 
-打开 http://127.0.0.1:8501 ，默认使用实验样例与离线模拟，无需密钥。输入需求后点击“开始协作”，查看角色进度、指标与来源、每轮草稿和审核、最终报告，并下载 Markdown。自有数据需上传同名 projects.csv、achievements.csv、issues.txt，UTF-8，每文件最多2 MiB；格式与业务值在模型调用前校验。
+打开 [本机工作台](http://127.0.0.1:8501) ，默认使用实验样例与离线模拟，无需密钥。输入需求后点击“开始协作”，查看角色进度、指标与来源、每轮草稿和审核、最终报告，并下载 Markdown。自有数据需上传同名 projects.csv、achievements.csv、issues.txt，UTF-8，每文件最多2 MiB；格式与业务值在模型调用前校验。
 
 任务在后台执行，运行时输入冻结；同一会话重复提交不重复运行，终态后“新建任务”才能再提交。只有完成核心审核与最终导出才提供最终报告下载。真实模式需明确选择并读取现有本地.env，默认网络重试为0；高级预算可以下调。故障实验明确标记主动注入，不冒充模型自然错误。
 
