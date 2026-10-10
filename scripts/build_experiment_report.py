@@ -111,6 +111,10 @@ def figure(doc, path, caption):
 
 def markdown(doc, source, *, skip_title=False):
     lines = source.read_text(encoding="utf-8").splitlines()
+    if skip_title and source.name == "experiment-report.md":
+        # The Word cover has its own editable identity fields. Start the body
+        # at the first section instead of duplicating Markdown cover metadata.
+        lines = lines[next(i for i, row in enumerate(lines) if row.startswith("## ")) :]
     index = 0
     while index < len(lines):
         line = lines[index]
@@ -202,6 +206,7 @@ def build(output):
     doc.add_paragraph("软件体系结构研究生课程  LangGraph 与 Streamlit  v1.0.0")
     doc.add_paragraph("姓名 __________________  学号 __________________")
     doc.add_paragraph("班级 __________________  日期 2026年10月10日")
+    doc.add_paragraph("代码仓库 https://github.com/Thedaiyyds/multi-agent-office-lab")
     markdown(doc, REPORT_DIR / "experiment-report.md", skip_title=True)
     doc.add_page_break()
     doc.add_heading("附录 体系结构分析", level=1)

@@ -40,35 +40,107 @@ def _controller() -> RunController:
 def _input_panel(controller: RunController) -> None:
     snapshot = controller.snapshot()
     retained = snapshot is not None
+    accepted = st.session_state.get("office_accepted_form", {})
+    widget_scope = "retained" if retained else "editing"
     with st.sidebar:
         st.markdown("### 创建报告任务")
         st.caption("提交时冻结输入；修改页面、轮询或下载不会重新调用模型。")
         if retained:
             st.info("本会话已保留一个任务。结束后点击“新建任务”再提交。")
         with st.form("office_task_form"):
-            request = st.text_area("报告需求", value=DEFAULT_REQUEST, height=170, disabled=retained)
-            origin = st.radio("数据来源", ["实验样例", "上传我的文件"], disabled=retained)
+            # Streamlit discards incoming state for disabled widgets. Separate
+            # retained keys initialize from admitted values instead of falling
+            # back to a previous editable widget's defaults.
+            request = st.text_area(
+                "报告需求",
+                value=accepted.get("request", DEFAULT_REQUEST),
+                height=170,
+                disabled=retained,
+                key=f"office_form_request_{widget_scope}",
+            )
+            origin = st.radio(
+                "数据来源",
+                ["实验样例", "上传我的文件"],
+                index=1 if accepted.get("origin") == "上传我的文件" else 0,
+                disabled=retained,
+                key=f"office_form_origin_{widget_scope}",
+            )
+            if retained:
+                st.caption("本次已接纳文件：" + "、".join(accepted.get("files", ())))
             uploads = st.file_uploader(
                 "上传 projects.csv、achievements.csv、issues.txt",
                 type=["csv", "txt"],
                 accept_multiple_files=True,
                 max_upload_size=2,
                 disabled=retained,
+                key=f"office_form_uploads_{widget_scope}",
                 help="必须齐备三个固定文件。UTF-8编码，每个文件最多2 MiB。",
             )
             st.caption("选择实验样例时，已上传的文件不会参与本次运行。")
-            mode_label = st.radio("模型模式", ["离线模拟", "真实模型"], disabled=retained)
+            mode_label = st.radio(
+                "模型模式",
+                ["离线模拟", "真实模型"],
+                index=1 if accepted.get("mode") == "真实模型" else 0,
+                disabled=retained,
+                key=f"office_form_mode_{widget_scope}",
+            )
             st.caption("离线模式不读取密钥、不产生模型费用；真实模式使用服务器本地配置。")
             with st.expander("运行预算"):
-                revisions = st.number_input("最多返工次数", 0, 2, 2, disabled=retained)
-                retries = st.number_input("网络重试预算", 0, 2, 0, disabled=retained)
-                requests = st.number_input("HTTP请求上限", 1, 12, 10, disabled=retained)
-                tokens = st.number_input("输出tokens预留上限", 1, 5568, 4032, disabled=retained)
-                timeout = st.number_input("单次请求超时（秒）", 1, 300, 30, disabled=retained)
+                revisions = st.number_input(
+                    "最多返工次数",
+                    0,
+                    2,
+                    accepted.get("revisions", 2),
+                    disabled=retained,
+                    key=f"office_form_revisions_{widget_scope}",
+                )
+                retries = st.number_input(
+                    "网络重试预算",
+                    0,
+                    2,
+                    accepted.get("retries", 0),
+                    disabled=retained,
+                    key=f"office_form_retries_{widget_scope}",
+                )
+                requests = st.number_input(
+                    "HTTP请求上限",
+                    1,
+                    12,
+                    accepted.get("requests", 10),
+                    disabled=retained,
+                    key=f"office_form_requests_{widget_scope}",
+                )
+                tokens = st.number_input(
+                    "输出tokens预留上限",
+                    1,
+                    5568,
+                    accepted.get("tokens", 4032),
+                    disabled=retained,
+                    key=f"office_form_tokens_{widget_scope}",
+                )
+                timeout = st.number_input(
+                    "单次请求超时（秒）",
+                    1,
+                    300,
+                    accepted.get("timeout", 30),
+                    disabled=retained,
+                    key=f"office_form_timeout_{widget_scope}",
+                )
                 st.caption("预算为硬上限；预留输出量与模型实际消耗不同。")
             with st.expander("故障实验（主动注入）"):
-                experiment = st.checkbox("启用故意注入错误的实验", disabled=retained)
-                case_label = st.selectbox("注入场景", list(CASE_NAMES), disabled=retained)
+                experiment = st.checkbox(
+                    "启用故意注入错误的实验",
+                    value=accepted.get("experiment", False),
+                    disabled=retained,
+                    key=f"office_form_experiment_{widget_scope}",
+                )
+                case_label = st.selectbox(
+                    "注入场景",
+                    list(CASE_NAMES),
+                    index=list(CASE_NAMES).index(accepted.get("case", "错误事实")),
+                    disabled=retained,
+                    key=f"office_form_case_{widget_scope}",
+                )
                 st.caption("仅用于演示审核和返工；主动注入不能当作模型自然错误。")
             submitted = st.form_submit_button(
                 "开始协作", type="primary", width="stretch", disabled=retained
@@ -93,6 +165,19 @@ def _input_panel(controller: RunController) -> None:
                 )
                 admitted = controller.start(options=options, prepared=prepared)
                 if admitted:
+                    st.session_state.office_accepted_form = {
+                        "request": options.request,
+                        "origin": origin,
+                        "mode": mode_label,
+                        "revisions": options.max_revisions,
+                        "retries": options.retry_budget,
+                        "requests": options.max_requests,
+                        "tokens": options.max_output_tokens,
+                        "timeout": int(options.timeout_seconds),
+                        "experiment": experiment,
+                        "case": case_label,
+                        "files": tuple(blob.name for blob in prepared.files),
+                    }
                     st.session_state.pop("office_input_error", None)
                     st.session_state.pop("office_input_issues", None)
                     st.rerun()

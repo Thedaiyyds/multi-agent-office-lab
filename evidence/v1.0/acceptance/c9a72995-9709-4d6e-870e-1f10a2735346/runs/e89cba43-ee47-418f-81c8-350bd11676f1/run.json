@@ -1,0 +1,96 @@
+{
+  "run_id": "e89cba43-ee47-418f-81c8-350bd11676f1",
+  "created_at": "2026-10-10T04:28:34.059326+00:00",
+  "mode": "offline_mock",
+  "status": "failed",
+  "user_text": "生成研发部2026年第二季度工作报告",
+  "data_origin": "simulated",
+  "manager_decision": null,
+  "requirements": null,
+  "outline": null,
+  "data_result": null,
+  "metrics": [],
+  "sources": [],
+  "data_issues": [],
+  "draft": null,
+  "review": null,
+  "schema_version": "0.5",
+  "max_revisions": 2,
+  "revision_count": 0,
+  "revision_history": [],
+  "test_scenario": "none",
+  "narrative_policy": "constrained",
+  "nodes": [
+    {
+      "role": "manager",
+      "started_at": "2026-10-10T04:28:34.061417+00:00",
+      "finished_at": "2026-10-10T04:28:34.061507+00:00",
+      "duration_ms": 0.08929101750254631,
+      "status": "failed",
+      "input": {
+        "user_text": "生成研发部2026年第二季度工作报告",
+        "data_origin": "simulated"
+      },
+      "output": null,
+      "error": "Manager node failed; inspect safe audit events and inputs.",
+      "revision_index": 0,
+      "generated_output": null
+    }
+  ],
+  "events": [
+    {
+      "run_id": "e89cba43-ee47-418f-81c8-350bd11676f1",
+      "created_at": "2026-10-10T04:28:34.061417+00:00",
+      "role": "manager",
+      "event_type": "node_started",
+      "status": "running",
+      "duration_ms": null,
+      "summary": "Started manager with validated workflow inputs.",
+      "tool_name": null,
+      "arguments": null,
+      "revision_index": 0,
+      "attempt": 1,
+      "max_output_tokens": null
+    },
+    {
+      "run_id": "e89cba43-ee47-418f-81c8-350bd11676f1",
+      "created_at": "2026-10-10T04:28:34.061499+00:00",
+      "role": "manager",
+      "event_type": "model_request",
+      "status": "failed",
+      "duration_ms": null,
+      "summary": "Model request or completion shape failed; no raw response stored.",
+      "tool_name": null,
+      "arguments": null,
+      "revision_index": 0,
+      "attempt": 1,
+      "max_output_tokens": 256
+    },
+    {
+      "run_id": "e89cba43-ee47-418f-81c8-350bd11676f1",
+      "created_at": "2026-10-10T04:28:34.061507+00:00",
+      "role": "manager",
+      "event_type": "node_finished",
+      "status": "failed",
+      "duration_ms": 0.08929101750254631,
+      "summary": "Manager node failed; inspect safe audit events and inputs.",
+      "tool_name": null,
+      "arguments": null,
+      "revision_index": 0,
+      "attempt": 1,
+      "max_output_tokens": null
+    }
+  ],
+  "request_count": 1,
+  "reserved_output_tokens": 256,
+  "logical_request_count": 1,
+  "retry_count": 0,
+  "retry_budget": 0,
+  "usage": {
+    "prompt_tokens": null,
+    "completion_tokens": null,
+    "total_tokens": null,
+    "reasoning_tokens": null
+  },
+  "error": "Manager node failed; inspect safe audit events and inputs."
+}
