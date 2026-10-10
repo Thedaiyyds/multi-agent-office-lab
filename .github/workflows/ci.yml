@@ -22,9 +22,10 @@ jobs:
       - run: uv sync --locked --python 3.12
       - run: uv run --locked ruff check .
       - run: uv run --locked ruff format --check .
-      - run: uv run --locked pytest -q
+      - run: uv run --locked pytest -q -o faulthandler_timeout=10
       - run: uv run --locked office-agents graph-demo
       - run: uv run --locked office-agents data-check --department 研发部 --start-date 2026-04-01 --end-date 2026-07-01
       - run: uv run --locked office-agents agent-demo --mode mock --role all
       - run: uv run --locked office-agents run --mode mock --request '生成研发部2026年第二季度工作报告'
       - run: uv run --locked office-agents workflow-test --mode mock --case bad-fact --request '生成研发部2026年第二季度工作报告'
+      - run: uv run --locked office-agents acceptance --output-dir outputs/acceptance

@@ -3,6 +3,7 @@
 import streamlit as st
 from pydantic import ValidationError
 
+from office_agents import __version__
 from office_agents.web_runtime import RunController
 from office_agents.web_schemas import JobSnapshot, UploadBlob, WebRunOptions
 from office_agents.web_uploads import WebInputError, prepare_input
@@ -113,7 +114,7 @@ def _input_panel(controller: RunController) -> None:
             if st.session_state.get("office_input_issues"):
                 st.dataframe(st.session_state.office_input_issues, hide_index=True)
         st.divider()
-        st.caption("本机实验原型 · v0.6\n\n每个浏览器会话独立；重启服务不恢复后台任务。")
+        st.caption(f"本机实验原型 · v{__version__}\n\n每个浏览器会话独立；重启服务不恢复后台任务。")
 
 
 def _role_progress(snapshot: JobSnapshot) -> None:
