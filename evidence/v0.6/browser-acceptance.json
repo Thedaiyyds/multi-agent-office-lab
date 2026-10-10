@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-10",
+  "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+  "server_url": "http://127.0.0.1:8516",
+  "browser": "Isolated headless Chromium using bundled Playwright; native file input and browser download verified",
+  "cases": [
+    {
+      "case": "sample-normal",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "bf477e28-62ef-456d-822f-e0a28b754201",
+      "mode": "offline_mock",
+      "data_origin": "simulated",
+      "status": "completed",
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "http_attempts": 6,
+      "external_api_requests": 0,
+      "revision_count": 0,
+      "artifact_dir": "browser-runs/bf477e28-62ef-456d-822f-e0a28b754201",
+      "screenshot": "screenshots/02-normal.png",
+      "browser_download": {
+        "matches_actual_export": true,
+        "sha256": "5746d4f29f3c2ec19defa3a5ee828b793607dc3719992d073b281c41d5327149",
+        "does_not_change_visible_run_id": true,
+        "filename": "bf477e28-62ef-456d-822f-e0a28b754201-report.md"
+      }
+    },
+    {
+      "case": "bad-fact-repair",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "4606657e-79fb-44d8-8a1c-9437ca474d24",
+      "mode": "offline_mock",
+      "data_origin": "simulated",
+      "status": "completed",
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "http_attempts": 7,
+      "external_api_requests": 0,
+      "revision_count": 1,
+      "artifact_dir": "browser-runs/4606657e-79fb-44d8-8a1c-9437ca474d24",
+      "screenshot": "screenshots/03-repair.png"
+    },
+    {
+      "case": "uploaded-changed-data",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "a0e8d476-5732-45d8-8e31-24e978d5e020",
+      "mode": "offline_mock",
+      "data_origin": "provided",
+      "status": "completed",
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 3,
+        "completion_rate": 1,
+        "achievement_count": 2
+      },
+      "http_attempts": 6,
+      "external_api_requests": 0,
+      "revision_count": 0,
+      "artifact_dir": "browser-runs/a0e8d476-5732-45d8-8e31-24e978d5e020",
+      "screenshot": "screenshots/04-uploaded.png",
+      "browser_download": {
+        "matches_actual_export": true,
+        "sha256": "02a9979e4ec30664304a8676518e1448958d24f22fa8af7c5e02cc9b2f952849",
+        "does_not_change_visible_run_id": true,
+        "filename": "a0e8d476-5732-45d8-8e31-24e978d5e020-report.md"
+      }
+    },
+    {
+      "case": "persistent-error-limit",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "125ea19a-c5e3-4d89-8b09-9b6703f6f757",
+      "mode": "offline_mock",
+      "data_origin": "simulated",
+      "status": "review_failed",
+      "metrics": {
+        "project_count": 3,
+        "completed_project_count": 2,
+        "completion_rate": 0.6666666666666666,
+        "achievement_count": 2
+      },
+      "http_attempts": 7,
+      "external_api_requests": 0,
+      "revision_count": 2,
+      "artifact_dir": "browser-runs/125ea19a-c5e3-4d89-8b09-9b6703f6f757",
+      "screenshot": "screenshots/05-revision-limit.png"
+    },
+    {
+      "case": "invalid-upload",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "status": "input_rejected",
+      "run_id": null,
+      "external_api_requests": 0,
+      "http_attempts": 0,
+      "result": "Browser native upload sent 3 files; invalid projects.csv headers blocked before job admission. Waited for file transfer to finish before submitting.",
+      "screenshot": "screenshots/06-invalid-upload.png"
+    },
+    {
+      "case": "normal-final-report-view",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "e3a4b792-1d9a-46b7-9ad3-68322582a664",
+      "status": "completed",
+      "http_attempts": 6,
+      "external_api_requests": 0,
+      "mode": "offline_mock",
+      "data_origin": "simulated",
+      "artifact_dir": "browser-runs/e3a4b792-1d9a-46b7-9ad3-68322582a664",
+      "screenshot": "screenshots/08-final-report.png"
+    },
+    {
+      "case": "bad-fact-review-detail",
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "845b3f04-8855-4d88-b742-d737b878e4ef",
+      "status": "completed",
+      "mode": "offline_mock",
+      "http_attempts": 7,
+      "revision_count": 1,
+      "external_api_requests": 0,
+      "artifact_dir": "browser-runs/845b3f04-8855-4d88-b742-d737b878e4ef",
+      "screenshot": "screenshots/07-review-detail.png"
+    }
+  ],
+  "screenshots": [
+    {
+      "path": "screenshots/01-initial.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "capture": "Actual Chromium page screenshot, localhost Streamlit; no image generation or editing."
+    },
+    {
+      "path": "screenshots/02-normal.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "capture": "Actual Chromium page screenshot, localhost Streamlit; no image generation or editing."
+    },
+    {
+      "path": "screenshots/03-repair.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "capture": "Actual Chromium page screenshot, localhost Streamlit; no image generation or editing."
+    },
+    {
+      "path": "screenshots/04-uploaded.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "capture": "Actual Chromium page screenshot, localhost Streamlit; no image generation or editing."
+    },
+    {
+      "path": "screenshots/05-revision-limit.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "capture": "Actual Chromium page screenshot, localhost Streamlit; no image generation or editing."
+    },
+    {
+      "path": "screenshots/06-invalid-upload.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "capture": "Actual Chromium page screenshot, localhost Streamlit; no image generation or editing."
+    },
+    {
+      "path": "screenshots/07-review-detail.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "845b3f04-8855-4d88-b742-d737b878e4ef",
+      "capture": "Actual Chromium viewport screenshot, scrolled to actual content; no image generation/editing."
+    },
+    {
+      "path": "screenshots/08-final-report.png",
+      "dimensions": [
+        1440,
+        1050
+      ],
+      "source_commit": "ec6af104e52768343918f30c68dc84f87541203b",
+      "run_id": "e3a4b792-1d9a-46b7-9ad3-68322582a664",
+      "capture": "Actual Chromium viewport screenshot, scrolled to actual content; no image generation/editing."
+    }
+  ],
+  "external_api_requests_total": 0,
+  "screen_capture_note": "These are actual offline-model browser screenshots, not DeepSeek live runs. Older v0.5 API evidence remains separately dated.",
+  "ui_test_note": "AppTest upload uses a widget fixture; this browser acceptance additionally exercised actual native upload. Framework controls required label click/keyboard dropdown rather than hidden input clicks; failed automation attempts created no additional job."
+}

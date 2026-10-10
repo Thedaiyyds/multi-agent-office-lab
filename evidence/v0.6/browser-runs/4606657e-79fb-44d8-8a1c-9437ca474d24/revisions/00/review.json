@@ -1,0 +1,16 @@
+{
+  "passed": false,
+  "issues": [
+    {
+      "code": "fact_value",
+      "location": "fact_claims[0]",
+      "message": "事实值与权威数据不一致或不是有限数值。",
+      "severity": "error"
+    }
+  ],
+  "revision_instructions": [
+    "fact_claims[0]: 事实值与权威数据不一致或不是有限数值。",
+    "保持需求、大纲与权威数据不变；事实的数值、单位及来源逐项复制 metrics。"
+  ],
+  "needs_input": false
+}
