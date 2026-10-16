@@ -14,9 +14,116 @@ const compiled = ts.transpileModule(source, {
     target: ts.ScriptTarget.ES2022,
   },
 }).outputText;
-const { api, ApiError } = await import(
+const { api, ApiError, downloadMaterial } = await import(
   `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`
 );
+
+test("material requests preserve upload boundaries, validation issues and workspace downloads", async (t) => {
+  const original = {
+    window: globalThis.window,
+    fetch: globalThis.fetch,
+    document: globalThis.document,
+  };
+  const createURL = URL.createObjectURL;
+  const revokeURL = URL.revokeObjectURL;
+  let cleared = 0;
+  globalThis.window = {
+    setTimeout(callback, delay) {
+      if (delay === 1000) callback();
+      return 1;
+    },
+    clearTimeout() {
+      cleared += 1;
+    },
+  };
+  t.after(() => {
+    for (const key of ["window", "fetch", "document"]) {
+      if (original[key] === undefined) delete globalThis[key];
+      else globalThis[key] = original[key];
+    }
+    URL.createObjectURL = createURL;
+    URL.revokeObjectURL = revokeURL;
+  });
+
+  await t.test("lets the browser supply the multipart boundary", async () => {
+    const body = new FormData();
+    body.append("file", new Blob(["材料"]), "中文材料.txt");
+    globalThis.fetch = async (url, options) => {
+      assert.equal(url, "/api/v1/materials/import");
+      assert.equal(options.headers["Content-Type"], undefined);
+      assert.equal(options.headers["X-Workspace"], "demo");
+      assert.equal(options.body, body);
+      return { ok: true, json: async () => ({ id: "import-1" }) };
+    };
+    assert.deepEqual(
+      await api("/materials/import", "demo", { method: "POST", body }),
+      { id: "import-1" },
+    );
+  });
+
+  await t.test("keeps actionable material row errors", async () => {
+    const issue = {
+      severity: "error",
+      location: "CSV第3行",
+      message: "日期无效",
+    };
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 422,
+      json: async () => ({
+        detail: {
+          message: "材料未入库",
+          issues: [issue, { location: 42, message: "ignore" }],
+        },
+      }),
+    });
+    await assert.rejects(api("/imports/id/confirm", "demo"), (error) => {
+      assert.ok(error instanceof ApiError);
+      assert.equal(error.message, "材料未入库");
+      assert.deepEqual(error.issues, [issue]);
+      return true;
+    });
+  });
+
+  await t.test(
+    "downloads bytes with the selected workspace header",
+    async () => {
+      const blob = new Blob(["原始材料"]);
+      let clicked = false,
+        removed = false,
+        revoked = false;
+      const anchor = {
+        click() {
+          clicked = true;
+        },
+        remove() {
+          removed = true;
+        },
+      };
+      globalThis.document = {
+        createElement: () => anchor,
+        body: { appendChild() {} },
+      };
+      URL.createObjectURL = (value) => {
+        assert.equal(value, blob);
+        return "blob:test";
+      };
+      URL.revokeObjectURL = (value) => {
+        assert.equal(value, "blob:test");
+        revoked = true;
+      };
+      globalThis.fetch = async (url, options) => {
+        assert.equal(url, "/api/v1/materials/material-1/download");
+        assert.equal(options.headers["X-Workspace"], "demo");
+        return { ok: true, blob: async () => blob };
+      };
+      await downloadMaterial("material-1", "原件.csv", "demo");
+      assert.equal(anchor.download, "原件.csv");
+      assert.ok(clicked && removed && revoked);
+    },
+  );
+  assert.equal(cleared, 3);
+});
 
 test("API client handles failures safely and cleans request timers", async (t) => {
   const previousWindow = globalThis.window;

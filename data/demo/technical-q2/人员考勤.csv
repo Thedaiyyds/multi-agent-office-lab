@@ -1,0 +1,5 @@
+person_id,department,date,planned_hours,actual_hours,leave_hours
+DEMO-U01,技术部,2026-06-29,8,8,0
+DEMO-U02,技术部,2026-06-29,8,4,4
+DEMO-U01,技术部,2026-06-30,8,8,0
+DEMO-U02,技术部,2026-06-30,8,8,0

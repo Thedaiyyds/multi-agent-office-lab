@@ -16,8 +16,10 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from office_agents.config import ConfigurationError, Settings
+from office_agents.workbench.demo import create_demo_router
+from office_agents.workbench.materials import create_material_router
 
-VERSION = "2.0.0-alpha.1"
+VERSION = "2.0.0-alpha.2"
 Workspace = Literal["normal", "demo"]
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "testserver"}
 
@@ -86,12 +88,13 @@ class Health(BaseModel):
 class SystemInfo(BaseModel):
     version: str = VERSION
     model_configured: bool
-    capabilities: list[str] = ["drafts", "workspace_isolation"]
+    capabilities: list[str] = ["drafts", "workspace_isolation", "materials", "demo_materials"]
 
 
 def create_app(
     database_path: str | Path | None = None,
     static_dir: str | Path | Literal[False] | None = None,
+    demo_root: str | Path | None = None,
 ):
     """Build an isolated app; callers can choose a temporary database in tests."""
     project_root = Path(__file__).resolve().parents[3]
@@ -139,6 +142,10 @@ def create_app(
     database.chmod(0o600)
 
     app = FastAPI(title="汇报协作工作台 API", version=VERSION)
+    demo_root = Path(demo_root or project_root / "data/demo").resolve()
+    material_router = create_material_router(connection, database.parent / "materials", demo_root)
+    app.include_router(material_router)
+    app.include_router(create_demo_router(material_router.material_service, connection, demo_root))
 
     @app.middleware("http")
     async def local_requests_only(request: Request, call_next):

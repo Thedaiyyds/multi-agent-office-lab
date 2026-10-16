@@ -1,0 +1,6 @@
+project_id,department,effective_date,snapshot_date,status,progress,completed_date
+DEMO-P01,技术部,2026-04-01,2026-04-15,in_progress,50,
+DEMO-P01,技术部,2026-04-01,2026-06-30,completed,100,2026-05-20
+DEMO-P02,技术部,2026-04-01,2026-06-30,completed,100,2026-06-18
+DEMO-P03,技术部,2026-04-10,2026-06-30,in_progress,75,
+DEMO-P04,技术部,2026-05-05,2026-06-30,in_progress,50,
