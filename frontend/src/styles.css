@@ -1928,3 +1928,316 @@ select:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* The data review stays in the report workspace and uses real material versions. */
+.statistics-card {
+  margin-top: 28px;
+  padding: 28px;
+  min-width: 0;
+}
+.statistics-heading,
+.statistics-result-heading,
+.statistics-selection-heading,
+.statistics-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.statistics-heading {
+  margin-bottom: 16px;
+}
+.statistics-heading h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.statistics-card h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.statistics-card .notice {
+  margin: 14px 0;
+}
+.statistics-fields {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.statistics-selection-heading {
+  margin: 22px 0 12px;
+}
+.statistics-selection-heading > span {
+  color: #8b9ab1;
+  font-size: 12px;
+}
+.statistics-materials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 330px;
+  overflow: auto;
+  padding: 2px;
+}
+.statistics-material {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border: 1px solid #e4eaf1;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.statistics-card input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 2px 0 0;
+  accent-color: #365fcb;
+  flex-shrink: 0;
+}
+.statistics-material > span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.statistics-material strong {
+  font-size: 13px;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.statistics-material small {
+  font-size: 11px;
+  color: #8290a6;
+}
+.statistics-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.statistics-groups label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.statistics-attendance {
+  margin-top: 18px;
+  background: #f7f9fc;
+  padding: 18px;
+  border-radius: 8px;
+}
+.statistics-attendance-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.statistics-attendance textarea {
+  font-family: inherit;
+  resize: vertical;
+}
+.statistics-actions {
+  margin-top: 24px;
+}
+.statistics-actions .button {
+  flex-shrink: 0;
+}
+.statistics-history {
+  margin-top: 30px;
+  border-top: 1px solid #e8edf3;
+  padding-top: 24px;
+}
+.statistics-history > .field {
+  max-width: 460px;
+}
+.statistics-result-heading {
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+.statistics-result-heading p {
+  font-size: 11px;
+  color: #8290a6;
+  margin: 8px 0 0;
+}
+.statistics-ready {
+  background: #e8f4ed;
+  color: #40785a;
+}
+.statistics-attention {
+  background: #fff2db;
+  color: #966826;
+}
+.statistics-metrics {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+}
+.statistics-metric {
+  min-width: 0;
+  border: 1px solid #e4eaf1;
+  border-radius: 8px;
+}
+.statistics-metric > summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  cursor: pointer;
+}
+.statistics-metric > summary > span {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.statistics-metric strong {
+  font-size: 13px;
+  font-weight: 550;
+}
+.statistics-metric small {
+  font-size: 11px;
+  color: #8290a6;
+}
+.statistics-metric b {
+  font-size: 19px;
+  color: #304c79;
+  white-space: nowrap;
+}
+.statistics-metric-body {
+  border-top: 1px solid #edf0f5;
+  padding: 0 16px 16px;
+  font-size: 13px;
+  color: #61718a;
+  overflow-wrap: anywhere;
+}
+.statistics-metric-body h4 {
+  color: #3e4d65;
+  font-size: 12px;
+  margin: 18px 0 8px;
+}
+.statistics-metric-body p,
+.statistics-metric-body ul {
+  margin: 8px 0;
+  line-height: 1.7;
+}
+.statistics-source-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.statistics-source-table {
+  min-width: 480px;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.statistics-source-table th {
+  background: #f7f9fc;
+  color: #61718a;
+  font-weight: 500;
+}
+.statistics-source-table th,
+.statistics-source-table td {
+  padding: 10px;
+  border-bottom: 1px solid #edf0f5;
+  vertical-align: top;
+}
+.statistics-source-table details {
+  margin-top: 5px;
+}
+.statistics-card code {
+  font-size: 10px;
+  word-break: break-all;
+  white-space: normal;
+}
+.statistics-source-table code {
+  display: block;
+  max-width: 220px;
+}
+.statistics-issues {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0;
+  display: grid;
+  gap: 8px;
+}
+.statistics-issues li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #fff7e9;
+  color: #8a682e;
+}
+.statistics-issues li.error {
+  background: #fff0ef;
+  color: #a94a46;
+}
+.statistics-frozen {
+  font-size: 12px;
+  color: #6d7d95;
+  margin-top: 20px;
+}
+.statistics-frozen > summary {
+  cursor: pointer;
+}
+.statistics-frozen ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.statistics-frozen li {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.statistics-loading {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: #6d7d95;
+  margin: 18px 0;
+}
+@media (max-width: 760px) {
+  .statistics-card {
+    padding: 22px 18px;
+  }
+  .statistics-heading,
+  .statistics-result-heading,
+  .statistics-actions {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .statistics-materials,
+  .statistics-attendance-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .statistics-attendance {
+    padding: 12px;
+  }
+  .statistics-metric > summary {
+    gap: 9px;
+    padding: 13px;
+  }
+  .statistics-metric > summary > span {
+    flex-direction: column;
+    gap: 3px;
+  }
+  .statistics-metric b {
+    font-size: 17px;
+  }
+  .statistics-actions .button {
+    align-self: stretch;
+    justify-content: center;
+  }
+  .statistics-history select {
+    max-width: 100%;
+    min-width: 0;
+    font-size: 12px;
+  }
+}

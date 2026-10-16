@@ -57,6 +57,47 @@ export interface MaterialVersion extends Omit<
   mapping: Record<string, string>;
   created_at: string;
 }
+export type StatisticsGroup =
+  "projects" | "attendance" | "achievements" | "satisfaction";
+export interface SourceRef {
+  material_id: string;
+  name: string;
+  version: number;
+  sha256: string;
+  location: string;
+  fields: string[];
+}
+export interface StatisticsMetric {
+  id: string;
+  label: string;
+  value: number | null;
+  unit: string;
+  definition: string;
+  source_refs: SourceRef[];
+  limitations: string[];
+}
+export interface StatisticsSnapshot {
+  id: string;
+  report_id: string;
+  report_version: number;
+  department: string;
+  start_date: string;
+  end_date: string;
+  policy_version: string;
+  created_at: string;
+  status: "ready" | "needs_input" | "invalid_data";
+  material_ids: string[];
+  materials: {
+    id: string;
+    name: string;
+    kind: MaterialKind;
+    version: number;
+    sha256: string;
+  }[];
+  groups: StatisticsGroup[];
+  metrics: StatisticsMetric[];
+  issues: MaterialIssue[];
+}
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -93,12 +134,15 @@ export async function api<T>(
       if (
         path.startsWith("/materials") ||
         path.startsWith("/imports") ||
-        path.startsWith("/demo")
+        path.startsWith("/demo") ||
+        /^\/reports\/[^/]+\/statistics$/.test(path)
       ) {
         const payload = await response.json().catch(() => null);
         const detail = payload?.detail;
-        const issues = Array.isArray(detail?.issues)
-          ? detail.issues.filter(
+        const isStatistics = /^\/reports\/[^/]+\/statistics$/.test(path);
+        const rawIssues = Array.isArray(detail?.issues) ? detail.issues : [];
+        const issues = rawIssues.length
+          ? rawIssues.filter(
               (issue: MaterialIssue) =>
                 issue &&
                 typeof issue.location === "string" &&
@@ -112,7 +156,16 @@ export async function api<T>(
             ? detail.message
             : typeof detail === "string"
               ? detail
-              : "材料操作未成功，请检查文件和填写内容后重试。",
+              : Array.isArray(detail)
+                ? detail
+                    .map(
+                      (item: { loc?: unknown[]; msg?: string }) =>
+                        `${item.loc?.join(" / ") || "请求"}：${item.msg || "内容无效"}`,
+                    )
+                    .join("；")
+                : isStatistics
+                  ? "数据整理未成功，请检查所选材料、人员清单与排班日期。"
+                  : "材料操作未成功，请检查文件和填写内容后重试。",
           issues,
         );
       }

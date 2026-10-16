@@ -40,6 +40,7 @@ import {
 } from "./api";
 import { useConfirmation, type Confirm } from "./confirm";
 import Materials, { DemoMaterials } from "./Materials";
+import Statistics from "./Statistics";
 
 const nav = [
   { path: "/", label: "工作台", icon: LayoutDashboard },
@@ -767,10 +768,10 @@ function DraftForm({
             <div className="aside-divider" />
             <h3>接下来</h3>
             <p>
-              材料库已支持文件导入与预览。统计、多智能体生成、审核与 Markdown /
-              PDF 导出将在后续版本开放。
+              材料库已支持文件导入与预览。保存草稿后，可在下方整理与核对数据；多智能体生成、审核与
+              Markdown / PDF 导出将在后续版本开放。
             </p>
-            <div className="version-label">v2.0-alpha.2 · 材料接入</div>
+            <div className="version-label">v2.0-alpha.3 · 数据核对</div>
           </div>
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -878,18 +879,25 @@ function Editor({
           正在打开报告…
         </div>
       ) : (
-        <DraftForm
-          key={revision}
-          report={report}
-          workspace={workspace}
-          onDirty={onDirty}
-          onSaving={onSaving}
-          refresh={refresh}
-          onSaved={(result) => {
-            setReport(result);
-            changed();
-          }}
-        />
+        <>
+          <DraftForm
+            key={revision}
+            report={report}
+            workspace={workspace}
+            onDirty={onDirty}
+            onSaving={onSaving}
+            refresh={refresh}
+            onSaved={(result) => {
+              setReport(result);
+              changed();
+            }}
+          />
+          <Statistics
+            key={`${workspace}:${report.id}`}
+            report={report}
+            workspace={workspace}
+          />
+        </>
       )}
     </>
   );
@@ -985,7 +993,7 @@ function Settings({
         </div>
         <p className="field-hint">
           当前支持持久化草稿、TXT / CSV / DOCX
-          材料导入、本地模拟接口和材料版本管理；统计、模型生成和正式导出将按版本逐步开放。
+          材料导入、本地模拟接口、材料版本管理与来源可追溯的统计快照；模型生成和正式导出将按版本逐步开放。
         </p>
       </section>
     </>
@@ -1372,7 +1380,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>alpha.2</span>
+              本地运行<span>alpha.3</span>
             </div>
           </div>
         </aside>
@@ -1496,7 +1504,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.0-alpha.2</span>
+            汇报协作<span>v2.0-alpha.3</span>
           </footer>
         </div>
       </div>

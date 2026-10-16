@@ -18,8 +18,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from office_agents.config import ConfigurationError, Settings
 from office_agents.workbench.demo import create_demo_router
 from office_agents.workbench.materials import create_material_router
+from office_agents.workbench.statistics import create_statistics_router
 
-VERSION = "2.0.0-alpha.2"
+VERSION = "2.0.0-alpha.3"
 Workspace = Literal["normal", "demo"]
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "testserver"}
 
@@ -88,7 +89,13 @@ class Health(BaseModel):
 class SystemInfo(BaseModel):
     version: str = VERSION
     model_configured: bool
-    capabilities: list[str] = ["drafts", "workspace_isolation", "materials", "demo_materials"]
+    capabilities: list[str] = [
+        "drafts",
+        "workspace_isolation",
+        "materials",
+        "demo_materials",
+        "statistics",
+    ]
 
 
 def create_app(
@@ -146,6 +153,7 @@ def create_app(
     material_router = create_material_router(connection, database.parent / "materials", demo_root)
     app.include_router(material_router)
     app.include_router(create_demo_router(material_router.material_service, connection, demo_root))
+    app.include_router(create_statistics_router(connection, material_router.material_service))
 
     @app.middleware("http")
     async def local_requests_only(request: Request, call_next):

@@ -86,6 +86,28 @@ test("material requests preserve upload boundaries, validation issues and worksp
   });
 
   await t.test(
+    "keeps statistics scope and version errors actionable",
+    async () => {
+      for (const [status, detail] of [
+        [422, "工作日期须位于报告起止期间内，且不包含结束日"],
+        [409, "报告已更新，请刷新后按当前版本重新统计"],
+      ]) {
+        globalThis.fetch = async () => ({
+          ok: false,
+          status,
+          json: async () => ({ detail }),
+        });
+        await assert.rejects(api("/reports/id/statistics", "normal"), (error) => {
+          assert.ok(error instanceof ApiError);
+          assert.equal(error.status, status);
+          assert.equal(error.message, detail);
+          return true;
+        });
+      }
+    },
+  );
+
+  await t.test(
     "downloads bytes with the selected workspace header",
     async () => {
       const blob = new Blob(["原始材料"]);
@@ -122,7 +144,7 @@ test("material requests preserve upload boundaries, validation issues and worksp
       assert.ok(clicked && removed && revoked);
     },
   );
-  assert.equal(cleared, 3);
+  assert.equal(cleared, 5);
 });
 
 test("API client handles failures safely and cleans request timers", async (t) => {
