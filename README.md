@@ -16,7 +16,7 @@ bash scripts/start_workbench.sh
 
 草稿与材料记录保存在本机 `outputs/workbench/workbench.sqlite3`，原件在同目录的`materials/`内，刷新和重启均保留；该目录不上传 Git。开发调试用两个终端分别运行 `uv run --locked office-workbench --api-only` 和 `npm --prefix frontend run dev`。
 
-需要演示时，另开终端运行`bash scripts/start_demo.sh`，打开 http://127.0.0.1:8530/ ，数据仅写`outputs/demo/`。从“帮助与演示”进入演示空间，再次打开帮助页显式加载案例，首页不预装实验内容。按[五分钟演示教程](docs/demo-v2.0-alpha.2.md)操作，无需调用模型；实际验证见[本版发布记录](docs/releases/v2.0-alpha.2.md)。
+给老师演示的目标是在正常工作台用普通案例材料跑完“需求→五角色协作→审核修正→Markdown/PDF”，无需独立演示空间或额外端口。新版alpha.2目前仅完成材料接入，不能当作完整汇报演示。可复现的既有五角色案例、当前能力边界及新版最终案例要求见[完整案例操作说明](docs/report-example.md)；本版材料功能验证见[发布记录](docs/releases/v2.0-alpha.2.md)。
 
 以下为 **v1.0.0 历史课程基线**：五角色LangGraph协作、中文实验网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。该版本的课程报告及证据保留，实际结果见 [v1.0验收](docs/validation-v1.0.md)。
 
