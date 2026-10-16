@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前开发版本为 **v2.0-alpha.2 材料接入工作台**：在React/FastAPI/SQLite草稿工作台上增加TXT、CSV、DOCX导入、来源定位预览、字段映射与全量校验、不可变版本、重复确认去重及原件下载。简单本地模拟接口和技术部合成案例仅在演示空间显式加载。统计、五角色执行和Markdown/PDF输出继续按后续阶段实施。依据以[实验功能基线](docs/proposals/v2.0-review/functional-baseline.md)为准，本版工作见[实施计划](docs/plan-v2.0-alpha.2.md)。
+当前开发版本为 **v2.0-alpha.3 数据统计与来源核对**：在草稿、TXT/CSV/DOCX材料接入基础上，报告工作区可以选择已确认材料，统计项目、考勤、成果及满意度，查看公式、限制和原始来源，保存不可变统计历史。缺失不当作0，冲突记录阻断统计；考勤样本与声明排班范围分开。五角色执行和Markdown/PDF输出继续按后续阶段实施，当前还不能在新版网页完成整个实验流程。实施统一依据[说明书R2](docs/proposals/v2.0-review/implementation-spec-r2.md)，本版见[计划](docs/plan-v2.0-alpha.3.md)及[验收记录](docs/releases/v2.0-alpha.3.md)。
 
 ## 启动新版工作台
 
