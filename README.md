@@ -2,7 +2,21 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前里程碑为 v1.0.0 课程交付版：五角色LangGraph协作、中文网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。新增一条命令八场景离线验收，并归档最终实验报告、搭建说明、架构分析和真实截图。实际结果见 [v1.0验收](docs/validation-v1.0.md)。
+当前开发版本为 **v2.0-alpha.1 汇报协作工作台**：React 页面、FastAPI 接口、SQLite 持久草稿，以及独立的正常/演示空间。此阶段用于实际审查新版界面；材料导入、统计、Agent 执行和审核导出按后续里程碑实施，不在本版伪装为已完成。依据见 [开发说明书](docs/proposals/v2.0-review/development-spec.md)，本版工作见 [实施计划](docs/plan-v2.0-alpha.1.md)。
+
+## 启动新版工作台
+
+需要 Node.js 22.12+（或24）、npm、uv、Python 3.12。在项目根目录运行：
+
+```bash
+bash scripts/start_workbench.sh
+```
+
+启动后打开 **[http://127.0.0.1:8520](http://127.0.0.1:8520)**。保持终端运行，Ctrl+C 停止。首次启动会安装锁定依赖并构建前端；已有构建时可直接 `uv run --locked office-workbench`。端口占用时用 `--port 8521` 并打开对应地址。新版不需要模型密钥，不发出模型请求。
+
+草稿保存在本机 `outputs/workbench/workbench.sqlite3`，刷新和重启均保留；该目录不上传 Git。开发调试用两个终端分别运行 `uv run --locked office-workbench --api-only` 和 `npm --prefix frontend run dev`。从帮助页显式进入演示空间，演示草稿与正常报告隔离，首页没有预装案例。实际验证与剩余复验项见 [本版发布记录](docs/releases/v2.0-alpha.1.md)。
+
+以下为 **v1.0.0 历史课程基线**：五角色LangGraph协作、中文实验网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。该版本的课程报告及证据保留，实际结果见 [v1.0验收](docs/validation-v1.0.md)。
 
 [最终实验报告 Word](docs/report/experiment-report.docx) · [可编辑 Markdown](docs/report/experiment-report.md) · [安装复现](docs/deployment-v1.0.md) · [现场演示](docs/demo-v1.0.md) · [课程提交清单](docs/submission-v1.0.md)。报告如实记录单人开发与AI辅助，三人组队要求仍需按老师安排处理。
 
@@ -30,7 +44,7 @@ uv run --locked ruff check .
 
 `graph-demo` 使用确定性的离线节点验证 LangGraph 图能执行，输出标记为 `mode=offline`。mock 测试验证适配器的正常和错误处理，不调用外部模型。这些结果不能作为真实模型接入成功或五 Agent 协作完成的证据。
 
-## 中文网页工作台
+## 历史 v1.0 Streamlit 实验网页
 
 ```bash
 uv sync --locked --python 3.12

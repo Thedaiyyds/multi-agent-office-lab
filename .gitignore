@@ -20,3 +20,8 @@ htmlcov/
 # Generated reports remain local; only curated, redacted evidence is committed
 outputs/
 models/
+
+# Workbench frontend (install from the committed lockfile)
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
