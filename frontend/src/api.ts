@@ -20,10 +20,48 @@ export interface SystemInfo {
   model_configured: boolean;
   capabilities: string[];
 }
+export type MaterialKind =
+  "projects" | "attendance" | "achievements" | "satisfaction" | "notes";
+export interface MaterialIssue {
+  severity: "error" | "warning";
+  location: string;
+  message: string;
+}
+export interface MaterialPreview {
+  location: string;
+  values: Record<string, string>;
+}
+export interface ImportDraft {
+  id: string;
+  workspace: Workspace;
+  name: string;
+  kind: MaterialKind;
+  source: "file" | "local_api" | "demo";
+  sha256: string;
+  byte_size: number;
+  department: string;
+  start_date: string;
+  end_date: string;
+  columns: string[];
+  suggested_mapping: Record<string, string>;
+  preview: MaterialPreview[];
+  row_count: number;
+  issues: MaterialIssue[];
+  confirmed_material_id: string | null;
+}
+export interface MaterialVersion extends Omit<
+  ImportDraft,
+  "suggested_mapping" | "confirmed_material_id"
+> {
+  version: number;
+  mapping: Record<string, string>;
+  created_at: string;
+}
 export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
+    public issues: MaterialIssue[] = [],
   ) {
     super(message);
   }
@@ -44,12 +82,40 @@ export async function api<T>(
       ...options,
       signal: controller.signal,
       headers: {
-        "Content-Type": "application/json",
+        ...(options.body instanceof FormData
+          ? {}
+          : { "Content-Type": "application/json" }),
         "X-Workspace": workspace,
         ...options.headers,
       },
     });
     if (!response.ok) {
+      if (
+        path.startsWith("/materials") ||
+        path.startsWith("/imports") ||
+        path.startsWith("/demo")
+      ) {
+        const payload = await response.json().catch(() => null);
+        const detail = payload?.detail;
+        const issues = Array.isArray(detail?.issues)
+          ? detail.issues.filter(
+              (issue: MaterialIssue) =>
+                issue &&
+                typeof issue.location === "string" &&
+                typeof issue.message === "string" &&
+                ["error", "warning"].includes(issue.severity),
+            )
+          : [];
+        throw new ApiError(
+          response.status,
+          typeof detail?.message === "string"
+            ? detail.message
+            : typeof detail === "string"
+              ? detail
+              : "材料操作未成功，请检查文件和填写内容后重试。",
+          issues,
+        );
+      }
       if (response.status === 409)
         throw new ApiError(
           409,
@@ -93,5 +159,45 @@ export async function api<T>(
   } finally {
     window.clearTimeout(timeout);
     options.signal?.removeEventListener("abort", cancel);
+  }
+}
+
+export async function downloadMaterial(
+  id: string,
+  name: string,
+  workspace: Workspace,
+) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15_000);
+  try {
+    const response = await fetch(
+      `/api/v1/materials/${encodeURIComponent(id)}/download`,
+      {
+        headers: { "X-Workspace": workspace },
+        signal: controller.signal,
+      },
+    );
+    if (!response.ok)
+      throw new ApiError(
+        response.status,
+        "无法下载原始材料，请刷新列表后重试。",
+      );
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    try {
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = name;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    } finally {
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(0, "下载未完成，请检查本地服务连接后重试。");
+  } finally {
+    window.clearTimeout(timeout);
   }
 }

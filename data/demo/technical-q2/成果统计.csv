@@ -1,0 +1,4 @@
+achievement_id,department,date,category,name,project_id
+DEMO-A01,技术部,2026-05-20,项目交付,模拟内部知识库交付,DEMO-P01
+DEMO-A02,技术部,2026-06-18,项目交付,模拟审批表单改造交付,DEMO-P02
+DEMO-A03,技术部,2026-06-25,流程改进,模拟接口文档整理,DEMO-P03

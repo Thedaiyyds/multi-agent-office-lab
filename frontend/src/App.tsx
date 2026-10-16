@@ -39,6 +39,7 @@ import {
   type Workspace,
 } from "./api";
 import { useConfirmation, type Confirm } from "./confirm";
+import Materials, { DemoMaterials } from "./Materials";
 
 const nav = [
   { path: "/", label: "工作台", icon: LayoutDashboard },
@@ -766,9 +767,10 @@ function DraftForm({
             <div className="aside-divider" />
             <h3>接下来</h3>
             <p>
-              材料导入、多智能体生成、审核与导出将在后续版本开放。当前可保存和编辑需求草稿。
+              材料库已支持文件导入与预览。统计、多智能体生成、审核与 Markdown /
+              PDF 导出将在后续版本开放。
             </p>
-            <div className="version-label">v2.0-alpha.1 · 草稿工作台</div>
+            <div className="version-label">v2.0-alpha.2 · 材料接入</div>
           </div>
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -893,42 +895,21 @@ function Editor({
   );
 }
 
-function FuturePage({
-  kind,
-  navigate,
-}: {
-  kind: "materials" | "archive";
-  navigate: (path: string) => void;
-}) {
-  const material = kind === "materials";
+function FuturePage({ navigate }: { navigate: (path: string) => void }) {
   return (
     <>
       <div className="page-heading">
         <div>
-          <div className="eyebrow">
-            {material ? "MATERIAL LIBRARY" : "REPORT ARCHIVE"}
-          </div>
-          <h1>{material ? "材料库" : "报告归档"}</h1>
-          <p>
-            {material
-              ? "集中整理工作汇报所需的原始材料。"
-              : "保留经审核确认的正式报告与交付文件。"}
-          </p>
+          <div className="eyebrow">REPORT ARCHIVE</div>
+          <h1>报告归档</h1>
+          <p>保留经审核确认的正式报告与交付文件。</p>
         </div>
       </div>
       <section className="card">
         <EmptyState
-          icon={material ? FolderOpen : Archive}
-          title={
-            material
-              ? "材料导入将在下一版本开放"
-              : "正式归档将在审核功能完成后开放"
-          }
-          description={
-            material
-              ? "v2.0-alpha.2 将支持 CSV、TXT 和 DOCX 的导入、预览、校验与版本管理。当前尚不支持上传文件。"
-              : "当前版本支持需求草稿。审核、归档和 Word / PDF 导出将在 v2.0-alpha.5 开放。"
-          }
+          icon={Archive}
+          title="正式归档将在审核功能完成后开放"
+          description="当前支持需求草稿和材料接入。审核、归档和 Markdown / PDF 导出将在 v2.0-alpha.5 完善。"
         >
           <button
             className="button secondary"
@@ -1003,7 +984,8 @@ function Settings({
           <span className="muted">{system?.version || "版本读取中"}</span>
         </div>
         <p className="field-hint">
-          当前提供首页、报告任务与持久化草稿；模型生成、材料管理和正式导出将按版本逐步开放。
+          当前支持持久化草稿、TXT / CSV / DOCX
+          材料导入、本地模拟接口和材料版本管理；统计、模型生成和正式导出将按版本逐步开放。
         </p>
       </section>
     </>
@@ -1013,9 +995,13 @@ function Settings({
 function Help({
   workspace,
   switchWorkspace,
+  navigate,
+  onSaving,
 }: {
   workspace: Workspace;
   switchWorkspace: (next: Workspace) => void;
+  navigate: (path: string) => void;
+  onSaving: (value: boolean) => void;
 }) {
   return (
     <>
@@ -1031,7 +1017,7 @@ function Help({
           <div className="empty-icon small">
             <FileText size={24} />
           </div>
-          <h2>从草稿开始</h2>
+          <h2>从需求与材料开始</h2>
           <ol className="guide-list">
             <li>
               <span>1</span>
@@ -1043,19 +1029,24 @@ function Help({
             <li>
               <span>2</span>
               <div>
-                <strong>明确内容</strong>
-                <p>描述汇报重点，调整章节结构。</p>
+                <strong>整理材料</strong>
+                <p>进入材料库，选择分类，上传 TXT、CSV 或 DOCX 并预览。</p>
               </div>
             </li>
             <li>
               <span>3</span>
               <div>
-                <strong>保存并继续</strong>
-                <p>草稿保存后，刷新或重启服务仍可读取。</p>
+                <strong>确认并保存</strong>
+                <p>
+                  核对字段映射和校验提示后确认入库。材料与草稿在刷新或重启后仍可读取。
+                </p>
               </div>
             </li>
           </ol>
-          <Notice>当前版本尚未开放材料导入、智能体生成、审核和导出。</Notice>
+          <Notice>
+            材料库已开放 TXT / CSV / DOCX
+            导入、预览与校验。智能体生成、审核和导出将在后续版本开放。
+          </Notice>
         </section>
         <section className="card help-card">
           <div className="empty-icon small">
@@ -1082,6 +1073,11 @@ function Help({
           </button>
         </section>
       </div>
+      <DemoMaterials
+        workspace={workspace}
+        navigate={navigate}
+        onSaving={onSaving}
+      />
     </>
   );
 }
@@ -1171,7 +1167,8 @@ export default function App() {
           dirty.current &&
           !skipGuard &&
           !(await confirm(
-            "草稿有尚未保存的修改。离开将放弃这些输入，确定继续吗？",
+            "当前有尚未保存的草稿或尚未确认的材料导入。离开将放弃这些输入，确定继续吗？",
+            "离开当前页面？",
           ))
         )
           return;
@@ -1195,7 +1192,8 @@ export default function App() {
         if (
           dirty.current &&
           !(await confirm(
-            "草稿有尚未保存的修改。离开将放弃这些输入，确定继续吗？",
+            "当前有尚未保存的草稿或尚未确认的材料导入。离开将放弃这些输入，确定继续吗？",
+            "离开当前页面？",
           ))
         ) {
           window.history.replaceState(null, "", `#${currentPath.current}`);
@@ -1374,7 +1372,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>alpha.1</span>
+              本地运行<span>alpha.2</span>
             </div>
           </div>
         </aside>
@@ -1403,7 +1401,7 @@ export default function App() {
           </header>
           {workspace === "demo" && (
             <div className="demo-banner">
-              <span>演示空间 · 所有报告与正常工作数据隔离</span>
+              <span>演示空间 · 报告和材料均与正常工作数据隔离</span>
               <button onClick={() => switchWorkspace("normal")}>
                 返回正常空间
                 <ArrowRight size={14} />
@@ -1465,15 +1463,24 @@ export default function App() {
                 onSaving={onSaving}
                 confirm={confirm}
               />
-            ) : path === "/materials" || path === "/archive" ? (
-              <FuturePage
-                kind={path === "/materials" ? "materials" : "archive"}
-                navigate={navigate}
+            ) : path === "/materials" ? (
+              <Materials
+                workspace={workspace}
+                onDirty={onDirty}
+                onSaving={onSaving}
+                confirm={confirm}
               />
+            ) : path === "/archive" ? (
+              <FuturePage navigate={navigate} />
             ) : path === "/settings" ? (
               <Settings system={system} error={systemError} retry={changed} />
             ) : path === "/help" ? (
-              <Help workspace={workspace} switchWorkspace={switchWorkspace} />
+              <Help
+                workspace={workspace}
+                switchWorkspace={switchWorkspace}
+                navigate={navigate}
+                onSaving={onSaving}
+              />
             ) : (
               <EmptyState
                 title="页面未找到"
@@ -1489,7 +1496,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.0-alpha.1</span>
+            汇报协作<span>v2.0-alpha.2</span>
           </footer>
         </div>
       </div>

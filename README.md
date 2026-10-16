@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前开发版本为 **v2.0-alpha.1 汇报协作工作台**：React 页面、FastAPI 接口、SQLite 持久草稿，以及独立的正常/演示空间。此阶段用于实际审查新版界面；材料导入、统计、Agent 执行和审核导出按后续里程碑实施，不在本版伪装为已完成。依据见 [开发说明书](docs/proposals/v2.0-review/development-spec.md)，本版工作见 [实施计划](docs/plan-v2.0-alpha.1.md)。
+当前开发版本为 **v2.0-alpha.2 材料接入工作台**：在React/FastAPI/SQLite草稿工作台上增加TXT、CSV、DOCX导入、来源定位预览、字段映射与全量校验、不可变版本、重复确认去重及原件下载。简单本地模拟接口和技术部合成案例仅在演示空间显式加载。统计、五角色执行和Markdown/PDF输出继续按后续阶段实施。依据以[实验功能基线](docs/proposals/v2.0-review/functional-baseline.md)为准，本版工作见[实施计划](docs/plan-v2.0-alpha.2.md)。
 
 ## 启动新版工作台
 
@@ -14,7 +14,9 @@ bash scripts/start_workbench.sh
 
 启动后打开 **[http://127.0.0.1:8520](http://127.0.0.1:8520)**。保持终端运行，Ctrl+C 停止。首次启动会安装锁定依赖并构建前端；已有构建时可直接 `uv run --locked office-workbench`。端口占用时用 `--port 8521` 并打开对应地址。新版不需要模型密钥，不发出模型请求。
 
-草稿保存在本机 `outputs/workbench/workbench.sqlite3`，刷新和重启均保留；该目录不上传 Git。开发调试用两个终端分别运行 `uv run --locked office-workbench --api-only` 和 `npm --prefix frontend run dev`。从帮助页显式进入演示空间，演示草稿与正常报告隔离，首页没有预装案例。实际验证与剩余复验项见 [本版发布记录](docs/releases/v2.0-alpha.1.md)。
+草稿与材料记录保存在本机 `outputs/workbench/workbench.sqlite3`，原件在同目录的`materials/`内，刷新和重启均保留；该目录不上传 Git。开发调试用两个终端分别运行 `uv run --locked office-workbench --api-only` 和 `npm --prefix frontend run dev`。
+
+需要演示时，另开终端运行`bash scripts/start_demo.sh`，打开 http://127.0.0.1:8530/ ，数据仅写`outputs/demo/`。从“帮助与演示”进入演示空间，再次打开帮助页显式加载案例，首页不预装实验内容。按[五分钟演示教程](docs/demo-v2.0-alpha.2.md)操作，无需调用模型；实际验证见[本版发布记录](docs/releases/v2.0-alpha.2.md)。
 
 以下为 **v1.0.0 历史课程基线**：五角色LangGraph协作、中文实验网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。该版本的课程报告及证据保留，实际结果见 [v1.0验收](docs/validation-v1.0.md)。
 
