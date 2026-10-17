@@ -610,3 +610,38 @@ def test_revised_provider_failure_preserves_ledger_and_hides_sensitive_error_bod
         assert "not-a-real-key" not in json.dumps(result)
         assert download(client, result).status_code == 409
         assert len(provider.calls) == 7
+
+
+def test_restart_reuses_frozen_delivery_then_new_edit_only_reviews_two_roles(tmp_path):
+    original_provider = Provider()
+    with workbench(tmp_path, original_provider) as (client, _):
+        run, original = create_approved(client)
+        md = download(client, original).content
+        pdf = download(client, original, "pdf").content
+        assert len(original_provider.calls) == 6
+    restarted_provider = Provider()
+    with workbench(tmp_path, restarted_provider) as (client, _):
+        listing = client.get(revision_url(run["report_id"])).json()
+        assert listing["current_revision_id"] == original["id"]
+        assert len(listing["items"]) == 1
+        assert download(client, original).content == md
+        assert download(client, original, "pdf").content == pdf
+        assert restarted_provider.calls == []
+        old_run = client.get("/api/v1/runs/" + run["id"]).json()
+        assert old_run["usage"] == run["usage"]
+        changed = edit(client, original)
+        assert changed.status_code == 201, changed.text
+        started = review(client, changed.json())
+        assert started.status_code == 202, started.text
+        updated = wait_run(client, started.json()["id"])
+        assert updated["status"] == "completed", updated
+        approved = wait_revision(client, changed.json(), "approved")
+        assert [call[:2] for call in restarted_provider.calls] == [
+            ("checker", "review"),
+            ("manager", "acceptance"),
+        ]
+        assert download(client, approved).status_code == 200
+        assert download(client, approved, "pdf").status_code == 200
+        assert download(client, original).content == md
+        assert download(client, original, "pdf").content == pdf
+        assert download(client, original).headers["X-Report-Current"] == "false"

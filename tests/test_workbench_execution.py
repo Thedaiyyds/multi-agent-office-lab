@@ -788,3 +788,38 @@ def test_truncated_supplier_reply_stops_without_admitting_candidate(build_app):
         assert run["nodes"][0].get("candidate_output") is None
         assert run["usage"]["request_count"] == 1
         assert run["usage"]["reserved_output_tokens"] == 256
+
+
+def test_final_manager_gets_full_body_facts_limits_and_unique_sources_without_repeated_hashes(
+    build_app,
+):
+    import hashlib
+
+    factory, _, _ = build_app
+    app = factory()
+    with TestClient(app) as client:
+        run = finished(client, app.state.execution_service, submit(client))
+        assert run["status"] == "completed"
+        context = run["nodes"][-1]["inputs"]["context"]
+        assert context["draft_sha256"] == hashlib.sha256(run["draft_markdown"].encode()).hexdigest()
+        assert "## 权威统计与口径" in context["draft_markdown"]
+        assert "SHA256" not in context["draft_markdown"]
+        assert context["materials"] == run["materials"]
+        assert any("季度" in item or "期间" in item for item in context["limitations"])
+        assert run["draft_markdown"].startswith(context["draft_markdown"])
+        assert "SHA256" in run["draft_markdown"]
+
+
+def test_writer_revision_receives_previous_draft_and_exact_offending_numeric_fragments(build_app):
+    supplier = Supplier(bad_writer=1)
+    factory, _, _ = build_app
+    app = factory(supplier=supplier)
+    with TestClient(app) as client:
+        run = finished(client, app.state.execution_service, submit(client, mode="live"))
+        assert run["status"] == "completed"
+        contexts = [node["inputs"]["context"] for node in run["nodes"] if node["role"] == "writer"]
+        assert contexts[0]["previous_narrative"] is None
+        assert contexts[1]["previous_narrative"]["sections"][0]["text"] == "项目数量为999个。"
+        assert any(
+            "999" in issue and "概况" in issue for issue in contexts[1]["previous_review"]["issues"]
+        )

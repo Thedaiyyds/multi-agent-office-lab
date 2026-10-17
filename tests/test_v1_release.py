@@ -170,4 +170,4 @@ def test_cli_acceptance_operational_error_is_safe(tmp_path, monkeypatch, capsys)
 def test_release_version_agrees_with_installed_package():
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     assert project["project"]["version"] == __version__ == version("multi-agent-office-lab")
-    assert __version__ == "2.0.0a5"
+    assert __version__ == "2.0.0a6"

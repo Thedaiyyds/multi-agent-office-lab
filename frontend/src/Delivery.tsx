@@ -163,12 +163,14 @@ export function Delivery({
   onDirty,
   onSaving,
   navigate,
+  onChanged,
 }: {
   reportId: string;
   workspace: Workspace;
   onDirty: (value: boolean) => void;
   onSaving: (value: boolean) => void;
   navigate: (path: string) => void;
+  onChanged: () => void;
 }) {
   const [list, setList] = useState<RevisionList | null>(null);
   const [selected, setSelected] = useState("");
@@ -184,6 +186,18 @@ export function Delivery({
   const locked = useRef(false);
   const reviewAttempt = useRef<{ revision: string; key: string } | null>(null);
   const base = `/reports/${encodeURIComponent(reportId)}/revisions`;
+  const lastReportState = useRef("");
+  const reportState = list?.items.length
+    ? `${list.report_version}:${list.current_revision_id}:${list.items[0].id}:${list.items[0].status}`
+    : "";
+  useEffect(() => {
+    if (reportState && reportState !== lastReportState.current) {
+      lastReportState.current = reportState;
+      // The run may finish before its local delivery callback. Refresh the parent
+      // list only when the persisted revision state actually arrives or changes.
+      onChanged();
+    }
+  }, [reportState, onChanged]);
   const dirty =
     editing &&
     narrative !== null &&

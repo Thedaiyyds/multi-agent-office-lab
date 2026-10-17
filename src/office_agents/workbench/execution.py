@@ -717,12 +717,14 @@ class ExecutionContext:
             "仅返回一个符合schema的JSON对象，不加代码块。不得编造未授权数据或扩大统计范围。"
             "Writer只能使用文字叙述和[[fact:F001]]、[[note:N001]]形式引用；"
             "不得裸写数字、百分比或中文数字加数量单位。数值表由程序生成。建议必须放suggestions。"
-            "Manager不得推测缺失年份或部门；已有saved_report须原样沿用其范围与章节。"
+            "Manager不得推测缺失年份或部门。已有saved_report时requirements中的title、department、"
+            "start_date、end_date、focus、sections须逐字段逐字复制其对应值，保留章节顺序，"
+            "不概括focus或改写标题，仅tasks可以另行拆解。"
             "所有报告期间采用[start_date,end_date)半开区间；季度结束日必须是下季度第一天，"
             "绝不是本季度最后一天。没有saved_report时，Manager必须从context.grounded_periods复制起止日期，"
             "没有可用提示时返回needs_input，不得自行改写结束日。"
             "Checker需审核叙述真实性、需求覆盖与来源，发现问题提供可执行修改意见。"
-            "输出紧凑JSON，Manager tasks写简短短语、focus不重复原文，"
+            "输出紧凑JSON，Manager tasks写简短短语；新建需求focus不重复原文，"
             "Writer每章最多一段短文（约80中文字）。仅允许本角色schema所示字段。schema="
             + canonical_json(schema)
         )
@@ -734,6 +736,14 @@ class ExecutionContext:
             )
         elif role == "planner":
             system += "每章purpose最多20个汉字；章节标题与requirements.sections完全一致。"
+        elif role == "writer":
+            system += (
+                "数值引用自带指标名、数值和单位，作为完整短语使用，不先重复其指标名。"
+                "例如写‘项目情况：[[fact:F001]]’，不要写‘项目数为4个’或‘共有四个项目’。"
+                "不得转述notes中的日期、数量、人员数或工作日数；引用整段[[note:N001]]，"
+                "或省略数字细节，写‘所提供排班样本’。不得写‘两个工作日’等裸数量。"
+                "返工时逐项修复previous_review所指原句，previous_narrative为上一稿。"
+            )
         elif role == "checker":
             system += "问题和修改要求最多各三条，每条最多30个汉字；程序问题不能忽略。"
         elif phase == "acceptance":
@@ -1142,6 +1152,7 @@ class ExecutionContext:
             ],
             notes=run["notes"],
             previous_review=run["review"],
+            previous_narrative=run.get("narrative"),
             revision=self.revision,
         )
 
@@ -1242,7 +1253,14 @@ class ExecutionContext:
             requirements=run["requirements"],
             review=run["review"],
             outline=run["outline"],
-            draft_markdown=run["draft_markdown"],
+            # The immutable source appendix remains in both files and program checks.
+            # The model receives each source once, rather than repeated SHA text per fact.
+            draft_markdown=run["draft_markdown"].rsplit("\n## 数据限制与来源\n", 1)[0],
+            draft_sha256=hashlib.sha256(run["draft_markdown"].encode()).hexdigest(),
+            limitations=list(
+                dict.fromkeys(text for fact in run["facts"] for text in fact["limitations"])
+            ),
+            materials=run["materials"],
             policy_version=POLICY_VERSION,
         )
         result = self.call(
@@ -1555,8 +1573,9 @@ def validate_narrative(run):
         issues.append("章节缺失、重复或顺序不符合已确认需求")
     facts = {fact["id"] for fact in run["facts"]}
     notes = {note["id"] for note in run["notes"]}
-    texts = [section["text"] for section in narrative["sections"]] + narrative["suggestions"]
-    for text in texts:
+    texts = [(section["title"], section["text"]) for section in narrative["sections"]]
+    texts += [("建议", text) for text in narrative["suggestions"]]
+    for label, text in texts:
         references = re.findall(r"\[\[(fact|note):([A-Z]\d{3})\]\]", text)
         if any(
             identifier not in (facts if kind == "fact" else notes)
@@ -1566,11 +1585,16 @@ def validate_narrative(run):
         plain = re.sub(r"\[\[(fact|note):([A-Z]\d{3})\]\]", "", text)
         if "[[" in plain or "]]" in plain:
             issues.append("事实引用格式不规范，请使用完整的授权引用")
-        if re.search(
-            r"\d|[零〇一二三四五六七八九十百千万亿两]+\s*(?:个|项|人|条|份|小时|分钟|天|次|成|%)|百分之",
+        numeric_matches = re.findall(
+            r"\d+|[零〇一二三四五六七八九十百千万亿两]+\s*(?:个|项|人|条|份|小时|分钟|天|次|成|%)|百分之",
             plain,
-        ):
+        )
+        if numeric_matches:
             issues.append("叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值")
+            fragments = "、".join(dict.fromkeys(numeric_matches[:6]))
+            issues.append(
+                f"《{label}》存在裸数值“{fragments}”；请改为授权引用或省略数量，不要换成中文数量"
+            )
         if re.search(r"<[^>]*>|!\[|\]\(|^\s*#{1,6}\s|\|", plain, re.MULTILINE):
             issues.append("叙述应为普通段落，不得插入HTML、外部链接或自建数值表")
     if run["draft_markdown"] != render_markdown(run, narrative):
