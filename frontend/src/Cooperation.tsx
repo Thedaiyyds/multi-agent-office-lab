@@ -695,6 +695,7 @@ export function RunDetail({
                   onDirty={onDirty}
                   onSaving={onSaving}
                   navigate={navigate}
+                  onChanged={changed}
                 />
               ) : run.draft_markdown ? (
                 <>

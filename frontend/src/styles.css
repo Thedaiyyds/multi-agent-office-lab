@@ -2823,3 +2823,7 @@ select:focus-visible {
     justify-content: center;
   }
 }
+
+.archive-note {
+  margin-top: 18px;
+}

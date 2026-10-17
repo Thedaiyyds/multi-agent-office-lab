@@ -1,0 +1,95 @@
+{
+  "model": "deepseek-v4-pro",
+  "scenarios": [
+    {
+      "name": "technical",
+      "run_id": "4f7312f49fe24ab4b25cfdf4192cfcd5",
+      "report_id": "9f9d31c2141a40fc8b17db567bf4efc9",
+      "revision_id": "27f3b00e954b4c038d3a662e91699522",
+      "usage": {
+        "completion_tokens": 721,
+        "mock_calls": 0,
+        "output_budget": 3648,
+        "prompt_tokens": 14019,
+        "reasoning_tokens": null,
+        "request_budget": 8,
+        "request_count": 6,
+        "reserved_output_tokens": 2368,
+        "total_tokens": 14740
+      },
+      "content_hash": "d64935a65541752f57268635f3ce83ceb2dd52305ed151dfdbec080c699fb0b1",
+      "artifacts": [
+        {
+          "format": "md",
+          "state": "ready",
+          "snapshot_hash": "d64935a65541752f57268635f3ce83ceb2dd52305ed151dfdbec080c699fb0b1",
+          "file_sha256": "19c7370c55e550b2b2c8f25969fb870e263389f87bb7efa199f0de58ce0c5c45",
+          "byte_size": 16324,
+          "error": null
+        },
+        {
+          "format": "pdf",
+          "state": "ready",
+          "snapshot_hash": "d64935a65541752f57268635f3ce83ceb2dd52305ed151dfdbec080c699fb0b1",
+          "file_sha256": "3c523e25b59c11e081827153112f72e8fff53a6d84b7cfd8374767f30ab527fb",
+          "byte_size": 90324,
+          "error": null
+        }
+      ],
+      "source_files_sha256": {
+        "src/office_agents/workbench/execution.py": "e35962fcf43567b30d799f809bbf494de50214de5c0a9e539ee7b4310d6ab44f",
+        "src/office_agents/workbench/delivery.py": "767c8a98e5c99c11d5ec57a287f85701774f451be46ba0dc326923efb1dd3465",
+        "src/office_agents/workbench/pdf_export.py": "35574d9366bc8aba1de9a3e736c8e6eb496529c3fafe211fce9cfef355cc16f2",
+        "src/office_agents/workbench/statistics.py": "a42db67b95e602aeab6f98f16fce21a6f75d0cb80d70b7abd12d2c9cf1b8ec22"
+      }
+    },
+    {
+      "name": "administration",
+      "run_id": "af30feadee5e4c5b9065d241d02f644e",
+      "report_id": "a222be7e58bb417dbce59a3d2117bb6c",
+      "revision_id": "b4802d1dfa9847b8b757278ed6fb8491",
+      "usage": {
+        "completion_tokens": 630,
+        "mock_calls": 0,
+        "output_budget": 3648,
+        "prompt_tokens": 10465,
+        "reasoning_tokens": null,
+        "request_budget": 8,
+        "request_count": 6,
+        "reserved_output_tokens": 2368,
+        "total_tokens": 11095
+      },
+      "content_hash": "af33ba44fe68117494b89edf6eab1736f5e7c2e46b249e0bbc74beed1a6b9ba0",
+      "artifacts": [
+        {
+          "format": "md",
+          "state": "ready",
+          "snapshot_hash": "af33ba44fe68117494b89edf6eab1736f5e7c2e46b249e0bbc74beed1a6b9ba0",
+          "file_sha256": "9e21e6c9b5b1f9c21b9b108cedb0ff17184a4440f746d100570695f33965a806",
+          "byte_size": 5321,
+          "error": null
+        },
+        {
+          "format": "pdf",
+          "state": "ready",
+          "snapshot_hash": "af33ba44fe68117494b89edf6eab1736f5e7c2e46b249e0bbc74beed1a6b9ba0",
+          "file_sha256": "ed0047d11759d11dcd319a33b4fa66d0857637227c4cc3a1f16cca723e8e0143",
+          "byte_size": 79700,
+          "error": null
+        }
+      ],
+      "source_files_sha256": {
+        "src/office_agents/workbench/execution.py": "e35962fcf43567b30d799f809bbf494de50214de5c0a9e539ee7b4310d6ab44f",
+        "src/office_agents/workbench/delivery.py": "767c8a98e5c99c11d5ec57a287f85701774f451be46ba0dc326923efb1dd3465",
+        "src/office_agents/workbench/pdf_export.py": "35574d9366bc8aba1de9a3e736c8e6eb496529c3fafe211fce9cfef355cc16f2",
+        "src/office_agents/workbench/statistics.py": "a42db67b95e602aeab6f98f16fce21a6f75d0cb80d70b7abd12d2c9cf1b8ec22"
+      }
+    }
+  ],
+  "successful_requests": 12,
+  "successful_tokens": 25835,
+  "failed_requests": 11,
+  "failed_tokens": 26970,
+  "total_requests": 23,
+  "total_tokens": 52805
+}

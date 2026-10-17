@@ -602,7 +602,7 @@ wheels = [
 
 [[package]]
 name = "multi-agent-office-lab"
-version = "2.0.0a5"
+version = "2.0.0a6"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },

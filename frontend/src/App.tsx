@@ -40,6 +40,7 @@ import {
 } from "./api";
 import { useConfirmation, type Confirm } from "./confirm";
 import Materials from "./Materials";
+import { Archive as ReportArchive, ReportDelivery } from "./Archive";
 import Statistics from "./Statistics";
 import { RunComposer, RunDetail, RunHistory } from "./Cooperation";
 
@@ -779,7 +780,7 @@ function DraftForm({
               通过上方协作入口可由五角色完成规划、整理、撰写和审核。合格修订自动提供
               Markdown / PDF；修改文字后需重新审核。下方可核对统计与来源。
             </p>
-            <div className="version-label">v2.0-alpha.5 · 报告交付</div>
+            <div className="version-label">v2.0-alpha.6 · 报告交付</div>
           </div>
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -961,35 +962,6 @@ function Editor({
           </details>
         </>
       )}
-    </>
-  );
-}
-
-function FuturePage({ navigate }: { navigate: (path: string) => void }) {
-  return (
-    <>
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">REPORT ARCHIVE</div>
-          <h1>报告归档</h1>
-          <p>保留经审核确认的正式报告与交付文件。</p>
-        </div>
-      </div>
-      <section className="card">
-        <EmptyState
-          icon={Archive}
-          title="通过协作记录查看已交付报告"
-          description="报告修订与文件保存在本地。打开报告任务的已完成协作记录，即可查看当前及历史修订、审核结果并下载合格的 Markdown / PDF 文件。"
-        >
-          <button
-            className="button secondary"
-            onClick={() => navigate("/reports")}
-          >
-            查看报告任务
-            <ArrowRight size={16} />
-          </button>
-        </EmptyState>
-      </section>
     </>
   );
 }
@@ -1345,21 +1317,25 @@ export default function App() {
       navigationBusy.current = false;
     }
   };
-  const navActive =
-    path.startsWith("/reports") || path.startsWith("/runs/")
+  const deliveryPath = /^\/reports\/[^/]+\/delivery$/.test(path);
+  const navActive = deliveryPath
+    ? "/archive"
+    : path.startsWith("/reports") || path.startsWith("/runs/")
       ? "/reports"
       : path;
-  const title = path.startsWith("/runs/")
-    ? "五角色协作"
-    : path.startsWith("/reports/")
-      ? path === "/reports/new"
-        ? "新建报告"
-        : "报告工作区"
-      : [
-          ...nav,
-          { path: "/settings", label: "系统设置" },
-          { path: "/help", label: "使用帮助" },
-        ].find((item) => item.path === path)?.label || "页面未找到";
+  const title = deliveryPath
+    ? "报告交付"
+    : path.startsWith("/runs/")
+      ? "五角色协作"
+      : path.startsWith("/reports/")
+        ? path === "/reports/new"
+          ? "新建报告"
+          : "报告工作区"
+        : [
+            ...nav,
+            { path: "/settings", label: "系统设置" },
+            { path: "/help", label: "使用帮助" },
+          ].find((item) => item.path === path)?.label || "页面未找到";
   return (
     <>
       <div className="app-shell" inert={confirming}>
@@ -1443,7 +1419,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>alpha.5</span>
+              本地运行<span>alpha.6</span>
             </div>
           </div>
         </aside>
@@ -1541,6 +1517,16 @@ export default function App() {
                 onDirty={onDirty}
                 onSaving={onSaving}
               />
+            ) : deliveryPath ? (
+              <ReportDelivery
+                key={path}
+                reportId={path.split("/")[2]}
+                workspace={workspace}
+                navigate={navigate}
+                onDirty={onDirty}
+                onSaving={onSaving}
+                onChanged={changed}
+              />
             ) : /^\/reports\/[^/]+$/.test(path) ? (
               <Editor
                 key={path}
@@ -1561,7 +1547,7 @@ export default function App() {
                 confirm={confirm}
               />
             ) : path === "/archive" ? (
-              <FuturePage navigate={navigate} />
+              <ReportArchive workspace={workspace} navigate={navigate} />
             ) : path === "/settings" ? (
               <Settings system={system} error={systemError} retry={changed} />
             ) : path === "/help" ? (
@@ -1581,7 +1567,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.0-alpha.5</span>
+            汇报协作<span>v2.0-alpha.6</span>
           </footer>
         </div>
       </div>

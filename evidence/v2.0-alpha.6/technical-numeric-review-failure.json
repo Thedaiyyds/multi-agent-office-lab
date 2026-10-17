@@ -1,0 +1,159 @@
+{
+  "id": "d60d2f3d812c4a16839a50fd53135441",
+  "mode": "live",
+  "status": "review_failed",
+  "stage": "review_failed",
+  "usage": {
+    "completion_tokens": 1333,
+    "mock_calls": 0,
+    "output_budget": 3648,
+    "prompt_tokens": 19041,
+    "reasoning_tokens": null,
+    "request_budget": 8,
+    "request_count": 7,
+    "reserved_output_tokens": 3392,
+    "total_tokens": 20374
+  },
+  "model_attempts": [
+    {
+      "max_output_tokens": 256,
+      "phase": "requirements",
+      "role": "manager",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 174,
+        "prompt_tokens": 1069,
+        "total_tokens": 1243
+      }
+    },
+    {
+      "max_output_tokens": 384,
+      "phase": "outline",
+      "role": "planner",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 142,
+        "prompt_tokens": 769,
+        "total_tokens": 911
+      }
+    },
+    {
+      "max_output_tokens": 192,
+      "phase": "summary",
+      "role": "data",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 51,
+        "prompt_tokens": 3236,
+        "total_tokens": 3287
+      }
+    },
+    {
+      "max_output_tokens": 1024,
+      "phase": "draft",
+      "role": "writer",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 412,
+        "prompt_tokens": 3292,
+        "total_tokens": 3704
+      }
+    },
+    {
+      "max_output_tokens": 256,
+      "phase": "review",
+      "role": "checker",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 99,
+        "prompt_tokens": 3616,
+        "total_tokens": 3715
+      }
+    },
+    {
+      "max_output_tokens": 1024,
+      "phase": "draft",
+      "role": "writer",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 434,
+        "prompt_tokens": 3421,
+        "total_tokens": 3855
+      }
+    },
+    {
+      "max_output_tokens": 256,
+      "phase": "review",
+      "role": "checker",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 3638,
+        "total_tokens": 3659
+      }
+    }
+  ],
+  "requirements": {
+    "department": "技术部",
+    "end_date": "2026-07-01",
+    "focus": "汇总技术部第二季度项目进度、人员考勤与成果统计情况，基于已提供材料样本进行说明。",
+    "sections": [
+      "项目进度",
+      "人员考勤",
+      "成果统计"
+    ],
+    "start_date": "2026-04-01",
+    "title": "2026年第二季度技术部工作汇报"
+  },
+  "review": {
+    "issues": [
+      "叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值"
+    ],
+    "model_passed": true,
+    "passed": false,
+    "program_passed": false,
+    "revision": 1,
+    "revision_instructions": [
+      "叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值"
+    ]
+  },
+  "revision_failures": [
+    {
+      "revision": 0,
+      "review": {
+        "issues": [
+          "叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值",
+          "叙述出现裸写数字，违反引用规则",
+          "考勤章节未引用F012、F013",
+          "成果章节未引用F015、F016"
+        ],
+        "model_passed": false,
+        "passed": false,
+        "program_passed": false,
+        "revision": 0,
+        "revision_instructions": [
+          "叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值",
+          "删除裸写数字，改用事实引用",
+          "补充F012、F013说明覆盖率无法核验",
+          "补充F015、F016说明成果分类"
+        ]
+      }
+    },
+    {
+      "revision": 1,
+      "review": {
+        "issues": [
+          "叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值"
+        ],
+        "model_passed": true,
+        "passed": false,
+        "program_passed": false,
+        "revision": 1,
+        "revision_instructions": [
+          "叙述出现未经授权的裸写数字；必须使用事实引用，由程序渲染数值"
+        ]
+      }
+    }
+  ],
+  "note": "真实技术场景首次完整探测；两轮Writer转述日期/中文数量未用引用，程序拒绝导出；模型语义审核不能覆盖程序门禁。随后补逐章裸数值反馈和上一稿上下文，没有放宽校验。"
+}

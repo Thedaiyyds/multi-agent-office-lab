@@ -2,11 +2,11 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前开发版本为 **v2.0-alpha.5 报告修订与文档交付**：正常工作台输入需求并选择普通材料，五角色协作、审核修正和Manager验收后自动生成合格报告的Markdown/PDF。修改文字建立新修订，重新经过Checker与Manager；旧合格文件保留并标为历史版本。查看、下载与重试导出不调用模型。实施依据[说明书R2](docs/proposals/v2.0-review/implementation-spec-r2.md)，本版见[计划](docs/plan-v2.0-alpha.5.md)及[验收记录](docs/releases/v2.0-alpha.5.md)。最终真实两场景、安装复现与课程报告更新继续由后续阶段验收，尚未声明正式版完成。
+当前开发版本为 **v2.0-alpha.6 正常场景与复现验收**：自然语言需求、五角色协作、审核返工、Manager验收、修订和Markdown/PDF交付已接通，归档可直接查看当前合格报告。技术部Q2与行政部Q1均已在DeepSeek V4 Pro真实模式通过并生成文件；最终课程报告及正式发布在v2.0.0收束。[实施依据R2](docs/proposals/v2.0-review/implementation-spec-r2.md) · [本版验收](docs/releases/v2.0-alpha.6.md) · [新版安装说明](docs/deployment-v2.0.md) · [一段文本演示](docs/report-example.md)。
 
 ## 启动新版工作台
 
-需要 Node.js 22.12+（或24）、npm、uv、Python 3.12。在项目根目录运行：
+需要 macOS/Linux（Windows使用WSL2）、Node.js 22.12+（或24）、npm、uv、Python 3.12。在项目根目录运行：
 
 ```bash
 bash scripts/start_workbench.sh
@@ -24,7 +24,7 @@ bash scripts/start_workbench.sh
 
 v0.1.1 已实际通过 DeepSeek V4 Pro 的三项探测：4 次请求共 483 token，77 项离线测试通过，详见 [验证记录](docs/validation-v0.1.md)。
 
-## 快速开始
+## 历史命令行基线的快速开始
 
 需要 Git、uv 和 Python 3.12。本项目的 Python 版本范围为 3.12～3.13，课程复现统一使用 3.12。尚未安装 uv 时，从 [uv 官方安装说明](https://docs.astral.sh/uv/getting-started/installation/) 安装。
 
