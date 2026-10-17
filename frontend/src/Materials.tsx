@@ -253,8 +253,7 @@ export function DemoMaterials({
         {busy ? "正在加载…" : "加载演示材料"}
       </button>
       <div className="notice">
-        当前 alpha.2
-        可演示材料接入与草稿保存；五角色协作和报告导出将按后续版本开放。该操作不调用模型。
+        材料确认后可在新建报告中选择，并发起五角色协作。当前材料操作不调用模型。
       </div>
     </section>
   );

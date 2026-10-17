@@ -49,7 +49,7 @@ def inline(paragraph, text):
             run.font.size = Pt(10)
 
 
-def table(doc, rows):
+def table(doc, rows, *, keep_first_rows=False):
     widths = {
         2: [1.65, 5.4],
         3: [1.15, 2.0, 3.9],
@@ -76,7 +76,7 @@ def table(doc, rows):
             p.paragraph_format.space_before = Pt(5)
             p.paragraph_format.space_after = Pt(5)
             p.paragraph_format.line_spacing = 1.12
-            p.paragraph_format.keep_with_next = False
+            p.paragraph_format.keep_with_next = keep_first_rows and index <= 1
             value = values[col] if col < len(values) else ""
             inline(p, value)
             if len(value) <= 16:
@@ -121,7 +121,7 @@ def figure(doc, path, caption):
 
 def markdown(doc, source, *, skip_title=False):
     lines = source.read_text(encoding="utf-8").splitlines()
-    if skip_title and source.name == "experiment-report.md":
+    if skip_title and source.name.startswith("experiment-report"):
         # The Word cover has its own editable identity fields. Start the body
         # at the first section instead of duplicating Markdown cover metadata.
         lines = lines[next(i for i, row in enumerate(lines) if row.startswith("## ")) :]
@@ -180,7 +180,7 @@ def markdown(doc, source, *, skip_title=False):
                     break
                 line = lines[index]
                 index += 1
-            table(doc, rows)
+            table(doc, rows, keep_first_rows=source.stem.endswith("-v2"))
             continue
         heading = re.match(r"^(#{1,6})\s+(.+)$", line)
         if heading:
@@ -201,7 +201,9 @@ def markdown(doc, source, *, skip_title=False):
         inline(doc.add_paragraph(style=style), line)
 
 
-def build(output):
+def build(output, *, edition="v1"):
+    modern = edition == "v2"
+    suffix = "-v2" if modern else ""
     doc = Document()
     section = doc.sections[0]
     section.page_width, section.page_height = Inches(8.5), Inches(11)
@@ -222,16 +224,24 @@ def build(output):
     code_style.paragraph_format.line_spacing = 1.1
     code_style.paragraph_format.space_after = Pt(4)
     doc.add_paragraph("多智能体办公协作系统实验报告", style="Title")
-    doc.add_paragraph("软件体系结构研究生课程  LangGraph 与 Streamlit")
-    doc.add_paragraph("课程交付版本 v1.0.0")
+    doc.add_paragraph(
+        "软件体系结构研究生课程  LangGraph 与 React FastAPI"
+        if modern
+        else "软件体系结构研究生课程  LangGraph 与 Streamlit"
+    )
+    doc.add_paragraph("课程交付版本 v2.0.0" if modern else "课程交付版本 v1.0.0")
     doc.add_paragraph("姓名 __________________  学号 __________________")
-    doc.add_paragraph("班级 __________________  日期 2026年10月10日")
+    doc.add_paragraph(
+        "班级 __________________  日期 2026年10月17日"
+        if modern
+        else "班级 __________________  日期 2026年10月10日"
+    )
     doc.add_paragraph("指导教师 __________________")
     doc.add_paragraph("代码仓库 https://github.com/Thedaiyyds/multi-agent-office-lab")
-    markdown(doc, REPORT_DIR / "experiment-report.md", skip_title=True)
+    markdown(doc, REPORT_DIR / f"experiment-report{suffix}.md", skip_title=True)
     doc.add_page_break()
     doc.add_heading("附录 体系结构分析", level=1)
-    markdown(doc, REPORT_DIR / "architecture-analysis.md", skip_title=True)
+    markdown(doc, REPORT_DIR / f"architecture-analysis{suffix}.md", skip_title=True)
     doc.core_properties.title = "多智能体办公协作系统实验报告"
     doc.core_properties.subject = "软件体系结构课程实验"
     doc.core_properties.author = ""
@@ -243,9 +253,12 @@ def build(output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=REPORT_DIR / "experiment-report.docx")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--edition", choices=("v1", "v2"), default="v1")
     args = parser.parse_args()
-    build(args.output.resolve())
+    suffix = "-v2" if args.edition == "v2" else ""
+    output = args.output or REPORT_DIR / f"experiment-report{suffix}.docx"
+    build(output.resolve(), edition=args.edition)
 
 
 if __name__ == "__main__":

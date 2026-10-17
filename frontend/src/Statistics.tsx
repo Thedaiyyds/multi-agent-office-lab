@@ -381,7 +381,7 @@ export default function Statistics({
         （不含）。上方如有未保存修改，请先保存，再整理数据。
       </p>
       <p className="field-hint">
-        统计会冻结材料版本、计算口径与来源位置，不调用模型。五角色协作会自动整理数据；此处供人工核对，正式文件导出将在后续版本提供。
+        统计会冻结材料版本、计算口径与来源位置，不调用模型。五角色协作会自动整理数据；此处供人工核对。合格报告可在协作结果或报告归档下载Markdown/PDF。
       </p>
       {loading && (
         <div className="statistics-loading" role="status">
