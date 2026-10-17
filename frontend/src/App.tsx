@@ -39,8 +39,9 @@ import {
   type Workspace,
 } from "./api";
 import { useConfirmation, type Confirm } from "./confirm";
-import Materials, { DemoMaterials } from "./Materials";
+import Materials from "./Materials";
 import Statistics from "./Statistics";
+import { RunComposer, RunDetail, RunHistory } from "./Cooperation";
 
 const nav = [
   { path: "/", label: "工作台", icon: LayoutDashboard },
@@ -194,7 +195,7 @@ function Home({
             </button>
           }
         >
-          模型连接尚未配置。你可以先创建并保存报告草稿。
+          模型连接尚未配置。可以先整理材料，或主动选择离线模拟验证协作流程。
         </Notice>
       )}
       {error ? (
@@ -221,7 +222,7 @@ function Home({
               <EmptyState
                 icon={FilePlus2}
                 title="创建第一份工作汇报"
-                description="先明确汇报主题与时间范围，保存草稿后随时回来继续。"
+                description="用一段话描述需求，选择材料，交给五角色团队协作。"
               >
                 <button
                   className="button primary"
@@ -768,10 +769,10 @@ function DraftForm({
             <div className="aside-divider" />
             <h3>接下来</h3>
             <p>
-              材料库已支持文件导入与预览。保存草稿后，可在下方整理与核对数据；多智能体生成、审核与
-              Markdown / PDF 导出将在后续版本开放。
+              通过上方协作入口可由五角色完成规划、整理、撰写和审核；下方可人工核对统计与来源。正式
+              Markdown / PDF 文件将在交付版本开放。
             </p>
-            <div className="version-label">v2.0-alpha.3 · 数据核对</div>
+            <div className="version-label">v2.0-alpha.4 · 五角色协作</div>
           </div>
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -791,15 +792,42 @@ function Editor({
   onDirty,
   onSaving,
   confirm,
+  system,
 }: {
   id: string;
   workspace: Workspace;
-  navigate: (path: string) => void;
+  navigate: (path: string, skipGuard?: boolean) => void;
   changed: () => void;
   onDirty: (dirty: boolean) => void;
   onSaving: (saving: boolean) => void;
   confirm: Confirm;
+  system: SystemInfo | null;
 }) {
+  const [draftDirty, setDraftDirty] = useState(false);
+  const [runDirty, setRunDirty] = useState(false);
+  const [draftSaving, setDraftSaving] = useState(false);
+  const [runSaving, setRunSaving] = useState(false);
+  const writes = useRef({ draft: false, run: false });
+  const savingDraft = useCallback(
+    (value: boolean) => {
+      writes.current.draft = value;
+      setDraftSaving(value);
+      onSaving(value || writes.current.run);
+    },
+    [onSaving],
+  );
+  const savingRun = useCallback(
+    (value: boolean) => {
+      writes.current.run = value;
+      setRunSaving(value);
+      onSaving(value || writes.current.draft);
+    },
+    [onSaving],
+  );
+  useEffect(() => {
+    onDirty(draftDirty || runDirty);
+    return () => onDirty(false);
+  }, [draftDirty, runDirty, onDirty]);
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
   const [revision, setRevision] = useState(0);
@@ -880,23 +908,48 @@ function Editor({
         </div>
       ) : (
         <>
-          <DraftForm
-            key={revision}
-            report={report}
+          <RunComposer
             workspace={workspace}
-            onDirty={onDirty}
-            onSaving={onSaving}
-            refresh={refresh}
-            onSaved={(result) => {
-              setReport(result);
+            system={system}
+            report={report}
+            onDirty={setRunDirty}
+            onSaving={savingRun}
+            blocked={draftDirty || draftSaving}
+            onStarted={(run) => {
               changed();
+              navigate(`/runs/${run.id}`, true);
             }}
           />
-          <Statistics
-            key={`${workspace}:${report.id}`}
-            report={report}
+          <RunHistory
             workspace={workspace}
+            reportId={report.id}
+            navigate={navigate}
           />
+          <details className="card cooperation-auxiliary">
+            <summary>辅助编辑：报告需求草稿</summary>
+            <fieldset disabled={runSaving} className="cooperation-fields">
+              <DraftForm
+                key={revision}
+                report={report}
+                workspace={workspace}
+                onDirty={setDraftDirty}
+                onSaving={savingDraft}
+                refresh={refresh}
+                onSaved={(result) => {
+                  setReport(result);
+                  changed();
+                }}
+              />
+            </fieldset>
+          </details>
+          <details className="card cooperation-auxiliary">
+            <summary>辅助核对：统计与数据来源</summary>
+            <Statistics
+              key={`${workspace}:${report.id}`}
+              report={report}
+              workspace={workspace}
+            />
+          </details>
         </>
       )}
     </>
@@ -916,8 +969,8 @@ function FuturePage({ navigate }: { navigate: (path: string) => void }) {
       <section className="card">
         <EmptyState
           icon={Archive}
-          title="正式归档将在审核功能完成后开放"
-          description="当前支持需求草稿和材料接入。审核、归档和 Markdown / PDF 导出将在 v2.0-alpha.5 完善。"
+          title="正式报告归档将在交付版本开放"
+          description="五角色协作的中间稿和验收结果保存在运行记录中，正式归档和 Markdown / PDF 文件将在交付版本开放。"
         >
           <button
             className="button secondary"
@@ -993,31 +1046,21 @@ function Settings({
         </div>
         <p className="field-hint">
           当前支持持久化草稿、TXT / CSV / DOCX
-          材料导入、本地模拟接口、材料版本管理与来源可追溯的统计快照；模型生成和正式导出将按版本逐步开放。
+          材料导入、本地模拟接口、来源可追溯的统计、五角色协作、审核返工与经理验收；正式文件导出将在交付版本开放。
         </p>
       </section>
     </>
   );
 }
 
-function Help({
-  workspace,
-  switchWorkspace,
-  navigate,
-  onSaving,
-}: {
-  workspace: Workspace;
-  switchWorkspace: (next: Workspace) => void;
-  navigate: (path: string) => void;
-  onSaving: (value: boolean) => void;
-}) {
+function Help({ navigate }: { navigate: (path: string) => void }) {
   return (
     <>
       <div className="page-heading">
         <div>
-          <div className="eyebrow">GUIDE & DEMO</div>
-          <h1>帮助与演示</h1>
-          <p>了解当前功能，选择适合的工作空间。</p>
+          <div className="eyebrow">WORKSPACE GUIDE</div>
+          <h1>使用帮助</h1>
+          <p>在当前工作台提交需求，查看五角色团队的协作过程。</p>
         </div>
       </div>
       <div className="help-grid">
@@ -1025,67 +1068,71 @@ function Help({
           <div className="empty-icon small">
             <FileText size={24} />
           </div>
-          <h2>从需求与材料开始</h2>
+          <h2>三步生成工作汇报</h2>
           <ol className="guide-list">
             <li>
               <span>1</span>
               <div>
-                <strong>新建报告</strong>
-                <p>填写标题、部门与起止日期。</p>
+                <strong>选择材料，输入需求</strong>
+                <p>
+                  在材料库导入并确认 TXT、CSV 或
+                  DOCX。点击“新建报告”，勾选所需材料，用一段话说明部门、期间、主题和重点。
+                </p>
               </div>
             </li>
             <li>
               <span>2</span>
               <div>
-                <strong>整理材料</strong>
-                <p>进入材料库，选择分类，上传 TXT、CSV 或 DOCX 并预览。</p>
+                <strong>开始协作</strong>
+                <p>
+                  点击“开始协作”。需求经理理解并拆解任务，内容规划生成大纲，数据整理核对依据，报告撰写生成内容，审核校验检查并反馈修改。
+                </p>
               </div>
             </li>
             <li>
               <span>3</span>
               <div>
-                <strong>确认并保存</strong>
+                <strong>查看结果与验收</strong>
                 <p>
-                  核对字段映射和校验提示后确认入库。材料与草稿在刷新或重启后仍可读取。
+                  在运行详情查看报告预览、审核与返工、节点输入输出和协作时间线，确认
+                  Manager 最终验收。也可从报告任务里的运行记录返回本次结果。
                 </p>
               </div>
             </li>
           </ol>
-          <Notice>
-            材料库已开放 TXT / CSV / DOCX
-            导入、预览与校验。智能体生成、审核和导出将在后续版本开放。
-          </Notice>
+          <button
+            className="button primary"
+            onClick={() => navigate("/reports/new")}
+          >
+            新建报告
+            <ArrowRight size={16} />
+          </button>
         </section>
         <section className="card help-card">
           <div className="empty-icon small">
             <ShieldCheck size={24} />
           </div>
-          <h2>独立演示工作空间</h2>
+          <h2>数据与执行方式</h2>
           <p>
-            演示报告与正常工作数据分别保存，不会混入正常首页或归档。切换空间不会自动加载案例，也不会调用模型。
+            真实模型模式使用本地配置的模型连接，会消耗 API
+            token。离线模拟须由你主动选择，用于验证流程，不会调用外部模型。
           </p>
-          <div className="space-description">
-            <span className="caption-dot" />
-            <strong>
-              当前：{workspace === "demo" ? "演示工作空间" : "正常工作空间"}
-            </strong>
-          </div>
+          <p>
+            系统不会默认为报告填充样例。只有明确勾选“使用系统本地样例数据（虚构）”时，才接入样例数据；材料不足时会提示补充。
+          </p>
+          <Notice>
+            本版支持协作过程和报告预览。正式 Markdown / PDF
+            文件与归档将在交付版本开放。
+          </Notice>
           <button
-            className={`button ${workspace === "demo" ? "secondary" : "primary"}`}
-            onClick={() =>
-              switchWorkspace(workspace === "demo" ? "normal" : "demo")
-            }
+            className="button secondary"
+            onClick={() => navigate("/materials")}
           >
-            {workspace === "demo" ? "返回正常工作空间" : "进入独立演示空间"}
+            管理材料
             <ArrowRight size={16} />
           </button>
         </section>
       </div>
-      <DemoMaterials
-        workspace={workspace}
-        navigate={navigate}
-        onSaving={onSaving}
-      />
     </>
   );
 }
@@ -1287,16 +1334,21 @@ export default function App() {
       navigationBusy.current = false;
     }
   };
-  const navActive = path.startsWith("/reports") ? "/reports" : path;
-  const title = path.startsWith("/reports/")
-    ? path === "/reports/new"
-      ? "新建报告"
-      : "报告工作区"
-    : [
-        ...nav,
-        { path: "/settings", label: "系统设置" },
-        { path: "/help", label: "帮助与演示" },
-      ].find((item) => item.path === path)?.label || "页面未找到";
+  const navActive =
+    path.startsWith("/reports") || path.startsWith("/runs/")
+      ? "/reports"
+      : path;
+  const title = path.startsWith("/runs/")
+    ? "五角色协作"
+    : path.startsWith("/reports/")
+      ? path === "/reports/new"
+        ? "新建报告"
+        : "报告工作区"
+      : [
+          ...nav,
+          { path: "/settings", label: "系统设置" },
+          { path: "/help", label: "使用帮助" },
+        ].find((item) => item.path === path)?.label || "页面未找到";
   return (
     <>
       <div className="app-shell" inert={confirming}>
@@ -1376,11 +1428,11 @@ export default function App() {
               }}
             >
               <CircleHelp size={18} />
-              帮助与演示
+              使用帮助
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>alpha.3</span>
+              本地运行<span>alpha.4</span>
             </div>
           </div>
         </aside>
@@ -1427,13 +1479,16 @@ export default function App() {
                 system={system}
               />
             ) : path === "/reports" ? (
-              <ReportList
-                reports={reports}
-                loading={loading}
-                error={error}
-                retry={changed}
-                navigate={navigate}
-              />
+              <>
+                <ReportList
+                  reports={reports}
+                  loading={loading}
+                  error={error}
+                  retry={changed}
+                  navigate={navigate}
+                />
+                <RunHistory workspace={workspace} navigate={navigate} />
+              </>
             ) : path === "/reports/new" ? (
               <>
                 <button
@@ -1447,19 +1502,32 @@ export default function App() {
                   <div>
                     <div className="eyebrow">NEW REPORT</div>
                     <h1>新建工作汇报</h1>
-                    <p>给这份报告一个清晰的起点，内容可以随时调整。</p>
+                    <p>
+                      输入工作需求，让五角色团队自动完成规划、整理、撰写与审核。
+                    </p>
                   </div>
                 </div>
-                <DraftForm
+                <RunComposer
+                  key={`${workspace}:new`}
                   workspace={workspace}
+                  system={system}
                   onDirty={onDirty}
                   onSaving={onSaving}
-                  onSaved={(report) => {
+                  onStarted={(run) => {
                     changed();
-                    navigate(`/reports/${report.id}`, true);
+                    navigate(`/runs/${run.id}`, true);
                   }}
                 />
+                <RunHistory workspace={workspace} navigate={navigate} />
               </>
+            ) : /^\/runs\/[^/]+$/.test(path) ? (
+              <RunDetail
+                key={path}
+                id={path.split("/")[2]}
+                workspace={workspace}
+                navigate={navigate}
+                changed={changed}
+              />
             ) : /^\/reports\/[^/]+$/.test(path) ? (
               <Editor
                 key={path}
@@ -1470,6 +1538,7 @@ export default function App() {
                 onDirty={onDirty}
                 onSaving={onSaving}
                 confirm={confirm}
+                system={system}
               />
             ) : path === "/materials" ? (
               <Materials
@@ -1483,12 +1552,7 @@ export default function App() {
             ) : path === "/settings" ? (
               <Settings system={system} error={systemError} retry={changed} />
             ) : path === "/help" ? (
-              <Help
-                workspace={workspace}
-                switchWorkspace={switchWorkspace}
-                navigate={navigate}
-                onSaving={onSaving}
-              />
+              <Help navigate={navigate} />
             ) : (
               <EmptyState
                 title="页面未找到"
@@ -1504,7 +1568,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.0-alpha.3</span>
+            汇报协作<span>v2.0-alpha.4</span>
           </footer>
         </div>
       </div>

@@ -1,4 +1,4 @@
-"""Explicit local demo sources, read only and unavailable to normal workspaces."""
+"""Fixed local sample datasets; legacy demo loading remains explicitly scoped."""
 
 import csv
 import hashlib
@@ -33,6 +33,61 @@ class DemoImport(BaseModel):
     kind: DatasetKind
 
 
+def load_local_dataset(demo_root: Path, kind: str):
+    """Read one whitelisted local dataset without accepting a path or URL."""
+    if kind not in PROVIDER_FILES:
+        raise HTTPException(422, "不支持的数据类别")
+    folder, filename = PROVIDER_FILES[kind]
+    root = Path(demo_root).resolve()
+    path = (root / folder / filename).resolve()
+    if not path.is_relative_to(root) or not path.is_file():
+        raise HTTPException(503, "本地样例数据尚未就绪，请检查样例文件")
+    try:
+        data = path.read_bytes()
+        records = list(csv.DictReader(io.StringIO(data.decode("utf-8-sig"))))
+    except (OSError, UnicodeError, csv.Error):
+        raise HTTPException(503, "本地样例数据无法读取，请检查文件格式") from None
+    if not records:
+        raise HTTPException(503, "本地样例数据没有可用记录")
+    return {
+        "dataset_id": f"{folder}:{kind}:" + hashlib.sha256(data).hexdigest()[:16],
+        "source": "local_sample_api",
+        "records": records,
+    }
+
+
+def stage_local_dataset(service, kind, workspace, snapshot):
+    """Freeze the fixed provider response through the ordinary material validator."""
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(stream, fieldnames=list(snapshot["records"][0]))
+    writer.writeheader()
+    writer.writerows(snapshot["records"])
+    draft = service.stage_import(
+        stream.getvalue().encode("utf-8"),
+        f"模拟接口_{kind}.csv",
+        kind,
+        workspace,
+        source="local_api",
+    )
+    return {**draft, "dataset_id": snapshot["dataset_id"]}
+
+
+def create_local_data_router(service, demo_root):
+    router = APIRouter()
+
+    @router.get("/api/v1/data-sources/{kind}")
+    def read_source(kind: DatasetKind):
+        return load_local_dataset(demo_root, kind)
+
+    @router.post("/api/v1/materials/from-local-api", status_code=201)
+    def import_source(payload: DemoImport, x_workspace: Annotated[Workspace, Header()] = "normal"):
+        return stage_local_dataset(
+            service, payload.kind, x_workspace, load_local_dataset(demo_root, payload.kind)
+        )
+
+    return router
+
+
 def require_demo(workspace):
     if workspace != "demo":
         raise HTTPException(403, "模拟案例和接口仅在演示空间开放，请先进入独立演示空间")
@@ -48,16 +103,7 @@ def create_demo_router(service: MaterialService, connection, demo_root: Path):
         return path
 
     def provider(kind):
-        folder, filename = PROVIDER_FILES[kind]
-        data = source_file(folder, filename).read_bytes()
-        records = list(csv.DictReader(io.StringIO(data.decode("utf-8-sig"))))
-        if not records:
-            raise HTTPException(503, "模拟接口没有可用记录，请检查 data/demo 样例文件")
-        return {
-            "dataset_id": f"{folder}:{kind}:" + hashlib.sha256(data).hexdigest()[:16],
-            "source": "local_demo_api",
-            "records": records,
-        }
+        return {**load_local_dataset(demo_root, kind), "source": "local_demo_api"}
 
     @router.get("/api/v1/demo/catalog")
     def catalog(x_workspace: Annotated[Workspace, Header()] = "normal"):
@@ -82,20 +128,7 @@ def create_demo_router(service: MaterialService, connection, demo_root: Path):
         payload: DemoImport, x_workspace: Annotated[Workspace, Header()] = "normal"
     ):
         require_demo(x_workspace)
-        snapshot = provider(payload.kind)
-        # Freeze the interface response as an immutable CSV, not a live URL reference.
-        stream = io.StringIO(newline="")
-        writer = csv.DictWriter(stream, fieldnames=list(snapshot["records"][0]))
-        writer.writeheader()
-        writer.writerows(snapshot["records"])
-        draft = service.stage_import(
-            stream.getvalue().encode("utf-8"),
-            f"模拟接口_{payload.kind}.csv",
-            payload.kind,
-            x_workspace,
-            source="local_api",
-        )
-        return {**draft, "dataset_id": snapshot["dataset_id"]}
+        return stage_local_dataset(service, payload.kind, x_workspace, provider(payload.kind))
 
     @router.post("/api/v1/demo/load")
     def load_case(x_workspace: Annotated[Workspace, Header()] = "normal"):

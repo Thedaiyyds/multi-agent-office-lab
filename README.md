@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前开发版本为 **v2.0-alpha.3 数据统计与来源核对**：在草稿、TXT/CSV/DOCX材料接入基础上，报告工作区可以选择已确认材料，统计项目、考勤、成果及满意度，查看公式、限制和原始来源，保存不可变统计历史。缺失不当作0，冲突记录阻断统计；考勤样本与声明排班范围分开。五角色执行和Markdown/PDF输出继续按后续阶段实施，当前还不能在新版网页完成整个实验流程。实施统一依据[说明书R2](docs/proposals/v2.0-review/implementation-spec-r2.md)，本版见[计划](docs/plan-v2.0-alpha.3.md)及[验收记录](docs/releases/v2.0-alpha.3.md)。
+当前开发版本为 **v2.0-alpha.4 五角色协作执行**：正常工作台输入自然语言需求、选择普通材料，即可执行 Manager → Planner → Data → Writer → Checker → Manager 验收，查看实际节点输入输出、返工记录、预算和持久历史。完整输入自动继续；缺材料、审核失败、取消或供应商错误明确停止。实施依据[说明书R2](docs/proposals/v2.0-review/implementation-spec-r2.md)，本版见[计划](docs/plan-v2.0-alpha.4.md)及[验收记录](docs/releases/v2.0-alpha.4.md)。正式修订和 Markdown/PDF 下载仍由 alpha.5 补齐，当前版本不代表整体实验完成。
 
 ## 启动新版工作台
 
@@ -12,11 +12,11 @@
 bash scripts/start_workbench.sh
 ```
 
-启动后打开 **[http://127.0.0.1:8520](http://127.0.0.1:8520)**。保持终端运行，Ctrl+C 停止。首次启动会安装锁定依赖并构建前端；已有构建时可直接 `uv run --locked office-workbench`。端口占用时用 `--port 8521` 并打开对应地址。新版不需要模型密钥，不发出模型请求。
+启动后打开 **[http://127.0.0.1:8520](http://127.0.0.1:8520)**。保持终端运行，Ctrl+C 停止。首次启动会安装锁定依赖并构建前端；已有构建时可直接 `uv run --locked office-workbench`。端口占用时用 `--port 8521` 并打开对应地址。真实协作使用服务器本地 `.env` 模型配置；显式选择离线模拟时不发出外部模型请求。查看页面和已有结果不调用模型。
 
 草稿与材料记录保存在本机 `outputs/workbench/workbench.sqlite3`，原件在同目录的`materials/`内，刷新和重启均保留；该目录不上传 Git。开发调试用两个终端分别运行 `uv run --locked office-workbench --api-only` 和 `npm --prefix frontend run dev`。
 
-给老师演示的目标是在正常工作台用普通案例材料跑完“需求→五角色协作→审核修正→Markdown/PDF”，无需独立演示空间或额外端口。新版alpha.2目前仅完成材料接入，不能当作完整汇报演示。可复现的既有五角色案例、当前能力边界及新版最终案例要求见[完整案例操作说明](docs/report-example.md)；本版材料功能验证见[发布记录](docs/releases/v2.0-alpha.2.md)。
+给老师演示使用正常8520工作台和普通案例材料，无需独立演示空间或额外端口。新建报告时输入需求、选择材料并开始协作；“使用帮助”说明正常操作。最终案例及尚待完成的文件交付见[完整案例操作说明](docs/report-example.md)。
 
 以下为 **v1.0.0 历史课程基线**：五角色LangGraph协作、中文实验网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。该版本的课程报告及证据保留，实际结果见 [v1.0验收](docs/validation-v1.0.md)。
 

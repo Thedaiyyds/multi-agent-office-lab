@@ -1,0 +1,32 @@
+{
+  "id": "83a487be6cad48fc9e44f1db53988fad",
+  "mode": "live",
+  "status": "failed",
+  "user_text": "生成2026年第二季度技术部工作汇报，包含项目进度、人员考勤、成果统计，格式为Markdown，导出为PDF。考勤仅说明已提供材料样本，不推断整个季度。",
+  "error": {
+    "code": "ungrounded_scope",
+    "message": "角色执行失败：ungrounded_scope；未保存供应商原始异常，未自动重试"
+  },
+  "usage": {
+    "completion_tokens": 174,
+    "mock_calls": 0,
+    "output_budget": 4000,
+    "prompt_tokens": 941,
+    "reasoning_tokens": null,
+    "request_budget": 8,
+    "request_count": 1,
+    "reserved_output_tokens": 256,
+    "total_tokens": 1115
+  },
+  "created_at": "2026-10-16T13:22:59.834331+00:00",
+  "updated_at": "2026-10-16T13:23:03.466534+00:00",
+  "nodes": [
+    {
+      "role": "manager",
+      "status": "failed",
+      "revision": 0,
+      "output": null
+    }
+  ],
+  "note": "真实需求范围校验失败后即停；未继续调用其余模型。供应商原始响应未记录。"
+}
