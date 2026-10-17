@@ -43,6 +43,25 @@ frontend/package-lock.json   545861f7b5248dd707ba69330019fb49b602044e87dab91e1ea
 
 ## 最终alpha.6提交核验
 
-待主协调者形成alpha.6候选提交后，从该精确提交再生成无.env新源码副本，做短回归核验，并补入实际SHA及结果。当前上述47项是alpha.5精确基线，不提前写为alpha.6最终提交通过。
+2026-10-17，独立验收Agent从alpha.6候选精确提交`f016bd9b44f0e530bff1ebcfbb4151ab37b0fb59`另行执行`git archive`，在新的临时目录解包。初始再次确认无`.env`、`.venv`、`frontend/node_modules`与`dist`；没有叠加工作树文件。该提交尚待后续文档/截图补充及PR/CI，不把候选复现当作GitHub CI已通过。
+
+候选锁文件SHA256：
+
+```text
+uv.lock                      d8e10612100cb4a741e4f36ccce8c3072ba87f7d575c1f4ab4271f3cf3a16190
+frontend/package-lock.json   da958d5c2532769d51c6d4ea00db98cb1958bf3e88fb2919d3753def58823dee
+```
+
+| 候选副本实际命令 | 结果 |
+| --- | --- |
+| `uv sync --locked --offline --python 3.12` | 成功，从缓存创建全新虚拟环境并安装锁依赖 |
+| `npm --offline --cache /private/tmp/office-v2-npm-cache ci` | 成功，使用已确认完整的包缓存安装82包，没有新增缺缓存错误 |
+| `uv run --locked --offline pytest -q tests/test_workbench_delivery_acceptance.py tests/test_workbench_execution.py::test_final_manager_gets_full_body_facts_limits_and_unique_sources_without_repeated_hashes tests/test_workbench_execution.py::test_writer_revision_receives_previous_draft_and_exact_offending_numeric_fragments` | 20项通过，15.55秒：18项真实本地PDF交付/重启/复审，加最终Manager上下文与Writer精确数字反馈回归 |
+| `npm test` | 13项通过 |
+| `npm run build` | TypeScript及Vite6.4.4生产构建通过，1586模块 |
+
+候选测试仍全部采用本地脚本模型回复，实际PDF渲染器、SQLite及LangGraph均运行；外部模型调用0。执行后副本仍无`.env`，未复制开发者密钥或业务数据，未启动额外产品端口。新源码副本具有全新环境，但Python/npm包缓存复用，不能称为无缓存机器完全断网首次安装。
+
+本次候选副本与机器JSON摘要位于`/private/tmp/office-alpha6-final-repro-ku13hq4t/`；上述alpha.5的47项仍保留为精确基线，候选20项为实际不同核验范围，不相加为全仓测试总数。
 
 浏览器正常8520、新版归档页、最终真实模型场景与最终CI由主协调者统一验收并记录，避免多人争用同一页面或重复付费调用。正式版课程报告需使用最终实测数据；本记录不宣称所有实验验收已完成。
