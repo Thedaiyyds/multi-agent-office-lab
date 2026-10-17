@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前开发版本为 **v2.0-alpha.4 五角色协作执行**：正常工作台输入自然语言需求、选择普通材料，即可执行 Manager → Planner → Data → Writer → Checker → Manager 验收，查看实际节点输入输出、返工记录、预算和持久历史。完整输入自动继续；缺材料、审核失败、取消或供应商错误明确停止。实施依据[说明书R2](docs/proposals/v2.0-review/implementation-spec-r2.md)，本版见[计划](docs/plan-v2.0-alpha.4.md)及[验收记录](docs/releases/v2.0-alpha.4.md)。正式修订和 Markdown/PDF 下载仍由 alpha.5 补齐，当前版本不代表整体实验完成。
+当前开发版本为 **v2.0-alpha.5 报告修订与文档交付**：正常工作台输入需求并选择普通材料，五角色协作、审核修正和Manager验收后自动生成合格报告的Markdown/PDF。修改文字建立新修订，重新经过Checker与Manager；旧合格文件保留并标为历史版本。查看、下载与重试导出不调用模型。实施依据[说明书R2](docs/proposals/v2.0-review/implementation-spec-r2.md)，本版见[计划](docs/plan-v2.0-alpha.5.md)及[验收记录](docs/releases/v2.0-alpha.5.md)。最终真实两场景、安装复现与课程报告更新继续由后续阶段验收，尚未声明正式版完成。
 
 ## 启动新版工作台
 

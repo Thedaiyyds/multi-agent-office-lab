@@ -11,7 +11,7 @@ export interface Report extends Draft {
   id: string;
   workspace: Workspace;
   version: number;
-  status: "draft";
+  status: "draft" | "pending_review" | "needs_changes" | "approved";
   created_at: string;
   updated_at: string;
 }
@@ -21,7 +21,11 @@ export interface SystemInfo {
   capabilities: string[];
 }
 export type MaterialKind =
-  "projects" | "attendance" | "achievements" | "satisfaction" | "notes";
+  | "projects"
+  | "attendance"
+  | "achievements"
+  | "satisfaction"
+  | "notes";
 export interface MaterialIssue {
   severity: "error" | "warning";
   location: string;
@@ -49,16 +53,17 @@ export interface ImportDraft {
   issues: MaterialIssue[];
   confirmed_material_id: string | null;
 }
-export interface MaterialVersion extends Omit<
-  ImportDraft,
-  "suggested_mapping" | "confirmed_material_id"
-> {
+export interface MaterialVersion
+  extends Omit<ImportDraft, "suggested_mapping" | "confirmed_material_id"> {
   version: number;
   mapping: Record<string, string>;
   created_at: string;
 }
 export type StatisticsGroup =
-  "projects" | "attendance" | "achievements" | "satisfaction";
+  | "projects"
+  | "attendance"
+  | "achievements"
+  | "satisfaction";
 export interface SourceRef {
   material_id: string;
   name: string;
@@ -154,6 +159,61 @@ export interface AgentRun {
   } | null;
   error: { code: string; message: string } | null;
 }
+export interface Narrative {
+  sections: { title: string; text: string }[];
+  suggestions: string[];
+}
+export interface ReportRevision {
+  id: string;
+  workspace: Workspace;
+  report_id: string;
+  report_version: number;
+  number: number;
+  source_run_id: string | null;
+  content_hash: string;
+  status: "approved" | "needs_review" | "reviewing" | "needs_changes";
+  mode: RunMode;
+  created_at: string;
+  updated_at: string;
+  review_run_id: string | null;
+  review: unknown;
+  acceptance: unknown;
+  review_error: { code: string; message: string } | null;
+  current: boolean;
+  artifacts: {
+    format: "md" | "pdf";
+    state: "missing" | "running" | "ready" | "failed";
+    snapshot_hash: string;
+    file_sha256: string | null;
+    byte_size: number | null;
+    error: string | null;
+  }[];
+}
+export interface RevisionList {
+  current_revision_id: string | null;
+  report_version: number;
+  items: ReportRevision[];
+}
+export interface RevisionDetail extends ReportRevision {
+  snapshot: {
+    requirements: Draft;
+    mode: RunMode;
+    narrative: Narrative;
+    markdown: string;
+    facts: StatisticsMetric[];
+    notes: {
+      id: string;
+      text: string;
+      material_id: string;
+      name: string;
+      version: number;
+      sha256: string;
+      location: string;
+    }[];
+  };
+  review_attempts: unknown[];
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -193,7 +253,7 @@ export async function api<T>(
         path.startsWith("/demo") ||
         path.split("?")[0] === "/runs" ||
         path.startsWith("/runs/") ||
-        /^\/reports\/[^/]+\/statistics$/.test(path)
+        /^\/reports\/[^/]+\/(?:statistics|revisions(?:\/|$))/.test(path)
       ) {
         const payload = await response.json().catch(() => null);
         const detail = payload?.detail;
@@ -225,9 +285,11 @@ export async function api<T>(
                     .join("；")
                 : isRun
                   ? "协作任务操作未完成，请检查需求、材料与模型配置。"
-                  : isStatistics
-                    ? "数据整理未成功，请检查所选材料、人员清单与排班日期。"
-                    : "材料操作未成功，请检查文件和填写内容后重试。",
+                  : path.includes("/revisions")
+                    ? "报告修订操作未完成，请刷新状态并检查审核结果。"
+                    : isStatistics
+                      ? "数据整理未成功，请检查所选材料、人员清单与排班日期。"
+                      : "材料操作未成功，请检查文件和填写内容后重试。",
           issues,
         );
       }
@@ -282,21 +344,43 @@ export async function downloadMaterial(
   name: string,
   workspace: Workspace,
 ) {
+  return downloadFile(
+    `/materials/${encodeURIComponent(id)}/download`,
+    name,
+    workspace,
+    "无法下载原始材料，请刷新列表后重试。",
+  );
+}
+
+export async function downloadReport(
+  reportId: string,
+  revisionId: string,
+  format: "md" | "pdf",
+  name: string,
+  workspace: Workspace,
+) {
+  return downloadFile(
+    `/reports/${encodeURIComponent(reportId)}/revisions/${encodeURIComponent(revisionId)}/exports/${format}`,
+    name,
+    workspace,
+    "无法下载报告文件，请检查修订审核状态与文件生成结果后重试。",
+  );
+}
+
+async function downloadFile(
+  path: string,
+  name: string,
+  workspace: Workspace,
+  failureMessage: string,
+) {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 15_000);
   try {
-    const response = await fetch(
-      `/api/v1/materials/${encodeURIComponent(id)}/download`,
-      {
-        headers: { "X-Workspace": workspace },
-        signal: controller.signal,
-      },
-    );
-    if (!response.ok)
-      throw new ApiError(
-        response.status,
-        "无法下载原始材料，请刷新列表后重试。",
-      );
+    const response = await fetch(`/api/v1${path}`, {
+      headers: { "X-Workspace": workspace },
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new ApiError(response.status, failureMessage);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
     try {

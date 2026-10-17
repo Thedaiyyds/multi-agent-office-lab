@@ -14,7 +14,7 @@ const compiled = ts.transpileModule(source, {
     target: ts.ScriptTarget.ES2022,
   },
 }).outputText;
-const { api, ApiError, downloadMaterial } = await import(
+const { api, ApiError, downloadMaterial, downloadReport } = await import(
   `data:text/javascript;base64,${Buffer.from(compiled).toString("base64")}`
 );
 
@@ -186,7 +186,55 @@ test("material requests preserve upload boundaries, validation issues and worksp
       assert.ok(clicked && removed && revoked);
     },
   );
-  assert.equal(cleared, 7);
+  await t.test(
+    "revision errors remain actionable and report downloads carry workspace",
+    async () => {
+      globalThis.fetch = async () => ({
+        ok: false,
+        status: 409,
+        json: async () => ({
+          detail: "当前修订尚未通过Checker与Manager审核，不能导出合格报告",
+        }),
+      });
+      await assert.rejects(
+        api("/reports/report-1/revisions/revision-1/exports", "normal"),
+        (error) =>
+          error instanceof ApiError &&
+          error.status === 409 &&
+          error.message.includes("Checker"),
+      );
+      const blob = new Blob(["%PDF-示例"]);
+      let downloaded;
+      globalThis.document = {
+        createElement: () => ({
+          click() {
+            downloaded = this.download;
+          },
+          remove() {},
+        }),
+        body: { appendChild() {} },
+      };
+      URL.createObjectURL = () => "blob:report";
+      URL.revokeObjectURL = () => {};
+      globalThis.fetch = async (url, options) => {
+        assert.equal(
+          url,
+          "/api/v1/reports/report%2F1/revisions/revision%2F1/exports/pdf",
+        );
+        assert.equal(options.headers["X-Workspace"], "normal");
+        return { ok: true, blob: async () => blob };
+      };
+      await downloadReport(
+        "report/1",
+        "revision/1",
+        "pdf",
+        "季度汇报.pdf",
+        "normal",
+      );
+      assert.equal(downloaded, "季度汇报.pdf");
+    },
+  );
+  assert.equal(cleared, 9);
 });
 
 test("API client handles failures safely and cleans request timers", async (t) => {

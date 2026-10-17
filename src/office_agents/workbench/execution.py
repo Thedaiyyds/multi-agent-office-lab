@@ -221,6 +221,7 @@ class ExecutionService:
         self._worker = None
         self._lease = None
         self.available = False
+        self.on_terminal = None
         with connection() as db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS execution_runs (
@@ -466,6 +467,98 @@ class ExecutionService:
         self._wake.set()
         return run
 
+    def submit_review(
+        self,
+        frozen_run,
+        revision_id,
+        content_hash,
+        key,
+        *,
+        request_budget=2,
+        output_budget=512,
+        on_submit=None,
+    ):
+        """Queue only Checker and Manager against an immutable delivery revision."""
+        identity = dict(
+            revision_id=revision_id,
+            content_hash=content_hash,
+            request_budget=request_budget,
+            output_budget=output_budget,
+        )
+        digest = hashlib.sha256(canonical_json(identity).encode()).hexdigest()
+        workspace = frozen_run["workspace"]
+        with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            saved = db.execute(
+                "SELECT * FROM execution_keys WHERE workspace=? AND key=?", (workspace, key)
+            ).fetchone()
+            if saved:
+                if saved["request_hash"] != digest:
+                    raise HTTPException(409, "该防重标识已用于不同的审核内容")
+                row = db.execute(
+                    "SELECT payload FROM execution_runs WHERE id=?", (saved["run_id"],)
+                ).fetchone()
+                return json.loads(row[0])
+            if not self.available:
+                raise HTTPException(503, "审核队列尚未启动或已有另一服务占用")
+            report = db.execute(
+                "SELECT version FROM reports WHERE id=? AND workspace=?",
+                (frozen_run["report_id"], workspace),
+            ).fetchone()
+            if report is None:
+                raise HTTPException(404, "未找到该工作区中的报告")
+            if report[0] != frozen_run["report_version"]:
+                raise HTTPException(409, "报告需求已更新，请重新运行报告")
+            now = _now()
+            run = deepcopy(frozen_run)
+            run.update(
+                id=uuid4().hex,
+                run_type="revision_review",
+                delivery_revision_id=revision_id,
+                delivery_content_hash=content_hash,
+                status="queued",
+                stage="queued",
+                created_at=now,
+                updated_at=now,
+                review=None,
+                acceptance=None,
+                revision_history=[],
+                events=[],
+                nodes=[],
+                cancel_requested=False,
+                error=None,
+                model_attempts=[],
+                usage=dict(
+                    request_budget=request_budget,
+                    output_budget=output_budget,
+                    request_count=0,
+                    reserved_output_tokens=0,
+                    mock_calls=0,
+                    prompt_tokens=None,
+                    completion_tokens=None,
+                    total_tokens=None,
+                    reasoning_tokens=None,
+                ),
+            )
+            run["request"] = dict(
+                run["request"],
+                request_budget=request_budget,
+                output_budget=output_budget,
+                max_revisions=0,
+            )
+            self._event(run, "system", "queued", "当前修订已进入Checker与Manager审核队列")
+            if on_submit is not None:
+                on_submit(db, run)
+            db.execute(
+                "INSERT INTO execution_runs VALUES(?,?,?,?,?)",
+                (run["id"], workspace, run["report_id"], "queued", canonical_json(run)),
+            )
+            db.execute(
+                "INSERT INTO execution_keys VALUES(?,?,?,?)", (workspace, key, digest, run["id"])
+            )
+        self._wake.set()
+        return run
+
     def cancel(self, run_id, workspace):
         self._read(run_id, workspace)
 
@@ -482,7 +575,27 @@ class ExecutionService:
             if run["status"] == "queued":
                 run.update(status="cancelled", stage="cancelled")
 
-        return self._change(run_id, mutate)
+        result = self._change(run_id, mutate)
+        if result["status"] in TERMINAL:
+            self._notify_terminal(run_id)
+        return result
+
+    def _notify_terminal(self, run_id):
+        if self.on_terminal is None:
+            return
+        try:
+            self.on_terminal(self._read(run_id))
+        except Exception:
+            # A local export failure must not rewrite model acceptance.
+            self._change(
+                run_id,
+                lambda current: self._event(
+                    current,
+                    "system",
+                    "delivery_pending",
+                    "报告交付暂未完成，可重试导出；角色验收结果已保留",
+                ),
+            )
 
     def _work(self):
         try:
@@ -495,10 +608,16 @@ class ExecutionService:
                     ).fetchone()
                     if row:
                         run = json.loads(row[0])
-                        run.update(status="running", stage="manager")
+                        run.update(
+                            status="running",
+                            stage="checker"
+                            if run.get("run_type") == "revision_review"
+                            else "manager",
+                        )
                         self._save(db, run)
                 if row:
                     ExecutionContext(self, run["id"]).execute()
+                    self._notify_terminal(run["id"])
                 else:
                     self._wake.wait(0.2)
                     self._wake.clear()
@@ -1228,7 +1347,9 @@ class ExecutionContext:
             ("acceptance", "manager", "acceptance", self.acceptance),
         ):
             graph.add_node(name, self._node(role, phase, method))
-        graph.add_edge(START, "manager")
+        graph.add_edge(
+            START, "checker" if self.run().get("run_type") == "revision_review" else "manager"
+        )
         for node, next_node in (
             ("manager", "planner"),
             ("planner", "data"),
