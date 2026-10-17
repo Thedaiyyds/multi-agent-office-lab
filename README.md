@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前开发版本为 **v2.0-alpha.6 正常场景与复现验收**：自然语言需求、五角色协作、审核返工、Manager验收、修订和Markdown/PDF交付已接通，归档可直接查看当前合格报告。技术部Q2与行政部Q1均已在DeepSeek V4 Pro真实模式通过并生成文件；最终课程报告及正式发布在v2.0.0收束。[实施依据R2](docs/proposals/v2.0-review/implementation-spec-r2.md) · [本版验收](docs/releases/v2.0-alpha.6.md) · [新版安装说明](docs/deployment-v2.0.md) · [一段文本演示](docs/report-example.md)。
+当前交付版本为 **v2.0.0 多智能体工作汇报系统**：正常8520工作台完成自然语言需求、五角色协作、数据与来源核对、审核返工、Manager最终验收、修改重审及Markdown/PDF交付；归档可搜索和打开合格报告。技术部Q2、行政部Q1已通过DeepSeek V4 Pro真实运行及双格式验证。[课程实验报告 Word](docs/report/experiment-report-v2.docx) · [可编辑报告 Markdown](docs/report/experiment-report-v2.md) · [一段文本演示](docs/report-example.md) · [安装启动](docs/deployment-v2.0.md) · [正式验收](docs/releases/v2.0.0.md)。
 
 ## 启动新版工作台
 
@@ -16,7 +16,7 @@ bash scripts/start_workbench.sh
 
 草稿与材料记录保存在本机 `outputs/workbench/workbench.sqlite3`，原件在同目录的`materials/`内，刷新和重启均保留；该目录不上传 Git。开发调试用两个终端分别运行 `uv run --locked office-workbench --api-only` 和 `npm --prefix frontend run dev`。
 
-给老师演示使用正常8520工作台和普通案例材料，无需独立演示空间或额外端口。新建报告时输入需求、选择材料并开始协作；“使用帮助”说明正常操作。最终案例及尚待完成的文件交付见[完整案例操作说明](docs/report-example.md)。
+给老师演示使用正常8520工作台和普通案例材料，无需独立演示空间或额外端口。新建报告时输入需求、选择材料并开始协作；“使用帮助”说明正常操作。完整案例、来源和操作见[完整案例操作说明](docs/report-example.md)。
 
 以下为 **v1.0.0 历史课程基线**：五角色LangGraph协作、中文实验网页、CSV/TXT上传、真实进度、逐轮审核、最多两次返工和Markdown下载。该版本的课程报告及证据保留，实际结果见 [v1.0验收](docs/validation-v1.0.md)。
 

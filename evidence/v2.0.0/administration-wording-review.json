@@ -1,0 +1,1191 @@
+{
+  "acceptance": {
+    "accepted": true,
+    "reasons": []
+  },
+  "cancel_requested": false,
+  "created_at": "2026-10-17T09:46:14.831683+00:00",
+  "delivery_content_hash": "29372cf829bee4087692da18074e25b74ae043386c4ba07e3ef7f0c142c4eb39",
+  "delivery_revision_id": "fa18b6d92a2a4968a7efa2d1663fb546",
+  "draft_markdown": "# 2026年第一季度行政部工作汇报\n\n部门：行政部；期间：2026-01-01（含）至2026-04-01（不含）。\n\n## 行政服务满意度\n\n本季度行政服务满意度基于所选有效反馈样本进行统计。满意度平均分情况：满意度平均分（1–5 量表）：4分（F001）；样本量情况：满意度样本数（1–5 量表）：4条（F002）。该结果仅反映已提供材料中的演示反馈，不能代表部门真实服务水平，也不支持推断全体员工满意度。\n\n## 服务说明与记录\n\n本次汇报材料为公开模拟案例，仅用于演示与测试。【材料原文，非统计指标：【公开模拟案例，仅用于演示与测试】；来源N001】服务范围涉及模拟登记咨询、会议支持和物资申请等日常服务。材料中的改进建议属于建议性质，尚非已完成成果。\n\n## 工作小结\n\n本季度汇报仅基于所提供虚构反馈样本，没有往期对照数据，因此不声称同比或环比提升。后续可关注统一申请指引和补充处理进度反馈等改进方向。\n\n## 建议（尚未发生）\n\n- 后续可补充实际服务总量、响应时长或投诉率等指标，以增强汇报完整性。\n- 建议在获得往期数据后，再评估满意度变化趋势。\n- 可考虑扩大有效反馈样本范围，以提升统计代表性。\n\n## 权威统计与口径\n\n| 事实编号 | 指标 | 数值 | 单位 | 定义 |\n| --- | --- | --- | --- | --- |\n| F001 | 满意度平均分（1–5 量表） | 4 | 分 | 该量表有效反馈分数合计 ÷ 有效反馈数 |\n| F002 | 满意度样本数（1–5 量表） | 4 | 条 | 该量表按反馈编号去重后的有效反馈数 |\n\n## 数据限制与来源\n\n统计政策：2026-10-v1；数值由确定性工具生成，文字材料不直接生成权威指标。\n\n- 仅代表所选有效反馈样本；不同量表单独计算\n- F001：满意度.csv；版本1；行 2；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F001：满意度.csv；版本1；行 3；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F001：满意度.csv；版本1；行 4；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F001：满意度.csv；版本1；行 5；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 2；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 3；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 4；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 5；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- N001：服务说明.txt；版本1；行 1；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N002：服务说明.txt；版本1；行 2；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N003：服务说明.txt；版本1；行 3；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N004：服务说明.txt；版本1；行 4；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N005：服务说明.txt；版本1；行 5；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N006：服务说明.txt；版本1；行 6；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N007：服务说明.txt；版本1；行 7；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N008：服务记录.docx；版本1；段落 1；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N009：服务记录.docx；版本1；段落 2；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N010：服务记录.docx；版本1；段落 3；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N011：服务记录.docx；版本1；段落 4；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N012：服务记录.docx；版本1；段落 5；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N013：服务记录.docx；版本1；表格 1 / 行 1；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N014：服务记录.docx；版本1；表格 1 / 行 2；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N015：服务记录.docx；版本1；表格 1 / 行 3；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N016：服务记录.docx；版本1；表格 1 / 行 4；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n",
+  "error": null,
+  "events": [
+    {
+      "created_at": "2026-10-17T09:46:14.831818+00:00",
+      "event_type": "queued",
+      "message": "当前修订已进入Checker与Manager审核队列",
+      "role": "system",
+      "seq": 1
+    },
+    {
+      "created_at": "2026-10-17T09:46:14.845852+00:00",
+      "event_type": "node_started",
+      "message": "checker节点开始：review",
+      "role": "checker",
+      "seq": 2
+    },
+    {
+      "created_at": "2026-10-17T09:46:14.867269+00:00",
+      "event_type": "model_reserved",
+      "message": "已持久预留模型请求及最多256输出token，自动重试为零",
+      "role": "checker",
+      "seq": 3
+    },
+    {
+      "created_at": "2026-10-17T09:46:16.697018+00:00",
+      "event_type": "model_completed",
+      "message": "模型请求已结束，供应商缺失的用量保留为空",
+      "role": "checker",
+      "seq": 4
+    },
+    {
+      "created_at": "2026-10-17T09:46:16.702371+00:00",
+      "event_type": "node_completed",
+      "message": "checker节点已完成结果回传：review",
+      "role": "checker",
+      "seq": 5
+    },
+    {
+      "created_at": "2026-10-17T09:46:16.705983+00:00",
+      "event_type": "node_started",
+      "message": "manager节点开始：acceptance",
+      "role": "manager",
+      "seq": 6
+    },
+    {
+      "created_at": "2026-10-17T09:46:16.710636+00:00",
+      "event_type": "model_reserved",
+      "message": "已持久预留模型请求及最多256输出token，自动重试为零",
+      "role": "manager",
+      "seq": 7
+    },
+    {
+      "created_at": "2026-10-17T09:46:18.353999+00:00",
+      "event_type": "model_completed",
+      "message": "模型请求已结束，供应商缺失的用量保留为空",
+      "role": "manager",
+      "seq": 8
+    },
+    {
+      "created_at": "2026-10-17T09:46:18.359735+00:00",
+      "event_type": "terminal",
+      "message": "Manager已核验当前报告版本并完成最终验收",
+      "role": "manager",
+      "seq": 9
+    },
+    {
+      "created_at": "2026-10-17T09:46:18.361255+00:00",
+      "event_type": "node_completed",
+      "message": "manager节点已完成结果回传：acceptance",
+      "role": "manager",
+      "seq": 10
+    }
+  ],
+  "facts": [
+    {
+      "definition": "该量表有效反馈分数合计 ÷ 有效反馈数",
+      "id": "F001",
+      "label": "满意度平均分（1–5 量表）",
+      "limitations": [
+        "仅代表所选有效反馈样本；不同量表单独计算"
+      ],
+      "metric_id": "satisfaction_mean_0",
+      "source_refs": [
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 2",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        },
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 3",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        },
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 4",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        },
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 5",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        }
+      ],
+      "unit": "分",
+      "value": 4.0
+    },
+    {
+      "definition": "该量表按反馈编号去重后的有效反馈数",
+      "id": "F002",
+      "label": "满意度样本数（1–5 量表）",
+      "limitations": [
+        "仅代表所选有效反馈样本；不同量表单独计算"
+      ],
+      "metric_id": "satisfaction_count_0",
+      "source_refs": [
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 2",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        },
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 3",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        },
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 4",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        },
+        {
+          "fields": [
+            "date",
+            "department",
+            "feedback_id",
+            "scale_max",
+            "scale_min",
+            "score"
+          ],
+          "location": "行 5",
+          "material_id": "889e6b0116bc4ac58e7459a181a67546",
+          "name": "满意度.csv",
+          "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+          "version": 1
+        }
+      ],
+      "unit": "条",
+      "value": 4
+    }
+  ],
+  "id": "a5130fadb9284d5490f5329dba8cb841",
+  "material_ids": [
+    "889e6b0116bc4ac58e7459a181a67546",
+    "f2afc8e97d854bd696b720716e731e14",
+    "7d8867bbc4664e61957ef8cbe5e4931c"
+  ],
+  "materials": [
+    {
+      "id": "889e6b0116bc4ac58e7459a181a67546",
+      "kind": "satisfaction",
+      "name": "满意度.csv",
+      "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+      "version": 1
+    },
+    {
+      "id": "f2afc8e97d854bd696b720716e731e14",
+      "kind": "notes",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "version": 1
+    },
+    {
+      "id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "kind": "notes",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "version": 1
+    }
+  ],
+  "mode": "live",
+  "model_attempts": [
+    {
+      "max_output_tokens": 256,
+      "phase": "review",
+      "role": "checker",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 21,
+        "prompt_tokens": 2588,
+        "total_tokens": 2609
+      }
+    },
+    {
+      "max_output_tokens": 256,
+      "phase": "acceptance",
+      "role": "manager",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 15,
+        "prompt_tokens": 1318,
+        "total_tokens": 1333
+      }
+    }
+  ],
+  "narrative": {
+    "sections": [
+      {
+        "text": "本季度行政服务满意度基于所选有效反馈样本进行统计。满意度平均分情况：[[fact:F001]]；样本量情况：[[fact:F002]]。该结果仅反映已提供材料中的演示反馈，不能代表部门真实服务水平，也不支持推断全体员工满意度。",
+        "title": "行政服务满意度"
+      },
+      {
+        "text": "本次汇报材料为公开模拟案例，仅用于演示与测试。[[note:N001]]服务范围涉及模拟登记咨询、会议支持和物资申请等日常服务。材料中的改进建议属于建议性质，尚非已完成成果。",
+        "title": "服务说明与记录"
+      },
+      {
+        "text": "本季度汇报仅基于所提供虚构反馈样本，没有往期对照数据，因此不声称同比或环比提升。后续可关注统一申请指引和补充处理进度反馈等改进方向。",
+        "title": "工作小结"
+      }
+    ],
+    "suggestions": [
+      "后续可补充实际服务总量、响应时长或投诉率等指标，以增强汇报完整性。",
+      "建议在获得往期数据后，再评估满意度变化趋势。",
+      "可考虑扩大有效反馈样本范围，以提升统计代表性。"
+    ]
+  },
+  "nodes": [
+    {
+      "candidate_output": {
+        "issues": [],
+        "passed": true,
+        "revision_instructions": []
+      },
+      "candidate_status": "node_completed",
+      "inputs": {
+        "context": {
+          "facts": [
+            {
+              "id": "F001",
+              "label": "满意度平均分（1–5 量表）",
+              "limitations": [
+                "仅代表所选有效反馈样本；不同量表单独计算"
+              ],
+              "unit": "分",
+              "value": 4.0
+            },
+            {
+              "id": "F002",
+              "label": "满意度样本数（1–5 量表）",
+              "limitations": [
+                "仅代表所选有效反馈样本；不同量表单独计算"
+              ],
+              "unit": "条",
+              "value": 4
+            }
+          ],
+          "narrative": {
+            "sections": [
+              {
+                "text": "本季度行政服务满意度基于所选有效反馈样本进行统计。满意度平均分情况：[[fact:F001]]；样本量情况：[[fact:F002]]。该结果仅反映已提供材料中的演示反馈，不能代表部门真实服务水平，也不支持推断全体员工满意度。",
+                "title": "行政服务满意度"
+              },
+              {
+                "text": "本次汇报材料为公开模拟案例，仅用于演示与测试。[[note:N001]]服务范围涉及模拟登记咨询、会议支持和物资申请等日常服务。材料中的改进建议属于建议性质，尚非已完成成果。",
+                "title": "服务说明与记录"
+              },
+              {
+                "text": "本季度汇报仅基于所提供虚构反馈样本，没有往期对照数据，因此不声称同比或环比提升。后续可关注统一申请指引和补充处理进度反馈等改进方向。",
+                "title": "工作小结"
+              }
+            ],
+            "suggestions": [
+              "后续可补充实际服务总量、响应时长或投诉率等指标，以增强汇报完整性。",
+              "建议在获得往期数据后，再评估满意度变化趋势。",
+              "可考虑扩大有效反馈样本范围，以提升统计代表性。"
+            ]
+          },
+          "notes": [
+            {
+              "id": "N001",
+              "location": "行 1",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "【公开模拟案例，仅用于演示与测试】",
+              "version": 1
+            },
+            {
+              "id": "N002",
+              "location": "行 2",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "主题：2026年第一季度行政部服务满意度工作汇报。",
+              "version": 1
+            },
+            {
+              "id": "N003",
+              "location": "行 3",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "统计时间：[2026-01-01, 2026-04-01)，结束日期不包含在范围内。",
+              "version": 1
+            },
+            {
+              "id": "N004",
+              "location": "行 4",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "材料：4份虚构反馈，统一采用1—5分量表，5分最高。记录不对应真实反馈人，不含个人信息。",
+              "version": 1
+            },
+            {
+              "id": "N005",
+              "location": "行 5",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "样本范围：仅覆盖本文件中的4份演示反馈，不代表部门真实服务水平，也不支持推断全体员工满意度。",
+              "version": 1
+            },
+            {
+              "id": "N006",
+              "location": "行 6",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "本案例没有上一季度对照数据，报告不得声称“同比提升”或“环比提升”。",
+              "version": 1
+            },
+            {
+              "id": "N007",
+              "location": "行 7",
+              "material_id": "f2afc8e97d854bd696b720716e731e14",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "text": "服务记录中的改进方向是建议，不能写成已经取得的成果。",
+              "version": 1
+            },
+            {
+              "id": "N008",
+              "location": "段落 1",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "行政服务记录 模拟材料",
+              "version": 1
+            },
+            {
+              "id": "N009",
+              "location": "段落 2",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "用途：2026年第一季度行政部满意度汇报的文字材料，不对应任何真实部门。",
+              "version": 1
+            },
+            {
+              "id": "N010",
+              "location": "段落 3",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "同目录CSV包含4份虚构反馈，使用统一1—5分量表。样本数量有限，不能代表全体员工。",
+              "version": 1
+            },
+            {
+              "id": "N011",
+              "location": "段落 4",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "没有往期对照数据，不能由这些记录推断同比或环比变化。",
+              "version": 1
+            },
+            {
+              "id": "N012",
+              "location": "段落 5",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "所有内容均为虚构，仅用于材料导入、段落及表格解析演示。",
+              "version": 1
+            },
+            {
+              "id": "N013",
+              "location": "表格 1 / 行 1",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "事项 | 模拟记录",
+              "version": 1
+            },
+            {
+              "id": "N014",
+              "location": "表格 1 / 行 2",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "服务范围 | 模拟登记咨询、会议支持和物资申请等日常服务。",
+              "version": 1
+            },
+            {
+              "id": "N015",
+              "location": "表格 1 / 行 3",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "改进建议 | 建议统一申请指引，补充处理进度反馈；这些是建议，尚非已完成成果。",
+              "version": 1
+            },
+            {
+              "id": "N016",
+              "location": "表格 1 / 行 4",
+              "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "text": "证据限制 | 不包含实际服务总量、响应时长或投诉率，不应虚构这些指标。",
+              "version": 1
+            }
+          ],
+          "outline": {
+            "groups": [
+              "satisfaction"
+            ],
+            "sections": [
+              {
+                "groups": [
+                  "satisfaction"
+                ],
+                "purpose": "呈现满意度样本情况",
+                "title": "行政服务满意度"
+              },
+              {
+                "groups": [
+                  "satisfaction"
+                ],
+                "purpose": "说明服务内容与记录",
+                "title": "服务说明与记录"
+              },
+              {
+                "groups": [
+                  "satisfaction"
+                ],
+                "purpose": "总结本季度服务工作",
+                "title": "工作小结"
+              }
+            ]
+          },
+          "program_issues": [],
+          "requirements": {
+            "department": "行政部",
+            "end_date": "2026-04-01",
+            "focus": "重点突出行政服务满意度，仅说明已提供材料样本，没有往期对照时不要声称提升。",
+            "sections": [
+              "行政服务满意度",
+              "服务说明与记录",
+              "工作小结"
+            ],
+            "start_date": "2026-01-01",
+            "title": "2026年第一季度行政部工作汇报"
+          }
+        },
+        "material_ids": [
+          "889e6b0116bc4ac58e7459a181a67546",
+          "f2afc8e97d854bd696b720716e731e14",
+          "7d8867bbc4664e61957ef8cbe5e4931c"
+        ],
+        "outline": {
+          "groups": [
+            "satisfaction"
+          ],
+          "sections": [
+            {
+              "groups": [
+                "satisfaction"
+              ],
+              "purpose": "呈现满意度样本情况",
+              "title": "行政服务满意度"
+            },
+            {
+              "groups": [
+                "satisfaction"
+              ],
+              "purpose": "说明服务内容与记录",
+              "title": "服务说明与记录"
+            },
+            {
+              "groups": [
+                "satisfaction"
+              ],
+              "purpose": "总结本季度服务工作",
+              "title": "工作小结"
+            }
+          ]
+        },
+        "phase": "review",
+        "previous_review": null,
+        "requirements": {
+          "department": "行政部",
+          "end_date": "2026-04-01",
+          "focus": "重点突出行政服务满意度，仅说明已提供材料样本，没有往期对照时不要声称提升。",
+          "sections": [
+            "行政服务满意度",
+            "服务说明与记录",
+            "工作小结"
+          ],
+          "start_date": "2026-01-01",
+          "title": "2026年第一季度行政部工作汇报"
+        },
+        "user_text": null
+      },
+      "output": {
+        "issues": [],
+        "model_passed": true,
+        "passed": true,
+        "program_passed": true,
+        "revision": 0,
+        "revision_instructions": []
+      },
+      "revision": 0,
+      "role": "checker",
+      "status": "completed"
+    },
+    {
+      "candidate_output": {
+        "accepted": true,
+        "reasons": []
+      },
+      "candidate_status": "node_completed",
+      "inputs": {
+        "context": {
+          "draft_markdown": "# 2026年第一季度行政部工作汇报\n\n部门：行政部；期间：2026-01-01（含）至2026-04-01（不含）。\n\n## 行政服务满意度\n\n本季度行政服务满意度基于所选有效反馈样本进行统计。满意度平均分情况：满意度平均分（1–5 量表）：4分（F001）；样本量情况：满意度样本数（1–5 量表）：4条（F002）。该结果仅反映已提供材料中的演示反馈，不能代表部门真实服务水平，也不支持推断全体员工满意度。\n\n## 服务说明与记录\n\n本次汇报材料为公开模拟案例，仅用于演示与测试。【材料原文，非统计指标：【公开模拟案例，仅用于演示与测试】；来源N001】服务范围涉及模拟登记咨询、会议支持和物资申请等日常服务。材料中的改进建议属于建议性质，尚非已完成成果。\n\n## 工作小结\n\n本季度汇报仅基于所提供虚构反馈样本，没有往期对照数据，因此不声称同比或环比提升。后续可关注统一申请指引和补充处理进度反馈等改进方向。\n\n## 建议（尚未发生）\n\n- 后续可补充实际服务总量、响应时长或投诉率等指标，以增强汇报完整性。\n- 建议在获得往期数据后，再评估满意度变化趋势。\n- 可考虑扩大有效反馈样本范围，以提升统计代表性。\n\n## 权威统计与口径\n\n| 事实编号 | 指标 | 数值 | 单位 | 定义 |\n| --- | --- | --- | --- | --- |\n| F001 | 满意度平均分（1–5 量表） | 4 | 分 | 该量表有效反馈分数合计 ÷ 有效反馈数 |\n| F002 | 满意度样本数（1–5 量表） | 4 | 条 | 该量表按反馈编号去重后的有效反馈数 |\n",
+          "draft_sha256": "e92e914f11ba6719f3568cae38e1ddd059a17a18929a5d76b94738f3dd4dcced",
+          "limitations": [
+            "仅代表所选有效反馈样本；不同量表单独计算"
+          ],
+          "materials": [
+            {
+              "id": "889e6b0116bc4ac58e7459a181a67546",
+              "kind": "satisfaction",
+              "name": "满意度.csv",
+              "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+              "version": 1
+            },
+            {
+              "id": "f2afc8e97d854bd696b720716e731e14",
+              "kind": "notes",
+              "name": "服务说明.txt",
+              "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+              "version": 1
+            },
+            {
+              "id": "7d8867bbc4664e61957ef8cbe5e4931c",
+              "kind": "notes",
+              "name": "服务记录.docx",
+              "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+              "version": 1
+            }
+          ],
+          "outline": {
+            "groups": [
+              "satisfaction"
+            ],
+            "sections": [
+              {
+                "groups": [
+                  "satisfaction"
+                ],
+                "purpose": "呈现满意度样本情况",
+                "title": "行政服务满意度"
+              },
+              {
+                "groups": [
+                  "satisfaction"
+                ],
+                "purpose": "说明服务内容与记录",
+                "title": "服务说明与记录"
+              },
+              {
+                "groups": [
+                  "satisfaction"
+                ],
+                "purpose": "总结本季度服务工作",
+                "title": "工作小结"
+              }
+            ]
+          },
+          "policy_version": "2026-10-v1",
+          "requirements": {
+            "department": "行政部",
+            "end_date": "2026-04-01",
+            "focus": "重点突出行政服务满意度，仅说明已提供材料样本，没有往期对照时不要声称提升。",
+            "sections": [
+              "行政服务满意度",
+              "服务说明与记录",
+              "工作小结"
+            ],
+            "start_date": "2026-01-01",
+            "title": "2026年第一季度行政部工作汇报"
+          },
+          "review": {
+            "issues": [],
+            "model_passed": true,
+            "passed": true,
+            "program_passed": true,
+            "revision": 0,
+            "revision_instructions": []
+          }
+        },
+        "material_ids": [
+          "889e6b0116bc4ac58e7459a181a67546",
+          "f2afc8e97d854bd696b720716e731e14",
+          "7d8867bbc4664e61957ef8cbe5e4931c"
+        ],
+        "outline": {
+          "groups": [
+            "satisfaction"
+          ],
+          "sections": [
+            {
+              "groups": [
+                "satisfaction"
+              ],
+              "purpose": "呈现满意度样本情况",
+              "title": "行政服务满意度"
+            },
+            {
+              "groups": [
+                "satisfaction"
+              ],
+              "purpose": "说明服务内容与记录",
+              "title": "服务说明与记录"
+            },
+            {
+              "groups": [
+                "satisfaction"
+              ],
+              "purpose": "总结本季度服务工作",
+              "title": "工作小结"
+            }
+          ]
+        },
+        "phase": "acceptance",
+        "previous_review": null,
+        "requirements": {
+          "department": "行政部",
+          "end_date": "2026-04-01",
+          "focus": "重点突出行政服务满意度，仅说明已提供材料样本，没有往期对照时不要声称提升。",
+          "sections": [
+            "行政服务满意度",
+            "服务说明与记录",
+            "工作小结"
+          ],
+          "start_date": "2026-01-01",
+          "title": "2026年第一季度行政部工作汇报"
+        },
+        "user_text": "生成2026年第一季度行政部工作汇报，重点突出行政服务满意度，格式为Markdown。仅说明已提供材料样本，没有往期对照时不要声称提升。"
+      },
+      "output": {
+        "accepted": true,
+        "reasons": []
+      },
+      "revision": 0,
+      "role": "manager",
+      "status": "completed"
+    }
+  ],
+  "notes": [
+    {
+      "id": "N001",
+      "location": "行 1",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "【公开模拟案例，仅用于演示与测试】",
+      "version": 1
+    },
+    {
+      "id": "N002",
+      "location": "行 2",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "主题：2026年第一季度行政部服务满意度工作汇报。",
+      "version": 1
+    },
+    {
+      "id": "N003",
+      "location": "行 3",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "统计时间：[2026-01-01, 2026-04-01)，结束日期不包含在范围内。",
+      "version": 1
+    },
+    {
+      "id": "N004",
+      "location": "行 4",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "材料：4份虚构反馈，统一采用1—5分量表，5分最高。记录不对应真实反馈人，不含个人信息。",
+      "version": 1
+    },
+    {
+      "id": "N005",
+      "location": "行 5",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "样本范围：仅覆盖本文件中的4份演示反馈，不代表部门真实服务水平，也不支持推断全体员工满意度。",
+      "version": 1
+    },
+    {
+      "id": "N006",
+      "location": "行 6",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "本案例没有上一季度对照数据，报告不得声称“同比提升”或“环比提升”。",
+      "version": 1
+    },
+    {
+      "id": "N007",
+      "location": "行 7",
+      "material_id": "f2afc8e97d854bd696b720716e731e14",
+      "name": "服务说明.txt",
+      "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+      "text": "服务记录中的改进方向是建议，不能写成已经取得的成果。",
+      "version": 1
+    },
+    {
+      "id": "N008",
+      "location": "段落 1",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "行政服务记录 模拟材料",
+      "version": 1
+    },
+    {
+      "id": "N009",
+      "location": "段落 2",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "用途：2026年第一季度行政部满意度汇报的文字材料，不对应任何真实部门。",
+      "version": 1
+    },
+    {
+      "id": "N010",
+      "location": "段落 3",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "同目录CSV包含4份虚构反馈，使用统一1—5分量表。样本数量有限，不能代表全体员工。",
+      "version": 1
+    },
+    {
+      "id": "N011",
+      "location": "段落 4",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "没有往期对照数据，不能由这些记录推断同比或环比变化。",
+      "version": 1
+    },
+    {
+      "id": "N012",
+      "location": "段落 5",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "所有内容均为虚构，仅用于材料导入、段落及表格解析演示。",
+      "version": 1
+    },
+    {
+      "id": "N013",
+      "location": "表格 1 / 行 1",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "事项 | 模拟记录",
+      "version": 1
+    },
+    {
+      "id": "N014",
+      "location": "表格 1 / 行 2",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "服务范围 | 模拟登记咨询、会议支持和物资申请等日常服务。",
+      "version": 1
+    },
+    {
+      "id": "N015",
+      "location": "表格 1 / 行 3",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "改进建议 | 建议统一申请指引，补充处理进度反馈；这些是建议，尚非已完成成果。",
+      "version": 1
+    },
+    {
+      "id": "N016",
+      "location": "表格 1 / 行 4",
+      "material_id": "7d8867bbc4664e61957ef8cbe5e4931c",
+      "name": "服务记录.docx",
+      "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+      "text": "证据限制 | 不包含实际服务总量、响应时长或投诉率，不应虚构这些指标。",
+      "version": 1
+    }
+  ],
+  "outline": {
+    "groups": [
+      "satisfaction"
+    ],
+    "sections": [
+      {
+        "groups": [
+          "satisfaction"
+        ],
+        "purpose": "呈现满意度样本情况",
+        "title": "行政服务满意度"
+      },
+      {
+        "groups": [
+          "satisfaction"
+        ],
+        "purpose": "说明服务内容与记录",
+        "title": "服务说明与记录"
+      },
+      {
+        "groups": [
+          "satisfaction"
+        ],
+        "purpose": "总结本季度服务工作",
+        "title": "工作小结"
+      }
+    ]
+  },
+  "report_id": "a222be7e58bb417dbce59a3d2117bb6c",
+  "report_version": 1,
+  "request": {
+    "max_revisions": 0,
+    "output_budget": 512,
+    "request_budget": 2
+  },
+  "requirements": {
+    "department": "行政部",
+    "end_date": "2026-04-01",
+    "focus": "重点突出行政服务满意度，仅说明已提供材料样本，没有往期对照时不要声称提升。",
+    "sections": [
+      "行政服务满意度",
+      "服务说明与记录",
+      "工作小结"
+    ],
+    "start_date": "2026-01-01",
+    "title": "2026年第一季度行政部工作汇报"
+  },
+  "review": {
+    "issues": [],
+    "model_passed": true,
+    "passed": true,
+    "program_passed": true,
+    "revision": 0,
+    "revision_instructions": []
+  },
+  "revision_history": [
+    {
+      "created_at": "2026-10-17T09:46:16.701183+00:00",
+      "markdown": "# 2026年第一季度行政部工作汇报\n\n部门：行政部；期间：2026-01-01（含）至2026-04-01（不含）。\n\n## 行政服务满意度\n\n本季度行政服务满意度基于所选有效反馈样本进行统计。满意度平均分情况：满意度平均分（1–5 量表）：4分（F001）；样本量情况：满意度样本数（1–5 量表）：4条（F002）。该结果仅反映已提供材料中的演示反馈，不能代表部门真实服务水平，也不支持推断全体员工满意度。\n\n## 服务说明与记录\n\n本次汇报材料为公开模拟案例，仅用于演示与测试。【材料原文，非统计指标：【公开模拟案例，仅用于演示与测试】；来源N001】服务范围涉及模拟登记咨询、会议支持和物资申请等日常服务。材料中的改进建议属于建议性质，尚非已完成成果。\n\n## 工作小结\n\n本季度汇报仅基于所提供虚构反馈样本，没有往期对照数据，因此不声称同比或环比提升。后续可关注统一申请指引和补充处理进度反馈等改进方向。\n\n## 建议（尚未发生）\n\n- 后续可补充实际服务总量、响应时长或投诉率等指标，以增强汇报完整性。\n- 建议在获得往期数据后，再评估满意度变化趋势。\n- 可考虑扩大有效反馈样本范围，以提升统计代表性。\n\n## 权威统计与口径\n\n| 事实编号 | 指标 | 数值 | 单位 | 定义 |\n| --- | --- | --- | --- | --- |\n| F001 | 满意度平均分（1–5 量表） | 4 | 分 | 该量表有效反馈分数合计 ÷ 有效反馈数 |\n| F002 | 满意度样本数（1–5 量表） | 4 | 条 | 该量表按反馈编号去重后的有效反馈数 |\n\n## 数据限制与来源\n\n统计政策：2026-10-v1；数值由确定性工具生成，文字材料不直接生成权威指标。\n\n- 仅代表所选有效反馈样本；不同量表单独计算\n- F001：满意度.csv；版本1；行 2；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F001：满意度.csv；版本1；行 3；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F001：满意度.csv；版本1；行 4；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F001：满意度.csv；版本1；行 5；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 2；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 3；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 4；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- F002：满意度.csv；版本1；行 5；SHA256 c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e；字段 date, department, feedback_id, scale_max, scale_min, score\n- N001：服务说明.txt；版本1；行 1；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N002：服务说明.txt；版本1；行 2；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N003：服务说明.txt；版本1；行 3；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N004：服务说明.txt；版本1；行 4；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N005：服务说明.txt；版本1；行 5；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N006：服务说明.txt；版本1；行 6；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N007：服务说明.txt；版本1；行 7；SHA256 7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba\n- N008：服务记录.docx；版本1；段落 1；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N009：服务记录.docx；版本1；段落 2；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N010：服务记录.docx；版本1；段落 3；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N011：服务记录.docx；版本1；段落 4；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N012：服务记录.docx；版本1；段落 5；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N013：服务记录.docx；版本1；表格 1 / 行 1；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N014：服务记录.docx；版本1；表格 1 / 行 2；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N015：服务记录.docx；版本1；表格 1 / 行 3；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n- N016：服务记录.docx；版本1；表格 1 / 行 4；SHA256 260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a\n",
+      "narrative": {
+        "sections": [
+          {
+            "text": "本季度行政服务满意度基于所选有效反馈样本进行统计。满意度平均分情况：[[fact:F001]]；样本量情况：[[fact:F002]]。该结果仅反映已提供材料中的演示反馈，不能代表部门真实服务水平，也不支持推断全体员工满意度。",
+            "title": "行政服务满意度"
+          },
+          {
+            "text": "本次汇报材料为公开模拟案例，仅用于演示与测试。[[note:N001]]服务范围涉及模拟登记咨询、会议支持和物资申请等日常服务。材料中的改进建议属于建议性质，尚非已完成成果。",
+            "title": "服务说明与记录"
+          },
+          {
+            "text": "本季度汇报仅基于所提供虚构反馈样本，没有往期对照数据，因此不声称同比或环比提升。后续可关注统一申请指引和补充处理进度反馈等改进方向。",
+            "title": "工作小结"
+          }
+        ],
+        "suggestions": [
+          "后续可补充实际服务总量、响应时长或投诉率等指标，以增强汇报完整性。",
+          "建议在获得往期数据后，再评估满意度变化趋势。",
+          "可考虑扩大有效反馈样本范围，以提升统计代表性。"
+        ]
+      },
+      "review": {
+        "issues": [],
+        "model_passed": true,
+        "passed": true,
+        "program_passed": true,
+        "revision": 0,
+        "revision_instructions": []
+      },
+      "revision": 0
+    }
+  ],
+  "run_type": "revision_review",
+  "source_datasets": [],
+  "stage": "completed",
+  "statistics": {
+    "department": "行政部",
+    "end_date": "2026-04-01",
+    "id": "635b2f798ab14a4b9c9acfffd06241a9",
+    "issues": [],
+    "material_ids": [
+      "889e6b0116bc4ac58e7459a181a67546",
+      "f2afc8e97d854bd696b720716e731e14",
+      "7d8867bbc4664e61957ef8cbe5e4931c"
+    ],
+    "materials": [
+      {
+        "id": "889e6b0116bc4ac58e7459a181a67546",
+        "kind": "satisfaction",
+        "name": "满意度.csv",
+        "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+        "version": 1
+      },
+      {
+        "id": "f2afc8e97d854bd696b720716e731e14",
+        "kind": "notes",
+        "name": "服务说明.txt",
+        "sha256": "7649e4d89bb21d880982316d02cd9a19235acd3f29d300780b1658aa827b56ba",
+        "version": 1
+      },
+      {
+        "id": "7d8867bbc4664e61957ef8cbe5e4931c",
+        "kind": "notes",
+        "name": "服务记录.docx",
+        "sha256": "260beed9b3d75fc7202996ce7585ca2ca7e5d351dd8f2aee029059fe51aa744a",
+        "version": 1
+      }
+    ],
+    "metrics": [
+      {
+        "definition": "该量表有效反馈分数合计 ÷ 有效反馈数",
+        "id": "satisfaction_mean_0",
+        "label": "满意度平均分（1–5 量表）",
+        "limitations": [
+          "仅代表所选有效反馈样本；不同量表单独计算"
+        ],
+        "source_refs": [
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 2",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          },
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 3",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          },
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 4",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          },
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 5",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          }
+        ],
+        "unit": "分",
+        "value": 4.0
+      },
+      {
+        "definition": "该量表按反馈编号去重后的有效反馈数",
+        "id": "satisfaction_count_0",
+        "label": "满意度样本数（1–5 量表）",
+        "limitations": [
+          "仅代表所选有效反馈样本；不同量表单独计算"
+        ],
+        "source_refs": [
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 2",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          },
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 3",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          },
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 4",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          },
+          {
+            "fields": [
+              "date",
+              "department",
+              "feedback_id",
+              "scale_max",
+              "scale_min",
+              "score"
+            ],
+            "location": "行 5",
+            "material_id": "889e6b0116bc4ac58e7459a181a67546",
+            "name": "满意度.csv",
+            "sha256": "c8ca4b330c66b0cb97cccc9b231f6f02bcd080c84f2c6178d76ef6affd16a18e",
+            "version": 1
+          }
+        ],
+        "unit": "条",
+        "value": 4
+      }
+    ],
+    "policy_version": "2026-10-v1",
+    "report_id": "a222be7e58bb417dbce59a3d2117bb6c",
+    "report_version": 1,
+    "start_date": "2026-01-01",
+    "status": "ready"
+  },
+  "status": "completed",
+  "updated_at": "2026-10-17T09:46:18.361260+00:00",
+  "usage": {
+    "completion_tokens": 36,
+    "mock_calls": 0,
+    "output_budget": 512,
+    "prompt_tokens": 3906,
+    "reasoning_tokens": null,
+    "request_budget": 2,
+    "request_count": 2,
+    "reserved_output_tokens": 512,
+    "total_tokens": 3942
+  },
+  "user_text": "生成2026年第一季度行政部工作汇报，重点突出行政服务满意度，格式为Markdown。仅说明已提供材料样本，没有往期对照时不要声称提升。",
+  "workspace": "normal"
+}

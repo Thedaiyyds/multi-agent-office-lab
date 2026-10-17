@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-17",
+  "model": "deepseek-v4-pro",
+  "total_requests": 25,
+  "total_tokens": 56747,
+  "full_scenario_requests": 12,
+  "full_scenario_tokens": 25835,
+  "wording_review_requests": 2,
+  "wording_review_tokens": 3942,
+  "failed_requests": 11,
+  "failed_tokens": 26970,
+  "artifacts": [
+    {
+      "report_id": "9f9d31c2141a40fc8b17db567bf4efc9",
+      "id": "27f3b00e954b4c038d3a662e91699522",
+      "number": 1,
+      "status": "approved",
+      "mode": "live",
+      "content_hash": "d64935a65541752f57268635f3ce83ceb2dd52305ed151dfdbec080c699fb0b1",
+      "artifacts": [
+        {
+          "format": "md",
+          "state": "ready",
+          "snapshot_hash": "d64935a65541752f57268635f3ce83ceb2dd52305ed151dfdbec080c699fb0b1",
+          "file_sha256": "19c7370c55e550b2b2c8f25969fb870e263389f87bb7efa199f0de58ce0c5c45",
+          "byte_size": 16324,
+          "error": null
+        },
+        {
+          "format": "pdf",
+          "state": "ready",
+          "snapshot_hash": "d64935a65541752f57268635f3ce83ceb2dd52305ed151dfdbec080c699fb0b1",
+          "file_sha256": "3c523e25b59c11e081827153112f72e8fff53a6d84b7cfd8374767f30ab527fb",
+          "byte_size": 90324,
+          "error": null
+        }
+      ]
+    },
+    {
+      "report_id": "a222be7e58bb417dbce59a3d2117bb6c",
+      "id": "fa18b6d92a2a4968a7efa2d1663fb546",
+      "number": 2,
+      "status": "approved",
+      "mode": "live",
+      "content_hash": "29372cf829bee4087692da18074e25b74ae043386c4ba07e3ef7f0c142c4eb39",
+      "artifacts": [
+        {
+          "format": "md",
+          "state": "ready",
+          "snapshot_hash": "29372cf829bee4087692da18074e25b74ae043386c4ba07e3ef7f0c142c4eb39",
+          "file_sha256": "e92e914f11ba6719f3568cae38e1ddd059a17a18929a5d76b94738f3dd4dcced",
+          "byte_size": 5312,
+          "error": null
+        },
+        {
+          "format": "pdf",
+          "state": "ready",
+          "snapshot_hash": "29372cf829bee4087692da18074e25b74ae043386c4ba07e3ef7f0c142c4eb39",
+          "file_sha256": "83f1629300f73b3f9f20a01c0d3a7ea7ac7ec8fef0bfef93e5e8ade24ea70179",
+          "byte_size": 78977,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "course_report": {
+    "word_path": "docs/report/experiment-report-v2.docx",
+    "word_sha256": "b5c4e2f813cdeabba9c8474778cbce332788ee18ed20b0245ba7261cedac061a",
+    "markdown_path": "docs/report/experiment-report-v2.md",
+    "markdown_sha256": "76688c4d6d01924bda9a40335b9fd1f2c0a797ed36f364a14ccdca7596a2ad3f",
+    "rendered_pages": 22,
+    "figures": 5,
+    "identity_fields": "blank"
+  },
+  "checks": {
+    "python_tests": 846,
+    "client_tests": 13,
+    "frontend_build": "passed",
+    "ruff": "passed",
+    "viewport_width": 390,
+    "document_scroll_width": 390,
+    "wheel_font_and_license": "verified"
+  }
+}
