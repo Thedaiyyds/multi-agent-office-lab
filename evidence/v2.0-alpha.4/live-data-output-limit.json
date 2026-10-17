@@ -1,0 +1,77 @@
+{
+  "id": "16dd3657ff64444982267904a54415c1",
+  "mode": "live",
+  "status": "failed",
+  "stage": "failed",
+  "error": {
+    "code": "model_error",
+    "message": "角色执行失败：model_error；未保存供应商原始异常，未自动重试"
+  },
+  "usage": {
+    "completion_tokens": 542,
+    "mock_calls": 0,
+    "output_budget": 3744,
+    "prompt_tokens": 4939,
+    "reasoning_tokens": null,
+    "request_budget": 7,
+    "request_count": 3,
+    "reserved_output_tokens": 832,
+    "total_tokens": 5481
+  },
+  "model_attempts": [
+    {
+      "max_output_tokens": 256,
+      "phase": "requirements",
+      "role": "manager",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 184,
+        "prompt_tokens": 1031,
+        "total_tokens": 1215
+      }
+    },
+    {
+      "max_output_tokens": 384,
+      "phase": "outline",
+      "role": "planner",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 166,
+        "prompt_tokens": 721,
+        "total_tokens": 887
+      }
+    },
+    {
+      "max_output_tokens": 192,
+      "phase": "summary",
+      "role": "data",
+      "status": "returned",
+      "usage": {
+        "completion_tokens": 192,
+        "prompt_tokens": 3187,
+        "total_tokens": 3379
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "role": "manager",
+      "phase": null,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "role": "planner",
+      "phase": null,
+      "status": "completed",
+      "error": null
+    },
+    {
+      "role": "data",
+      "phase": null,
+      "status": "failed",
+      "error": null
+    }
+  ],
+  "note": "实际供应商调用：需求与规划通过，Data在192输出token上限截断。不得用作完整端到端成功证明。后续已收紧Data回复格式并添加response_truncated门禁，未再次付费重跑。"
+}

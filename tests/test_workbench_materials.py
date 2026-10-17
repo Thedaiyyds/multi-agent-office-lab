@@ -297,7 +297,7 @@ def test_all_resource_limits_are_enforced_without_partial_confirmation(client, m
 def test_shared_service_restricts_demo_sources_and_never_accepts_external_urls(tmp_path):
     _, service = build_client(tmp_path)
     with pytest.raises(HTTPException) as error:
-        service.stage_import(PROJECTS.encode(), "demo.csv", "projects", "normal", "local_api")
+        service.stage_import(PROJECTS.encode(), "demo.csv", "projects", "normal", "demo")
     assert error.value.status_code == 403
     draft = service.stage_import(PROJECTS.encode(), "demo.csv", "projects", "demo", "local_api")
     material = service.confirm(draft["id"], "demo", {"mapping": draft["suggested_mapping"]})

@@ -1,4 +1,4 @@
-"""Local-only draft API. This release never makes a model request."""
+"""Local-only report API with explicit, bounded background agent execution."""
 
 import hashlib
 import json
@@ -16,11 +16,16 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from office_agents.config import ConfigurationError, Settings
-from office_agents.workbench.demo import create_demo_router
+from office_agents.workbench.demo import (
+    create_demo_router,
+    create_local_data_router,
+    load_local_dataset,
+)
+from office_agents.workbench.execution import create_execution_router
 from office_agents.workbench.materials import create_material_router
 from office_agents.workbench.statistics import create_statistics_router
 
-VERSION = "2.0.0-alpha.3"
+VERSION = "2.0.0-alpha.4"
 Workspace = Literal["normal", "demo"]
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "testserver"}
 
@@ -95,6 +100,8 @@ class SystemInfo(BaseModel):
         "materials",
         "demo_materials",
         "statistics",
+        "agent_execution",
+        "local_data_sources",
     ]
 
 
@@ -102,6 +109,7 @@ def create_app(
     database_path: str | Path | None = None,
     static_dir: str | Path | Literal[False] | None = None,
     demo_root: str | Path | None = None,
+    execution_options: dict | None = None,
 ):
     """Build an isolated app; callers can choose a temporary database in tests."""
     project_root = Path(__file__).resolve().parents[3]
@@ -153,7 +161,17 @@ def create_app(
     material_router = create_material_router(connection, database.parent / "materials", demo_root)
     app.include_router(material_router)
     app.include_router(create_demo_router(material_router.material_service, connection, demo_root))
+    app.include_router(create_local_data_router(material_router.material_service, demo_root))
     app.include_router(create_statistics_router(connection, material_router.material_service))
+    options = {
+        "local_provider": lambda kind: load_local_dataset(demo_root, kind),
+        **(execution_options or {}),
+    }
+    execution_router = create_execution_router(
+        connection, material_router.material_service, **options
+    )
+    app.include_router(execution_router)
+    app.state.execution_service = execution_router.execution_service
 
     @app.middleware("http")
     async def local_requests_only(request: Request, call_next):

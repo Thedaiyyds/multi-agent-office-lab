@@ -39,7 +39,7 @@ def test_empty_database_and_safe_system_info(client, monkeypatch):
     )
     assert client.get("/api/v1/health").json() == {
         "status": "ok",
-        "version": "2.0.0-alpha.3",
+        "version": "2.0.0-alpha.4",
     }
     assert client.get("/api/v1/reports").json() == {"items": []}
     info = client.get("/api/v1/system")
@@ -50,6 +50,8 @@ def test_empty_database_and_safe_system_info(client, monkeypatch):
         "materials",
         "demo_materials",
         "statistics",
+        "agent_execution",
+        "local_data_sources",
     ]
     for private in ["secret-value", "private-model", "private.example"]:
         assert private not in info.text

@@ -437,8 +437,8 @@ class MaterialService:
             or source not in {"file", "local_api", "demo"}
         ):
             reject("材料分类、工作区或来源无效")
-        if source in {"local_api", "demo"} and workspace != "demo":
-            reject("模拟来源仅能导入演示空间", status=403)
+        if source == "demo" and workspace != "demo":
+            reject("演示案例来源仅能导入演示空间", status=403)
         if (
             not name
             or len(name) > 200

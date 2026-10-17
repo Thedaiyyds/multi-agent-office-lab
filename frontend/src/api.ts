@@ -98,6 +98,62 @@ export interface StatisticsSnapshot {
   metrics: StatisticsMetric[];
   issues: MaterialIssue[];
 }
+export type RunMode = "live" | "offline_mock";
+export interface AgentRun {
+  id: string;
+  report_id: string | null;
+  report_version: number | null;
+  status:
+    | "queued"
+    | "running"
+    | "needs_input"
+    | "completed"
+    | "review_failed"
+    | "failed"
+    | "cancelled"
+    | "interrupted";
+  stage: string;
+  mode: RunMode;
+  user_text: string;
+  created_at?: string;
+  events: {
+    seq: number;
+    role: string;
+    event_type: string;
+    message: string;
+    created_at: string;
+  }[];
+  nodes: {
+    role: string;
+    inputs: unknown;
+    output: unknown;
+    candidate_output?: unknown;
+    candidate_status?: string;
+    status: string;
+    revision?: number;
+  }[];
+  statistics?: StatisticsSnapshot | null;
+  outline?: unknown;
+  draft_markdown?: string | null;
+  review?: unknown;
+  revision_history: unknown[];
+  acceptance?: unknown;
+  missing_fields: string[];
+  questions: string[];
+  cancel_requested: boolean;
+  usage?: {
+    request_budget: number;
+    output_budget: number;
+    request_count: number;
+    reserved_output_tokens: number;
+    prompt_tokens: number | null;
+    completion_tokens: number | null;
+    total_tokens: number | null;
+    reasoning_tokens: number | null;
+    mock_calls: number;
+  } | null;
+  error: { code: string; message: string } | null;
+}
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -135,10 +191,14 @@ export async function api<T>(
         path.startsWith("/materials") ||
         path.startsWith("/imports") ||
         path.startsWith("/demo") ||
+        path.split("?")[0] === "/runs" ||
+        path.startsWith("/runs/") ||
         /^\/reports\/[^/]+\/statistics$/.test(path)
       ) {
         const payload = await response.json().catch(() => null);
         const detail = payload?.detail;
+        const isRun =
+          path.split("?")[0] === "/runs" || path.startsWith("/runs/");
         const isStatistics = /^\/reports\/[^/]+\/statistics$/.test(path);
         const rawIssues = Array.isArray(detail?.issues) ? detail.issues : [];
         const issues = rawIssues.length
@@ -163,9 +223,11 @@ export async function api<T>(
                         `${item.loc?.join(" / ") || "请求"}：${item.msg || "内容无效"}`,
                     )
                     .join("；")
-                : isStatistics
-                  ? "数据整理未成功，请检查所选材料、人员清单与排班日期。"
-                  : "材料操作未成功，请检查文件和填写内容后重试。",
+                : isRun
+                  ? "协作任务操作未完成，请检查需求、材料与模型配置。"
+                  : isStatistics
+                    ? "数据整理未成功，请检查所选材料、人员清单与排班日期。"
+                    : "材料操作未成功，请检查文件和填写内容后重试。",
           issues,
         );
       }

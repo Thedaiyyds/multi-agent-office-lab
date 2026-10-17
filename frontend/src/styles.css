@@ -2241,3 +2241,414 @@ select:focus-visible {
     font-size: 12px;
   }
 }
+
+.cooperation-composer,
+.cooperation-history,
+.cooperation-summary,
+.cooperation-work {
+  padding: 28px;
+  margin-bottom: 24px;
+  min-width: 0;
+}
+.cooperation-composer h2,
+.cooperation-history h2 {
+  font-size: 18px;
+  margin: 0;
+}
+.cooperation-composer > .field-hint {
+  margin: 14px 0 22px;
+}
+.cooperation-fields {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.cooperation-composer textarea {
+  font-size: 14px;
+  line-height: 1.8;
+  resize: vertical;
+}
+.cooperation-material-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 24px 0 12px;
+}
+.cooperation-material-header h3 {
+  font-size: 14px;
+  margin: 0;
+}
+.cooperation-history .cooperation-material-header {
+  margin-top: 0;
+}
+.cooperation-materials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 2px;
+  margin: 12px 0 20px;
+}
+.cooperation-materials label,
+.cooperation-local {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cooperation-materials label {
+  border: 1px solid #e3e9f1;
+  border-radius: 7px;
+  padding: 12px;
+}
+.cooperation-composer input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: #3b61bd;
+}
+.cooperation-materials span,
+.cooperation-local span {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.cooperation-materials small,
+.cooperation-local small {
+  color: #8290a6;
+  font-size: 11px;
+}
+.cooperation-local {
+  background: #f8f9fc;
+  padding: 14px;
+  border-radius: 8px;
+  margin: 18px 0;
+}
+.cooperation-submit {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 22px 0 14px;
+}
+.cooperation-submit .field {
+  min-width: 230px;
+  max-width: 400px;
+}
+.cooperation-submit .button {
+  min-width: 160px;
+}
+.cooperation-history-list {
+  display: flex;
+  flex-direction: column;
+}
+.cooperation-history-list button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 15px 0;
+  border-bottom: 1px solid #edf0f5;
+}
+.cooperation-history-list button:last-child {
+  border-bottom: 0;
+}
+.cooperation-history-list button > span:first-child {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.cooperation-history-list strong {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cooperation-history-list small {
+  font-size: 11px;
+  color: #8290a6;
+}
+.cooperation-history-list .status-badge {
+  flex-shrink: 0;
+}
+.cooperation-history-list svg {
+  flex-shrink: 0;
+}
+.cooperation-auxiliary {
+  padding: 0 24px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+.cooperation-auxiliary > summary {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 22px 0;
+  color: #5d6d88;
+}
+.cooperation-auxiliary .statistics-card {
+  margin: 0 0 24px;
+  box-shadow: none;
+}
+.cooperation-auxiliary .draft-layout {
+  margin-bottom: 24px;
+}
+.cooperation-run-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.cooperation-mock {
+  color: #906c30;
+  background: #fff2d9;
+}
+.cooperation-request {
+  font-size: 14px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 18px 0 24px;
+}
+.cooperation-stages {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  padding: 18px 0;
+  margin: 0 0 20px;
+  border-top: 1px solid #edf0f5;
+  border-bottom: 1px solid #edf0f5;
+  gap: 14px;
+}
+.cooperation-stages li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: #a0aabc;
+}
+.cooperation-stages li > span {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 12px;
+}
+.cooperation-stages small {
+  font-size: 10px;
+}
+.cooperation-stages svg {
+  flex-shrink: 0;
+}
+.cooperation-stages li.current {
+  color: #3d64c2;
+}
+.cooperation-stages li.done {
+  color: #3f8262;
+}
+.cooperation-run-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cooperation-usage {
+  margin-top: 22px;
+  font-size: 12px;
+  color: #6c7c95;
+}
+.cooperation-usage summary {
+  cursor: pointer;
+}
+.cooperation-usage dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  background: #f7f9fc;
+  padding: 16px;
+  border-radius: 8px;
+}
+.cooperation-usage dd {
+  margin: 8px 0 0;
+  color: #3d5070;
+  overflow-wrap: anywhere;
+}
+.cooperation-work {
+  padding-top: 0;
+}
+.cooperation-tabs {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e8edf5;
+}
+.cooperation-tabs button {
+  padding: 19px 0;
+  font-size: 13px;
+  color: #7c8ba2;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.cooperation-tabs button.active {
+  color: #3a5faa;
+  border-bottom-color: #3a5faa;
+}
+.cooperation-panel {
+  min-width: 0;
+  padding-top: 24px;
+}
+.cooperation-panel h2 {
+  font-size: 16px;
+  margin: 0 0 18px;
+}
+.cooperation-panel h3 {
+  font-size: 13px;
+  margin: 18px 0 10px;
+}
+.cooperation-panel pre {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.85;
+  background: #f8f9fc;
+  border: 1px solid #e8edf5;
+  border-radius: 7px;
+  padding: 18px;
+  max-height: 580px;
+  overflow-y: auto;
+}
+.cooperation-panel .cooperation-markdown {
+  font-family: inherit;
+  font-size: 14px;
+  background: #fff;
+  line-height: 2;
+}
+.cooperation-object {
+  margin: 16px 0;
+  border-top: 1px solid #edf0f5;
+  padding-top: 16px;
+}
+.cooperation-object > summary {
+  cursor: pointer;
+  font-size: 13px;
+  color: #5b6f91;
+}
+.cooperation-acceptance {
+  margin: 18px 0;
+}
+.cooperation-events {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 18px;
+}
+.cooperation-events li {
+  border-left: 2px solid #dce4f3;
+  padding-left: 18px;
+}
+.cooperation-events li > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cooperation-events strong {
+  font-size: 12px;
+  color: #4d6488;
+}
+.cooperation-events span,
+.cooperation-events small {
+  color: #91a0b4;
+  font-size: 10px;
+}
+.cooperation-events p {
+  font-size: 13px;
+  color: #66758e;
+  margin: 9px 0 5px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+@media (max-width: 1000px) {
+  .cooperation-stages {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 12px;
+  }
+}
+@media (max-width: 760px) {
+  .cooperation-composer,
+  .cooperation-history,
+  .cooperation-summary,
+  .cooperation-work {
+    padding: 22px 18px;
+  }
+  .cooperation-work {
+    padding-top: 0;
+  }
+  .cooperation-composer h2 {
+    font-size: 16px;
+  }
+  .cooperation-materials {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cooperation-submit {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cooperation-submit .field {
+    min-width: 0;
+    max-width: none;
+  }
+  .cooperation-submit .button {
+    justify-content: center;
+  }
+  .cooperation-auxiliary {
+    padding: 0 14px;
+  }
+  .cooperation-auxiliary .draft-layout {
+    display: block;
+  }
+  .cooperation-auxiliary .draft-aside {
+    display: none;
+  }
+  .cooperation-auxiliary .form-card {
+    padding: 18px 12px;
+  }
+  .cooperation-auxiliary .date-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cooperation-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cooperation-usage dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cooperation-history-list button {
+    flex-wrap: wrap;
+  }
+  .cooperation-history-list button > span:first-child {
+    flex-basis: calc(100% - 30px);
+  }
+  .cooperation-history-list button > svg {
+    margin-left: auto;
+  }
+  .cooperation-tabs {
+    gap: 20px;
+  }
+  .cooperation-panel pre {
+    padding: 13px;
+  }
+  .cooperation-events li > div {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

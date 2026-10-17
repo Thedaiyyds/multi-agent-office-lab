@@ -97,13 +97,55 @@ test("material requests preserve upload boundaries, validation issues and worksp
           status,
           json: async () => ({ detail }),
         });
-        await assert.rejects(api("/reports/id/statistics", "normal"), (error) => {
-          assert.ok(error instanceof ApiError);
-          assert.equal(error.status, status);
-          assert.equal(error.message, detail);
-          return true;
-        });
+        await assert.rejects(
+          api("/reports/id/statistics", "normal"),
+          (error) => {
+            assert.ok(error instanceof ApiError);
+            assert.equal(error.status, status);
+            assert.equal(error.message, detail);
+            return true;
+          },
+        );
       }
+    },
+  );
+
+  await t.test(
+    "preserves run errors and the original submission key",
+    async () => {
+      const payload = JSON.stringify({
+        user_text: "生成技术部工作汇报",
+        mode: "live",
+      });
+      let calls = 0;
+      globalThis.fetch = async (url, options) => {
+        assert.equal(url, "/api/v1/runs");
+        assert.equal(
+          options.headers["Idempotency-Key"],
+          "original-attempt-key",
+        );
+        assert.equal(options.body, payload);
+        calls += 1;
+        return {
+          ok: false,
+          status: 409,
+          json: async () => ({ detail: "该防重标识已用于不同的运行内容" }),
+        };
+      };
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        await assert.rejects(
+          api("/runs", "normal", {
+            method: "POST",
+            headers: { "Idempotency-Key": "original-attempt-key" },
+            body: payload,
+          }),
+          (error) =>
+            error instanceof ApiError &&
+            error.status === 409 &&
+            error.message === "该防重标识已用于不同的运行内容",
+        );
+      }
+      assert.equal(calls, 2);
     },
   );
 
@@ -144,7 +186,7 @@ test("material requests preserve upload boundaries, validation issues and worksp
       assert.ok(clicked && removed && revoked);
     },
   );
-  assert.equal(cleared, 5);
+  assert.equal(cleared, 7);
 });
 
 test("API client handles failures safely and cleans request timers", async (t) => {
