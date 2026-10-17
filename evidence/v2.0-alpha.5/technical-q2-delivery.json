@@ -1,0 +1,59 @@
+{
+  "id": "5737595181054a628d0963cc9c1da5fc",
+  "number": 2,
+  "status": "approved",
+  "mode": "offline_mock",
+  "current": true,
+  "content_hash": "35e150d39c715e5bfc9695c8a45c2c3da123a9d10cebaeb16659fbe9f1759f6c",
+  "artifacts": [
+    {
+      "format": "md",
+      "state": "ready",
+      "snapshot_hash": "35e150d39c715e5bfc9695c8a45c2c3da123a9d10cebaeb16659fbe9f1759f6c",
+      "file_sha256": "457cdae360df9e30384fa3e72d916ead29c3e1956bdd80b45999ed40f5915f4d",
+      "byte_size": 16054,
+      "error": null
+    },
+    {
+      "format": "pdf",
+      "state": "ready",
+      "snapshot_hash": "35e150d39c715e5bfc9695c8a45c2c3da123a9d10cebaeb16659fbe9f1759f6c",
+      "file_sha256": "4b57e08add8f4c732a3108b6c68fb27951d62753bc5709b57e1e37bb5a729397",
+      "byte_size": 85777,
+      "error": null
+    }
+  ],
+  "review_attempts": [
+    {
+      "acceptance": {
+        "accepted": true,
+        "reasons": [
+          "五角色已完成，数据来源、章节与审核均已核验；此为离线夹具结果"
+        ]
+      },
+      "content_hash": "35e150d39c715e5bfc9695c8a45c2c3da123a9d10cebaeb16659fbe9f1759f6c",
+      "created_at": "2026-10-17T03:16:17.192695+00:00",
+      "review": {
+        "issues": [],
+        "model_passed": true,
+        "passed": true,
+        "program_passed": true,
+        "revision": 0,
+        "revision_instructions": []
+      },
+      "run_id": "a7e04bb072914896a67fd29999aa880d",
+      "status": "completed",
+      "usage": {
+        "completion_tokens": null,
+        "mock_calls": 2,
+        "output_budget": 512,
+        "prompt_tokens": null,
+        "reasoning_tokens": null,
+        "request_budget": 2,
+        "request_count": 0,
+        "reserved_output_tokens": 0,
+        "total_tokens": null
+      }
+    }
+  ]
+}

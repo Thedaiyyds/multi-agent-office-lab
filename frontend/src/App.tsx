@@ -49,6 +49,12 @@ const nav = [
   { path: "/materials", label: "材料库", icon: FolderOpen },
   { path: "/archive", label: "报告归档", icon: Archive },
 ];
+const reportStatus: Record<Report["status"], string> = {
+  draft: "需求草稿",
+  pending_review: "待审核",
+  needs_changes: "需要修改",
+  approved: "审核合格",
+};
 const initialDraft = (): Draft => ({
   title: "",
   department: "",
@@ -144,7 +150,7 @@ function ReportRows({
               {dateTime(report.updated_at)}
             </span>
           </span>
-          <span className="status-badge">草稿</span>
+          <span className="status-badge">{reportStatus[report.status]}</span>
           <ChevronRight size={17} className="muted" />
         </button>
       ))}
@@ -167,6 +173,7 @@ function Home({
   navigate: (path: string) => void;
   system: SystemInfo | null;
 }) {
+  const pending = reports.filter((report) => report.status !== "approved");
   return (
     <>
       <div className="page-heading">
@@ -251,13 +258,13 @@ function Home({
               </div>
               <div>
                 <h2>继续你的工作汇报</h2>
-                <p>已保存的草稿可继续修改需求和章节安排。</p>
+                <p>查看协作结果、审核状态，或继续完善工作汇报。</p>
               </div>
               <button
                 className="button secondary"
                 onClick={() => navigate(`/reports/${reports[0].id}`)}
               >
-                打开最近草稿
+                打开最近报告
                 <ArrowRight size={16} />
               </button>
             </section>
@@ -269,11 +276,11 @@ function Home({
                   <Clock3 size={18} />
                   <h2>待处理</h2>
                 </div>
-                {reports.length > 0 && (
-                  <span className="count-badge">{reports.length}</span>
+                {pending.length > 0 && (
+                  <span className="count-badge">{pending.length}</span>
                 )}
               </div>
-              {reports.length === 0 ? (
+              {pending.length === 0 ? (
                 <EmptyState
                   compact
                   icon={Check}
@@ -282,9 +289,9 @@ function Home({
                 />
               ) : (
                 <>
-                  <div className="card-subtitle">可继续完善的草稿</div>
+                  <div className="card-subtitle">需要继续处理的报告</div>
                   <ReportRows
-                    reports={reports.slice(0, 3)}
+                    reports={pending.slice(0, 3)}
                     open={(id) => navigate(`/reports/${id}`)}
                   />
                 </>
@@ -374,7 +381,7 @@ function ReportList({
               placeholder="搜索报告标题或部门"
             />
           </label>
-          <span className="list-count">{filtered.length} 份草稿</span>
+          <span className="list-count">{filtered.length} 份报告</span>
           <button
             className="icon-button"
             onClick={retry}
@@ -769,10 +776,10 @@ function DraftForm({
             <div className="aside-divider" />
             <h3>接下来</h3>
             <p>
-              通过上方协作入口可由五角色完成规划、整理、撰写和审核；下方可人工核对统计与来源。正式
-              Markdown / PDF 文件将在交付版本开放。
+              通过上方协作入口可由五角色完成规划、整理、撰写和审核。合格修订自动提供
+              Markdown / PDF；修改文字后需重新审核。下方可核对统计与来源。
             </p>
-            <div className="version-label">v2.0-alpha.4 · 五角色协作</div>
+            <div className="version-label">v2.0-alpha.5 · 报告交付</div>
           </div>
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -884,7 +891,9 @@ function Editor({
           </p>
         </div>
         {report && (
-          <span className="status-badge">草稿 · v{report.version}</span>
+          <span className="status-badge">
+            {reportStatus[report.status]} · v{report.version}
+          </span>
         )}
       </div>
       {error ? (
@@ -969,8 +978,8 @@ function FuturePage({ navigate }: { navigate: (path: string) => void }) {
       <section className="card">
         <EmptyState
           icon={Archive}
-          title="正式报告归档将在交付版本开放"
-          description="五角色协作的中间稿和验收结果保存在运行记录中，正式归档和 Markdown / PDF 文件将在交付版本开放。"
+          title="通过协作记录查看已交付报告"
+          description="报告修订与文件保存在本地。打开报告任务的已完成协作记录，即可查看当前及历史修订、审核结果并下载合格的 Markdown / PDF 文件。"
         >
           <button
             className="button secondary"
@@ -1046,7 +1055,8 @@ function Settings({
         </div>
         <p className="field-hint">
           当前支持持久化草稿、TXT / CSV / DOCX
-          材料导入、本地模拟接口、来源可追溯的统计、五角色协作、审核返工与经理验收；正式文件导出将在交付版本开放。
+          材料导入、本地模拟接口、来源可追溯的统计、五角色协作、审核返工、经理验收，以及报告修订和
+          Markdown / PDF 文件交付。
         </p>
       </section>
     </>
@@ -1121,8 +1131,9 @@ function Help({ navigate }: { navigate: (path: string) => void }) {
             系统不会默认为报告填充样例。只有明确勾选“使用系统本地样例数据（虚构）”时，才接入样例数据；材料不足时会提示补充。
           </p>
           <Notice>
-            本版支持协作过程和报告预览。正式 Markdown / PDF
-            文件与归档将在交付版本开放。
+            完整协作通过 Checker 与 Manager 验收后，系统自动保存报告修订并生成
+            Markdown /
+            PDF。修改文字会创建待审核的新修订；查看、下载和重试文件导出不会调用模型。
           </Notice>
           <button
             className="button secondary"
@@ -1432,7 +1443,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>alpha.4</span>
+              本地运行<span>alpha.5</span>
             </div>
           </div>
         </aside>
@@ -1527,6 +1538,8 @@ export default function App() {
                 workspace={workspace}
                 navigate={navigate}
                 changed={changed}
+                onDirty={onDirty}
+                onSaving={onSaving}
               />
             ) : /^\/reports\/[^/]+$/.test(path) ? (
               <Editor
@@ -1568,7 +1581,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.0-alpha.4</span>
+            汇报协作<span>v2.0-alpha.5</span>
           </footer>
         </div>
       </div>

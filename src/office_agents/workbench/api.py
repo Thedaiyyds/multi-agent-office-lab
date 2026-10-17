@@ -16,6 +16,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from office_agents.config import ConfigurationError, Settings
+from office_agents.workbench.delivery import create_delivery_router
 from office_agents.workbench.demo import (
     create_demo_router,
     create_local_data_router,
@@ -25,7 +26,7 @@ from office_agents.workbench.execution import create_execution_router
 from office_agents.workbench.materials import create_material_router
 from office_agents.workbench.statistics import create_statistics_router
 
-VERSION = "2.0.0-alpha.4"
+VERSION = "2.0.0-alpha.5"
 Workspace = Literal["normal", "demo"]
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "testserver"}
 
@@ -77,7 +78,7 @@ class Report(DraftInput):
     id: str
     workspace: Workspace
     version: int
-    status: Literal["draft"]
+    status: Literal["draft", "pending_review", "needs_changes", "approved"]
     created_at: str
     updated_at: str
 
@@ -102,6 +103,8 @@ class SystemInfo(BaseModel):
         "statistics",
         "agent_execution",
         "local_data_sources",
+        "report_revisions",
+        "markdown_pdf_delivery",
     ]
 
 
@@ -110,6 +113,7 @@ def create_app(
     static_dir: str | Path | Literal[False] | None = None,
     demo_root: str | Path | None = None,
     execution_options: dict | None = None,
+    delivery_options: dict | None = None,
 ):
     """Build an isolated app; callers can choose a temporary database in tests."""
     project_root = Path(__file__).resolve().parents[3]
@@ -172,6 +176,15 @@ def create_app(
     )
     app.include_router(execution_router)
     app.state.execution_service = execution_router.execution_service
+    delivery_router = create_delivery_router(
+        connection,
+        execution_router.execution_service,
+        database.parent / "reports",
+        **(delivery_options or {}),
+    )
+    app.include_router(delivery_router)
+    delivery_service = delivery_router.delivery_service
+    app.state.delivery_service = delivery_service
 
     @app.middleware("http")
     async def local_requests_only(request: Request, call_next):
@@ -218,9 +231,10 @@ def create_app(
         response.headers["Cache-Control"] = "no-store"
         return response
 
-    def row_report(row: sqlite3.Row) -> dict:
+    def row_report(row: sqlite3.Row, db) -> dict:
         result = dict(row)
         result["sections"] = json.loads(result["sections"])
+        result["status"] = delivery_service.report_status(result["id"], result["workspace"], db=db)
         return result
 
     def find_report(db, report_id: str, workspace: Workspace) -> dict:
@@ -229,7 +243,7 @@ def create_app(
         ).fetchone()
         if row is None:
             raise HTTPException(404, "未找到该工作区中的报告")
-        return row_report(row)
+        return row_report(row, db)
 
     @app.get("/api/v1/health", response_model=Health)
     def health():
@@ -256,11 +270,11 @@ def create_app(
             rows = db.execute(
                 """SELECT * FROM reports WHERE workspace = ?
                     AND instr(lower(title || char(10) || department), lower(?)) > 0
-                    AND (? IS NULL OR status = ?)
                     ORDER BY updated_at DESC, id DESC""",
-                (x_workspace, search.strip(), status, status),
+                (x_workspace, search.strip()),
             ).fetchall()
-        return {"items": [row_report(row) for row in rows]}
+            reports = [row_report(row, db) for row in rows]
+        return {"items": [report for report in reports if not status or report["status"] == status]}
 
     @app.post("/api/v1/reports", response_model=Report, status_code=201)
     def create_report(

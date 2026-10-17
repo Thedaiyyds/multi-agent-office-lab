@@ -21,6 +21,8 @@ import {
   type Workspace,
 } from "./api";
 
+import { Delivery } from "./Delivery";
+
 const roleLabels: Record<string, string> = {
   manager: "需求经理",
   planner: "内容规划",
@@ -418,11 +420,15 @@ export function RunDetail({
   workspace,
   navigate,
   changed,
+  onDirty,
+  onSaving,
 }: {
   id: string;
   workspace: Workspace;
   navigate: (path: string) => void;
   changed: () => void;
+  onDirty: (value: boolean) => void;
+  onSaving: (value: boolean) => void;
 }) {
   const [run, setRun] = useState<AgentRun | null>(null);
   const [error, setError] = useState("");
@@ -682,13 +688,21 @@ export function RunDetail({
             </div>
             <div hidden={tab !== "report"} className="cooperation-panel">
               <h2>报告内容</h2>
-              {run.draft_markdown ? (
+              {run.status === "completed" && run.report_id ? (
+                <Delivery
+                  reportId={run.report_id}
+                  workspace={workspace}
+                  onDirty={onDirty}
+                  onSaving={onSaving}
+                  navigate={navigate}
+                />
+              ) : run.draft_markdown ? (
                 <>
                   <p className="field-hint">
                     {run.status === "completed"
                       ? "已通过本次协作验收。"
                       : "当前为中间稿，请结合审核结果查看。"}
-                    正式 Markdown / PDF 文件将在后续交付版本提供。
+                    仅通过 Checker 与 Manager 验收的报告可作为合格文件交付。
                   </p>
                   <pre className="cooperation-markdown">
                     {run.draft_markdown}
@@ -750,9 +764,12 @@ export function RunDetail({
                     <h3>输入</h3>
                     <pre>{text(node.inputs)}</pre>
                     <h3>输出</h3>
-                    {node.status === "failed" && node.candidate_output != null && (
-                      <p className="field-hint">候选输出未通过业务校验，未作为有效结果使用。</p>
-                    )}
+                    {node.status === "failed" &&
+                      node.candidate_output != null && (
+                        <p className="field-hint">
+                          候选输出未通过业务校验，未作为有效结果使用。
+                        </p>
+                      )}
                     <pre>{text(node.output ?? node.candidate_output)}</pre>
                   </details>
                 ))
