@@ -26,7 +26,7 @@ from office_agents.workbench.execution import create_execution_router
 from office_agents.workbench.materials import create_material_router
 from office_agents.workbench.statistics import create_statistics_router
 
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 Workspace = Literal["normal", "demo"]
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "testserver"}
 

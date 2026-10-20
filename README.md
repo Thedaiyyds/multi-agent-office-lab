@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前交付版本为 **v2.1.0 多智能体工作汇报系统**：保留正常8520入口和五角色全流程，扩充季度办公案例为12项目/36快照、1560考勤人日、42成果及216份行政反馈，并接入固定TXT背景与紧凑来源附录。[一段文本演示](docs/report-example.md) · [案例数据与口径](data/office-cases/README.md) · [五角色审查](docs/review-v2.1.0-agents.md) · [本版验收](docs/releases/v2.1.0.md)。
+当前交付版本为 **v2.1.1 多智能体工作汇报系统**：保留正常8520入口和五角色全流程，移除需求版本显示、手动需求草稿和独立统计辅助入口，已审核任务可直接查看报告。季度办公案例包含12项目/36快照、1560考勤人日、42成果及216份行政反馈，并接入固定TXT背景与紧凑来源附录。[一段文本演示](docs/report-example.md) · [案例数据与口径](data/office-cases/README.md) · [五角色审查](docs/review-v2.1.0-agents.md) · [本版变更](docs/releases/v2.1.1.md)。
 
 v2.0.0的小案例已通过DeepSeek V4 Pro真实运行及双格式验证；v2.1.0新增大案例采用零付费调用的离线全图与实际导出测试，未把旧模型证据当成新案例验收。[课程实验报告 Word](docs/report/experiment-report-v2.docx) · [可编辑报告 Markdown](docs/report/experiment-report-v2.md) · [安装启动](docs/deployment-v2.0.md) · [v2.0正式验收](docs/releases/v2.0.0.md)。
 
