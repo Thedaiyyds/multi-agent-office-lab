@@ -31,7 +31,7 @@ def test_large_fixed_interface_graph_and_both_exports(tmp_path, department):
     with workbench(tmp_path) as (client, _):
         response = submit(client, [], text, use_local_api=True)
         assert response.status_code == 202, response.text
-        run = finished(client, response.json()["id"])
+        run = finished(client, response.json()["id"], timeout=45, poll_interval=0.25)
         assert run["status"] == "completed", run.get("error")
         assert [node["role"] for node in run["nodes"]] == [
             "manager",
@@ -44,6 +44,12 @@ def test_large_fixed_interface_graph_and_both_exports(tmp_path, department):
         assert run["usage"]["request_count"] == 0
         assert run["usage"]["mock_calls"] == 6
         assert run["statistics"]["source_format"] == "grouped-v1"
+        data_output = next(node for node in run["nodes"] if node["role"] == "data")["output"]
+        assert data_output["statistics"]["id"] == run["statistics"]["id"]
+        assert [metric["value"] for metric in data_output["statistics"]["metrics"]] == [
+            metric["value"] for metric in run["statistics"]["metrics"]
+        ]
+        assert all("source_refs" not in metric for metric in data_output["statistics"]["metrics"])
         assert run["notes"], "The fixed interface must also freeze the case background text"
         assert len({note["material_id"] for note in run["notes"]}) == 1
         writer = next(node for node in run["nodes"] if node["role"] == "writer")

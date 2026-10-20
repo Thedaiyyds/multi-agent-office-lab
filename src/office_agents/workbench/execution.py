@@ -13,6 +13,7 @@ from typing import Annotated, Literal, TypedDict
 from uuid import uuid4
 
 from fastapi import APIRouter, Header, HTTPException, Query
+from fastapi.responses import JSONResponse
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, field_validator, model_validator
 
@@ -1178,7 +1179,16 @@ class ExecutionContext:
                 limitations=[item["message"] for item in statistics["issues"][:8]],
             ),
         )
-        return dict(status="ready", **summary.model_dump(), statistics=statistics)
+        # The full immutable row references already live in run.statistics/facts.
+        # Node output keeps values and the snapshot ID without duplicating that large index.
+        node_statistics = dict(
+            statistics,
+            metrics=[
+                {key: value for key, value in metric.items() if key != "source_refs"}
+                for metric in statistics["metrics"]
+            ],
+        )
+        return dict(status="ready", **summary.model_dump(), statistics=node_statistics)
 
     def writer(self):
         run = self.run()
@@ -1736,11 +1746,13 @@ def create_execution_router(
                 "AND (? IS NULL OR report_id=?) ORDER BY rowid DESC LIMIT 100",
                 (x_workspace, report_id, report_id),
             ).fetchall()
-        return {"items": [json.loads(row[0]) for row in rows]}
+        # Payloads are already validated JSON primitives, so avoid recursively
+        # re-encoding every source reference through FastAPI's object converter.
+        return JSONResponse({"items": [json.loads(row[0]) for row in rows]})
 
     @router.get("/api/v1/runs/{run_id}")
     def get_run(run_id: str, x_workspace: Annotated[Workspace, Header()] = "normal"):
-        return service._read(run_id, x_workspace)
+        return JSONResponse(service._read(run_id, x_workspace))
 
     @router.post("/api/v1/runs/{run_id}/cancel")
     def cancel_run(run_id: str, x_workspace: Annotated[Workspace, Header()] = "normal"):
