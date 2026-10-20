@@ -21,11 +21,7 @@ export interface SystemInfo {
   capabilities: string[];
 }
 export type MaterialKind =
-  | "projects"
-  | "attendance"
-  | "achievements"
-  | "satisfaction"
-  | "notes";
+  "projects" | "attendance" | "achievements" | "satisfaction" | "notes";
 export interface MaterialIssue {
   severity: "error" | "warning";
   location: string;
@@ -53,17 +49,16 @@ export interface ImportDraft {
   issues: MaterialIssue[];
   confirmed_material_id: string | null;
 }
-export interface MaterialVersion
-  extends Omit<ImportDraft, "suggested_mapping" | "confirmed_material_id"> {
+export interface MaterialVersion extends Omit<
+  ImportDraft,
+  "suggested_mapping" | "confirmed_material_id"
+> {
   version: number;
   mapping: Record<string, string>;
   created_at: string;
 }
 export type StatisticsGroup =
-  | "projects"
-  | "attendance"
-  | "achievements"
-  | "satisfaction";
+  "projects" | "attendance" | "achievements" | "satisfaction";
 export interface SourceRef {
   material_id: string;
   name: string;
@@ -104,6 +99,21 @@ export interface StatisticsSnapshot {
   issues: MaterialIssue[];
 }
 export type RunMode = "live" | "offline_mock";
+export interface ReportOutline {
+  groups: StatisticsGroup[];
+  sections: { title: string; purpose: string; groups: StatisticsGroup[] }[];
+}
+export interface MaterialProfile {
+  files: {
+    id: string;
+    name: string;
+    kind: MaterialKind;
+    sha256: string;
+    row_count: number;
+    scopes: { department: string; start_date: string; end_date: string }[];
+  }[];
+  scopes: { department: string; start_date: string; end_date: string }[];
+}
 export interface AgentRun {
   id: string;
   report_id: string | null;
@@ -116,7 +126,8 @@ export interface AgentRun {
     | "review_failed"
     | "failed"
     | "cancelled"
-    | "interrupted";
+    | "interrupted"
+    | "awaiting_confirmation";
   stage: string;
   mode: RunMode;
   user_text: string;
@@ -139,6 +150,19 @@ export interface AgentRun {
   }[];
   statistics?: StatisticsSnapshot | null;
   outline?: unknown;
+  requirements?: Draft | null;
+  material_profile?: MaterialProfile;
+  plan_hash?: string;
+  plan_evidence?: {
+    gaps: string[];
+    sections: { title: string; material_ids: string[] }[];
+  };
+  plan_confirmation?: {
+    created_at: string;
+    requirements: Draft;
+    outline: ReportOutline;
+  };
+  request?: { planning_only?: boolean };
   draft_markdown?: string | null;
   review?: unknown;
   revision_history: unknown[];

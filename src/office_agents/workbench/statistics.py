@@ -22,7 +22,7 @@ class StatisticsInput(BaseModel):
 
     expected_version: int = Field(ge=1, strict=True)
     material_ids: list[str] = Field(min_length=1, max_length=50)
-    groups: list[Group] = Field(min_length=1, max_length=4)
+    groups: list[Group] = Field(max_length=4)
     attendance_roster: list[str] = Field(default_factory=list, max_length=1000)
     attendance_dates: list[str] = Field(default_factory=list, max_length=3660)
 
@@ -105,6 +105,8 @@ def calculate_statistics(report, materials, groups, attendance_roster=None, atte
     structured row fields determine scope, while notes contribute no numeric claims.
     """
     department, start, end = report["department"], report["start_date"], report["end_date"]
+    if not groups and not any(material["kind"] == "notes" for material in materials):
+        raise HTTPException(422, "没有统计分类时须提供文字说明材料")
     roster, work_dates = attendance_roster or [], attendance_dates or []
     if not department or _date(start) >= _date(end):
         raise ValueError("报告部门和起止期间无效")

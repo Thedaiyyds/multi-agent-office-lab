@@ -1658,6 +1658,128 @@ select:focus-visible {
   font-size: 12px;
   color: #416dba;
 }
+.material-row-selectable {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #edf0f6;
+}
+.material-row-selectable > input {
+  margin-left: 20px;
+  flex-shrink: 0;
+}
+.material-row-selectable > .material-row {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 0;
+}
+.material-plan-review {
+  margin-top: 28px;
+  padding: 26px;
+  border: 1px solid #dbe5f6;
+  border-radius: 12px;
+  background: #fafcff;
+}
+.plan-fields {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+.plan-scope-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.plan-source-list {
+  padding: 16px;
+  background: #f0f4fa;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.plan-source-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+}
+.plan-source-list strong {
+  overflow-wrap: anywhere;
+}
+.plan-source-list span {
+  color: #60728b;
+  white-space: nowrap;
+}
+.plan-sections {
+  display: grid;
+  gap: 16px;
+}
+.plan-section {
+  background: white;
+  border: 1px solid #e0e7f0;
+  border-radius: 8px;
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+}
+.plan-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+.plan-section-heading > div,
+.plan-groups,
+.plan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.plan-groups label {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.plan-groups input,
+.material-row-selectable > input {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  flex: 0 0 16px;
+}
+.plan-limitations {
+  background: #fff9ec;
+  padding: 18px;
+  border-radius: 8px;
+  color: #775c27;
+  font-size: 13px;
+}
+.plan-limitations ul {
+  padding-left: 20px;
+  margin: 12px 0 0;
+  line-height: 1.8;
+}
+.plan-actions {
+  justify-content: flex-end;
+}
+@media (max-width: 760px) {
+  .material-plan-review {
+    padding: 16px;
+  }
+  .plan-scope-fields {
+    grid-template-columns: 1fr;
+  }
+  .plan-source-list > div {
+    flex-wrap: wrap;
+  }
+  .plan-section {
+    padding: 14px;
+  }
+}
 .confirmed-mapping {
   display: flex;
   gap: 12px;

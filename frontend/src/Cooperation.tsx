@@ -22,6 +22,7 @@ import {
 } from "./api";
 
 import { Delivery } from "./Delivery";
+import { MaterialPlanReview } from "./MaterialPlan";
 
 const roleLabels: Record<string, string> = {
   manager: "需求经理",
@@ -39,6 +40,7 @@ const statusLabels: Record<AgentRun["status"], string> = {
   failed: "执行失败",
   cancelled: "已取消",
   interrupted: "运行已中断",
+  awaiting_confirmation: "待确认方案",
 };
 const terminal = (status: AgentRun["status"]) =>
   !["queued", "running"].includes(status);
@@ -62,6 +64,8 @@ export function RunComposer({
   onDirty,
   onSaving,
   onStarted,
+  planning = false,
+  initialMaterialIds = [],
 }: {
   workspace: Workspace;
   system: SystemInfo | null;
@@ -69,6 +73,8 @@ export function RunComposer({
   onDirty: (value: boolean) => void;
   onSaving: (value: boolean) => void;
   onStarted: (run: AgentRun) => void;
+  planning?: boolean;
+  initialMaterialIds?: string[];
 }) {
   const [userText, setUserText] = useState(() => reportRequest(report));
   const [materials, setMaterials] = useState<MaterialVersion[]>([]);
@@ -124,7 +130,12 @@ export function RunComposer({
             if (!latest.has(key) || latest.get(key)!.version < item.version)
               latest.set(key, item);
           }
-          const ids = [...latest.values()].slice(0, 50).map((item) => item.id);
+          const ids = planning
+            ? items
+                .filter((item) => initialMaterialIds.includes(item.id))
+                .slice(0, 50)
+                .map((item) => item.id)
+            : [...latest.values()].slice(0, 50).map((item) => item.id);
           setSelected(ids);
           setBaseline(
             JSON.stringify({ selected: ids, mode: "live", useLocal: false }),
@@ -143,7 +154,11 @@ export function RunComposer({
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (lock.current) return;
-    if (!userText.trim()) {
+    if (planning && !selected.length) {
+      setError("请先选择需要规划汇报的材料文件。");
+      return;
+    }
+    if (!planning && !userText.trim()) {
       setError("请先用一段话说明希望生成什么工作汇报。");
       return;
     }
@@ -154,10 +169,11 @@ export function RunComposer({
       return;
     }
     const payload = JSON.stringify({
-      user_text: userText.trim(),
+      user_text: userText.trim() || "根据所选材料提出一份工作汇报方案",
       material_ids: selected,
       mode,
       use_local_api: useLocal,
+      ...(planning ? { planning_only: true } : {}),
       ...(report
         ? { report_id: report.id, expected_version: report.version }
         : {}),
@@ -189,10 +205,16 @@ export function RunComposer({
     <section className="card cooperation-composer">
       <div className="heading-with-icon">
         <Sparkles size={20} />
-        <h2>告诉协作团队，你需要什么报告</h2>
+        <h2>
+          {planning
+            ? "选择材料，让团队先提出汇报方案"
+            : "告诉协作团队，你需要什么报告"}
+        </h2>
       </div>
       <p className="field-hint">
-        需求经理会先理解这段话，确认主题、部门与期间，再交给其余角色。缺少信息时会明确提示，不会替你编造。
+        {planning
+          ? "先由需求经理和规划专员提出主题、大纲、材料依据及缺口；你确认后才开始整理数据和撰写。建议选择同一部门、同一期间的文件。"
+          : "需求经理会先理解这段话，确认主题、部门与期间，再交给其余角色。缺少信息时会明确提示，不会替你编造。"}
       </p>
       {error && (
         <div className="notice error" role="alert">
@@ -203,14 +225,18 @@ export function RunComposer({
         <fieldset disabled={busy} className="cooperation-fields">
           <legend className="sr-only">提交五角色协作任务</legend>
           <label className="field">
-            汇报需求
+            {planning ? "规划重点（可选）" : "汇报需求"}
             <textarea
-              required
+              required={!planning}
               maxLength={8000}
               rows={6}
               value={userText}
               onChange={(event) => setUserText(event.target.value)}
-              placeholder="例如：请根据所选材料生成技术部2026年第二季度工作汇报，包含项目进度、成果、考勤样本、问题和下季度计划。"
+              placeholder={
+                planning
+                  ? "例如：重点突出项目交付和存在的问题。留空时，根据材料提出建议；跨部门或期间时请明确范围。"
+                  : "例如：请根据所选材料生成技术部2026年第二季度工作汇报，包含项目进度、成果、考勤样本、问题和下季度计划。"
+              }
             />
           </label>
           <div className="cooperation-material-header">
@@ -240,8 +266,9 @@ export function RunComposer({
           ) : materials.length ? (
             <>
               <p className="field-hint">
-                已预选每个同名、同类材料的最新文件，可取消或调整；最多 50
-                份。文字说明也可作为业务依据。
+                {planning
+                  ? "请选择需要分析的文件，最多50份；文字说明可单独生成文字汇报。相同名称和分类只选一份。"
+                  : "已预选每个同名、同类材料的最新文件，可取消或调整；最多50份。文字说明也可作为业务依据。"}
               </p>
               <div className="cooperation-materials">
                 {materials.map((item) => (
@@ -263,6 +290,7 @@ export function RunComposer({
                     <span>
                       {item.name}
                       <small>
+                        {item.department ? `${item.department} · ` : ""}
                         {item.row_count} 条记录 ·{" "}
                         {new Date(item.created_at).toLocaleDateString("zh-CN")}
                       </small>
@@ -276,19 +304,21 @@ export function RunComposer({
               尚无已确认材料。可以先提交需求；缺少依据时，团队会提示补充。也可以先到材料库导入文件。
             </p>
           )}
-          <label className="cooperation-local">
-            <input
-              type="checkbox"
-              checked={useLocal}
-              onChange={(event) => setUseLocal(event.target.checked)}
-            />
-            <span>
-              使用系统本地样例数据（虚构）
-              <small>
-                季度办公案例：12个项目、1560条考勤、42项成果；行政案例216条反馈。请取消无关旧材料。
-              </small>
-            </span>
-          </label>
+          {!planning && (
+            <label className="cooperation-local">
+              <input
+                type="checkbox"
+                checked={useLocal}
+                onChange={(event) => setUseLocal(event.target.checked)}
+              />
+              <span>
+                使用系统本地样例数据（虚构）
+                <small>
+                  季度办公案例：12个项目、1560条考勤、42项成果；行政案例216条反馈。请取消无关旧材料。
+                </small>
+              </span>
+            </label>
+          )}
           <div className="cooperation-submit">
             <label className="field">
               执行模式
@@ -306,7 +336,7 @@ export function RunComposer({
               disabled={
                 busy ||
                 loading ||
-                !userText.trim() ||
+                (planning ? !selected.length : !userText.trim()) ||
                 (mode === "live" && !system?.model_configured)
               }
             >
@@ -315,7 +345,11 @@ export function RunComposer({
               ) : (
                 <Sparkles size={17} />
               )}{" "}
-              {busy ? "正在创建协作任务…" : "开始协作"}
+              {busy
+                ? "正在创建协作任务…"
+                : planning
+                  ? "生成汇报方案"
+                  : "开始协作"}
             </button>
           </div>
           {mode === "offline_mock" ? (
@@ -400,7 +434,11 @@ export function RunHistory({
           {items.map((item) => (
             <button key={item.id} onClick={() => navigate(`/runs/${item.id}`)}>
               <span>
-                <strong>{item.user_text}</strong>
+                <strong>
+                  {item.request?.planning_only
+                    ? `${item.requirements?.title || item.user_text}（材料方案）`
+                    : item.user_text}
+                </strong>
                 <small>
                   {item.mode === "offline_mock" ? "离线模拟" : "真实模型"} ·{" "}
                   {item.created_at
@@ -512,7 +550,11 @@ export function RunDetail({
       <div className="page-heading">
         <div>
           <div className="eyebrow">AGENT COOPERATION</div>
-          <h1>五角色协作</h1>
+          <h1>
+            {run?.request?.planning_only && !run.plan_confirmation
+              ? "汇报方案"
+              : "五角色协作"}
+          </h1>
           <p>需求分析 → 内容规划 → 数据整理 → 报告撰写 → 审核校验 → 经理验收</p>
         </div>
         {run && (
@@ -576,7 +618,9 @@ export function RunDetail({
                           ? "正在处理"
                           : done
                             ? "已有节点结果"
-                            : "等待结果"}
+                            : run.status === "awaiting_confirmation"
+                              ? "待确认方案后执行"
+                              : "等待结果"}
                       </small>
                     </span>
                   </li>
@@ -603,13 +647,37 @@ export function RunDetail({
                   ))}
                   <button
                     className="text-button"
-                    onClick={() => navigate("/reports/new")}
+                    onClick={() =>
+                      navigate(
+                        run.request?.planning_only
+                          ? "/reports/plan"
+                          : "/reports/new",
+                      )
+                    }
                   >
-                    返回提交需求
+                    {run.request?.planning_only
+                      ? "返回调整材料"
+                      : "返回提交需求"}
                     <ArrowRight size={14} />
                   </button>
                 </div>
               </div>
+            )}
+            {run.status === "awaiting_confirmation" && (
+              <MaterialPlanReview
+                key={run.plan_hash}
+                run={run}
+                workspace={workspace}
+                onDirty={onDirty}
+                onSaving={onSaving}
+                onConfirmed={(result) => {
+                  setRun(result);
+                  setRefresh((value) => value + 1);
+                  changed();
+                }}
+                onDeclined={cancel}
+                declining={cancelling}
+              />
             )}
             <div className="cooperation-run-actions">
               {run.report_id && (
