@@ -62,7 +62,6 @@ export function RunComposer({
   onDirty,
   onSaving,
   onStarted,
-  blocked = false,
 }: {
   workspace: Workspace;
   system: SystemInfo | null;
@@ -70,7 +69,6 @@ export function RunComposer({
   onDirty: (value: boolean) => void;
   onSaving: (value: boolean) => void;
   onStarted: (run: AgentRun) => void;
-  blocked?: boolean;
 }) {
   const [userText, setUserText] = useState(() => reportRequest(report));
   const [materials, setMaterials] = useState<MaterialVersion[]>([]);
@@ -144,7 +142,7 @@ export function RunComposer({
   }, [workspace, refresh]);
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (lock.current || blocked) return;
+    if (lock.current) return;
     if (!userText.trim()) {
       setError("请先用一段话说明希望生成什么工作汇报。");
       return;
@@ -202,7 +200,7 @@ export function RunComposer({
         </div>
       )}
       <form onSubmit={submit}>
-        <fieldset disabled={busy || blocked} className="cooperation-fields">
+        <fieldset disabled={busy} className="cooperation-fields">
           <legend className="sr-only">提交五角色协作任务</legend>
           <label className="field">
             汇报需求
@@ -304,7 +302,6 @@ export function RunComposer({
               type="submit"
               disabled={
                 busy ||
-                blocked ||
                 loading ||
                 !userText.trim() ||
                 (mode === "live" && !system?.model_configured)
@@ -318,11 +315,6 @@ export function RunComposer({
               {busy ? "正在创建协作任务…" : "开始协作"}
             </button>
           </div>
-          {blocked && (
-            <p className="notice" role="status">
-              辅助草稿有未保存修改或正在保存，请先保存后开始协作。
-            </p>
-          )}
           {mode === "offline_mock" ? (
             <p className="field-hint">
               离线模拟用于验证五角色调度与审核流程，输出不代表真实模型生成。

@@ -3,7 +3,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type FormEvent,
   type ReactNode,
 } from "react";
 import {
@@ -23,7 +22,6 @@ import {
   Menu,
   Plus,
   RefreshCw,
-  Save,
   Search,
   Settings2,
   ShieldCheck,
@@ -32,16 +30,13 @@ import {
 } from "lucide-react";
 import {
   api,
-  ApiError,
-  type Draft,
   type Report,
   type SystemInfo,
   type Workspace,
 } from "./api";
-import { useConfirmation, type Confirm } from "./confirm";
+import { useConfirmation } from "./confirm";
 import Materials from "./Materials";
 import { Archive as ReportArchive, ReportDelivery } from "./Archive";
-import Statistics from "./Statistics";
 import { RunComposer, RunDetail, RunHistory } from "./Cooperation";
 
 const nav = [
@@ -51,19 +46,11 @@ const nav = [
   { path: "/archive", label: "报告归档", icon: Archive },
 ];
 const reportStatus: Record<Report["status"], string> = {
-  draft: "需求草稿",
+  draft: "待生成",
   pending_review: "待审核",
   needs_changes: "需要修改",
   approved: "审核合格",
 };
-const initialDraft = (): Draft => ({
-  title: "",
-  department: "",
-  start_date: "",
-  end_date: "",
-  focus: "",
-  sections: ["工作概述", "重点工作", "问题与计划"],
-});
 const route = () => window.location.hash.slice(1) || "/";
 const dateTime = (date: string) => {
   const parsed = new Date(date);
@@ -286,7 +273,7 @@ function Home({
                   compact
                   icon={Check}
                   title="暂无待处理事项"
-                  description="新的报告草稿会出现在这里。"
+                  description="需要继续处理的报告会出现在这里。"
                 />
               ) : (
                 <>
@@ -330,7 +317,7 @@ function Home({
       )}
       <div className="workspace-caption">
         <span className="caption-dot" />
-        本地工作空间<span>草稿随时保存，回来继续处理</span>
+        本地工作空间<span>协作记录与报告结果自动保留</span>
       </div>
     </>
   );
@@ -421,7 +408,7 @@ function ReportList({
             description={
               search
                 ? "尝试其他标题或部门名称。"
-                : "填写主题和期间，将想法保存为可继续完善的草稿。"
+                : "输入部门、期间和汇报重点，选择材料即可开始生成。"
             }
           >
             {!search && (
@@ -440,366 +427,13 @@ function ReportList({
   );
 }
 
-function DraftForm({
-  report,
-  workspace,
-  onSaved,
-  onDirty,
-  onSaving,
-  refresh,
-}: {
-  report?: Report;
-  workspace: Workspace;
-  onSaved: (report: Report) => void;
-  onDirty: (dirty: boolean) => void;
-  onSaving: (saving: boolean) => void;
-  refresh?: () => void;
-}) {
-  const [draft, setDraft] = useState<Draft>(() =>
-    report
-      ? {
-          title: report.title,
-          department: report.department,
-          start_date: report.start_date,
-          end_date: report.end_date,
-          focus: report.focus,
-          sections: [...report.sections],
-        }
-      : initialDraft(),
-  );
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [conflict, setConflict] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [baseline, setBaseline] = useState(() => JSON.stringify(draft));
-  const dirty = JSON.stringify(draft) !== baseline;
-  const lock = useRef(false);
-  const createAttempt = useRef<{ payload: string; key: string } | null>(null);
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-      onSaving(false);
-    };
-  }, [onSaving]);
-  useEffect(() => {
-    onDirty(dirty);
-    return () => onDirty(false);
-  }, [dirty, onDirty]);
-  const update = <K extends keyof Draft>(field: K, value: Draft[K]) => {
-    setDraft((previous) => ({ ...previous, [field]: value }));
-    setSaved(false);
-    if (!conflict) setError("");
-  };
-  const save = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (lock.current || conflict) return;
-    if (!draft.title.trim() || !draft.department.trim()) {
-      setError("请填写报告标题和所属部门，内容不能只有空格。");
-      return;
-    }
-    if (
-      new Set(draft.sections.map((section) => section.trim())).size !==
-      draft.sections.length
-    ) {
-      setError("章节名称不能重复，请为每个章节填写不同的名称。");
-      return;
-    }
-    if (draft.end_date <= draft.start_date) {
-      setError("结束日期须晚于开始日期。结束日不计入本次报告期间。");
-      return;
-    }
-    if (
-      !draft.sections.length ||
-      draft.sections.some((section) => !section.trim())
-    ) {
-      setError("请至少保留一个章节，并填写所有章节名称。");
-      return;
-    }
-    lock.current = true;
-    onSaving(true);
-    setSaving(true);
-    setError("");
-    setSaved(false);
-    try {
-      const payload = {
-        ...draft,
-        title: draft.title.trim(),
-        department: draft.department.trim(),
-        focus: draft.focus.trim(),
-        sections: draft.sections.map((section) => section.trim()),
-      };
-      const canonicalPayload = JSON.stringify(payload);
-      if (!report && createAttempt.current?.payload !== canonicalPayload)
-        createAttempt.current = {
-          payload: canonicalPayload,
-          key: crypto.randomUUID(),
-        };
-      const result = await api<Report>(
-        report ? `/reports/${report.id}/draft` : "/reports",
-        workspace,
-        {
-          method: report ? "PATCH" : "POST",
-          headers: report
-            ? undefined
-            : { "Idempotency-Key": createAttempt.current!.key },
-          body: JSON.stringify(
-            report ? { ...payload, expected_version: report.version } : payload,
-          ),
-        },
-      );
-      createAttempt.current = null;
-      if (!mounted.current) return;
-      setDraft({
-        title: result.title,
-        department: result.department,
-        start_date: result.start_date,
-        end_date: result.end_date,
-        focus: result.focus,
-        sections: result.sections,
-      });
-      setBaseline(
-        JSON.stringify({
-          title: result.title,
-          department: result.department,
-          start_date: result.start_date,
-          end_date: result.end_date,
-          focus: result.focus,
-          sections: result.sections,
-        }),
-      );
-      onDirty(false);
-      setSaved(true);
-      onSaved(result);
-    } catch (reason) {
-      if (mounted.current) {
-        setError(message(reason));
-        setConflict(reason instanceof ApiError && reason.status === 409);
-      }
-    } finally {
-      lock.current = false;
-      onSaving(false);
-      if (mounted.current) setSaving(false);
-    }
-  };
-  return (
-    <form onSubmit={save}>
-      <fieldset disabled={saving} className="draft-layout">
-        <div className="draft-main">
-          <section className="card form-card">
-            <div className="form-section-heading">
-              <span className="section-number">01</span>
-              <div>
-                <h2>主题与范围</h2>
-                <p>明确这份报告写给谁、覆盖哪些工作。</p>
-              </div>
-            </div>
-            <div className="form-fields">
-              <label className="field">
-                报告标题<span className="required-label">必填</span>
-                <input
-                  required
-                  maxLength={160}
-                  value={draft.title}
-                  onChange={(event) => update("title", event.target.value)}
-                  placeholder="填写这份工作汇报的标题"
-                  autoFocus={!report}
-                />
-              </label>
-              <label className="field">
-                所属部门<span className="required-label">必填</span>
-                <input
-                  required
-                  maxLength={80}
-                  value={draft.department}
-                  onChange={(event) => update("department", event.target.value)}
-                  placeholder="填写部门名称"
-                />
-              </label>
-              <div className="date-fields">
-                <label className="field">
-                  开始日期<span className="required-label">必填</span>
-                  <input
-                    type="date"
-                    required
-                    value={draft.start_date}
-                    onChange={(event) =>
-                      update("start_date", event.target.value)
-                    }
-                  />
-                </label>
-                <label className="field">
-                  结束日期<span className="required-label">不含当日</span>
-                  <input
-                    type="date"
-                    required
-                    value={draft.end_date}
-                    onChange={(event) => update("end_date", event.target.value)}
-                  />
-                </label>
-              </div>
-              <p className="field-hint">
-                报告期间包含开始日，不包含结束日。例如覆盖 1 月至 3
-                月，结束日期请选择 4 月 1 日。
-              </p>
-              <label className="field">
-                汇报重点<span className="optional-label">选填</span>
-                <textarea
-                  rows={4}
-                  maxLength={4000}
-                  value={draft.focus}
-                  onChange={(event) => update("focus", event.target.value)}
-                  placeholder="希望突出哪些工作？有哪些需要说明的问题或读者关心的内容？"
-                />
-              </label>
-            </div>
-          </section>
-          <section className="card form-card">
-            <div className="form-section-heading">
-              <span className="section-number">02</span>
-              <div>
-                <h2>章节安排</h2>
-                <p>以下为通用结构建议，可按需要调整；至少保留一章。</p>
-              </div>
-            </div>
-            <div className="chapter-list">
-              {draft.sections.map((section, index) => (
-                <div className="chapter-row" key={index}>
-                  <span className="chapter-number">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <label className="chapter-input">
-                    <span className="sr-only">第 {index + 1} 章名称</span>
-                    <input
-                      required
-                      maxLength={100}
-                      value={section}
-                      onChange={(event) =>
-                        update(
-                          "sections",
-                          draft.sections.map((item, position) =>
-                            position === index ? event.target.value : item,
-                          ),
-                        )
-                      }
-                    />
-                  </label>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    disabled={draft.sections.length <= 1}
-                    aria-label={`删除第 ${index + 1} 章`}
-                    onClick={() =>
-                      update(
-                        "sections",
-                        draft.sections.filter(
-                          (_, position) => position !== index,
-                        ),
-                      )
-                    }
-                  >
-                    <X size={17} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              className="text-button add-chapter"
-              disabled={draft.sections.length >= 20}
-              onClick={() => update("sections", [...draft.sections, ""])}
-            >
-              <Plus size={16} />
-              添加章节
-            </button>
-          </section>
-          <div className="save-area">
-            {error && (
-              <Notice
-                kind="error"
-                action={
-                  conflict && refresh ? (
-                    <button
-                      type="button"
-                      className="text-button"
-                      onClick={refresh}
-                    >
-                      查看最新版本
-                    </button>
-                  ) : undefined
-                }
-              >
-                {error}
-              </Notice>
-            )}
-            {saved && (
-              <Notice kind="success">
-                <Check size={16} />
-                草稿已保存到本地工作空间。
-              </Notice>
-            )}
-            <div className="save-bar">
-              <span>
-                {saving
-                  ? "正在保存，请稍候…"
-                  : dirty
-                    ? "有尚未保存的修改"
-                    : report
-                      ? `已保存 · 草稿版本 ${report.version}`
-                      : "保存后可随时返回继续编辑"}
-              </span>
-              <button
-                type="submit"
-                className="button primary"
-                disabled={saving || conflict || (Boolean(report) && !dirty)}
-              >
-                {saving ? (
-                  <Loader2 size={17} className="spin" />
-                ) : (
-                  <Save size={17} />
-                )}
-                {saving ? "正在保存" : "保存草稿"}
-              </button>
-            </div>
-          </div>
-        </div>
-        <aside className="draft-aside">
-          <div className="card guidance-card">
-            <div className="heading-with-icon">
-              <FileText size={18} />
-              <h2>当前阶段</h2>
-            </div>
-            <span className="status-badge">需求草稿</span>
-            <p>
-              先把报告的主题、期间和重点记录下来。这些内容将作为后续协作的起点。
-            </p>
-            <div className="aside-divider" />
-            <h3>接下来</h3>
-            <p>
-              通过上方协作入口可由五角色完成规划、整理、撰写和审核。合格修订自动提供
-              Markdown / PDF；修改文字后需重新审核。下方可核对统计与来源。
-            </p>
-            <div className="version-label">v2.1.0 · 报告交付</div>
-          </div>
-          <div className="privacy-note">
-            <ShieldCheck size={16} />
-            <span>当前操作只保存草稿，不会发起模型请求。</span>
-          </div>
-        </aside>
-      </fieldset>
-    </form>
-  );
-}
-
-function Editor({
+function ReportWorkspace({
   id,
   workspace,
   navigate,
   changed,
   onDirty,
   onSaving,
-  confirm,
   system,
 }: {
   id: string;
@@ -808,73 +442,39 @@ function Editor({
   changed: () => void;
   onDirty: (dirty: boolean) => void;
   onSaving: (saving: boolean) => void;
-  confirm: Confirm;
   system: SystemInfo | null;
 }) {
-  const [draftDirty, setDraftDirty] = useState(false);
-  const [runDirty, setRunDirty] = useState(false);
-  const [draftSaving, setDraftSaving] = useState(false);
-  const [runSaving, setRunSaving] = useState(false);
-  const writes = useRef({ draft: false, run: false });
-  const savingDraft = useCallback(
-    (value: boolean) => {
-      writes.current.draft = value;
-      setDraftSaving(value);
-      onSaving(value || writes.current.run);
-    },
-    [onSaving],
-  );
-  const savingRun = useCallback(
-    (value: boolean) => {
-      writes.current.run = value;
-      setRunSaving(value);
-      onSaving(value || writes.current.draft);
-    },
-    [onSaving],
-  );
-  useEffect(() => {
-    onDirty(draftDirty || runDirty);
-    return () => onDirty(false);
-  }, [draftDirty, runDirty, onDirty]);
   const [report, setReport] = useState<Report | null>(null);
   const [error, setError] = useState("");
-  const [revision, setRevision] = useState(0);
   const [reload, setReload] = useState(0);
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
     setReport(null);
     setError("");
-    api<Report>(`/reports/${encodeURIComponent(id)}`, workspace)
+    api<Report>(`/reports/${encodeURIComponent(id)}`, workspace, {
+      signal: controller.signal,
+    })
       .then((result) => {
-        if (active) setReport(result);
+        if (!controller.signal.aborted) setReport(result);
       })
       .catch((reason) => {
-        if (active) setError(message(reason));
+        if (!controller.signal.aborted) setError(message(reason));
       });
-    return () => {
-      active = false;
-    };
+    return () => controller.abort();
   }, [id, workspace, reload]);
-  const refreshing = useRef(false);
-  const refresh = async () => {
-    if (refreshing.current) return;
-    refreshing.current = true;
-    try {
-      if (
-        await confirm(
-          "重新读取会替换页面中尚未保存的输入。建议先复制需要保留的内容。现在读取最新版本吗？",
-          "读取最新版本？",
-          "读取最新版本",
-        )
-      ) {
-        onDirty(false);
-        setRevision((value) => value + 1);
-        setReload((value) => value + 1);
-      }
-    } finally {
-      refreshing.current = false;
-    }
-  };
+  const composer = report && (
+    <RunComposer
+      workspace={workspace}
+      system={system}
+      report={report}
+      onDirty={onDirty}
+      onSaving={onSaving}
+      onStarted={(run) => {
+        changed();
+        navigate(`/runs/${run.id}`, true);
+      }}
+    />
+  );
   return (
     <>
       <button className="back-link" onClick={() => navigate("/reports")}>
@@ -887,14 +487,24 @@ function Editor({
           <h1>{report?.title || "报告工作区"}</h1>
           <p>
             {report
-              ? `${report.department} · 更新于 ${dateTime(report.updated_at)}`
-              : "查看并继续完善报告需求。"}
+              ? `${report.department} · ${report.start_date} 至 ${report.end_date}（结束日不计入）`
+              : "查看报告需求、生成记录与交付结果。"}
           </p>
         </div>
         {report && (
-          <span className="status-badge">
-            {reportStatus[report.status]} · v{report.version}
-          </span>
+          <div className="report-heading-actions">
+            <span className="status-badge">{reportStatus[report.status]}</span>
+            {report.status !== "draft" && (
+              <button
+                className="button primary"
+                onClick={() => navigate(`/reports/${report.id}/delivery`)}
+              >
+                <FileText size={17} />
+                查看报告
+                <ArrowRight size={15} />
+              </button>
+            )}
+          </div>
         )}
       </div>
       {error ? (
@@ -918,48 +528,19 @@ function Editor({
         </div>
       ) : (
         <>
-          <RunComposer
-            workspace={workspace}
-            system={system}
-            report={report}
-            onDirty={setRunDirty}
-            onSaving={savingRun}
-            blocked={draftDirty || draftSaving}
-            onStarted={(run) => {
-              changed();
-              navigate(`/runs/${run.id}`, true);
-            }}
-          />
+          {report.status === "draft" ? (
+            composer
+          ) : (
+            <details className="report-regenerate">
+              <summary>重新生成报告</summary>
+              {composer}
+            </details>
+          )}
           <RunHistory
             workspace={workspace}
             reportId={report.id}
             navigate={navigate}
           />
-          <details className="card cooperation-auxiliary">
-            <summary>辅助编辑：报告需求草稿</summary>
-            <fieldset disabled={runSaving} className="cooperation-fields">
-              <DraftForm
-                key={revision}
-                report={report}
-                workspace={workspace}
-                onDirty={setDraftDirty}
-                onSaving={savingDraft}
-                refresh={refresh}
-                onSaved={(result) => {
-                  setReport(result);
-                  changed();
-                }}
-              />
-            </fieldset>
-          </details>
-          <details className="card cooperation-auxiliary">
-            <summary>辅助核对：统计与数据来源</summary>
-            <Statistics
-              key={`${workspace}:${report.id}`}
-              report={report}
-              workspace={workspace}
-            />
-          </details>
         </>
       )}
     </>
@@ -1002,7 +583,7 @@ function Settings({
                 <p>
                   {system.model_configured
                     ? "服务已读取模型配置。此状态不代表已经进行连通测试。"
-                    : "尚未检测到模型配置，仍可正常使用草稿保存。"}
+                    : "尚未检测到模型配置，可先管理材料或选择离线模拟。"}
                 </p>
               </div>
               <span
@@ -1012,7 +593,7 @@ function Settings({
               </span>
             </div>
             <Notice>
-              模型密钥由本地环境配置管理。当前页面不读取或显示密钥，草稿操作不调用模型。
+              模型密钥由服务端配置管理。查看设置、整理材料和下载已有报告不会调用模型。
             </Notice>
           </>
         )}
@@ -1026,7 +607,7 @@ function Settings({
           <span className="muted">{system?.version || "版本读取中"}</span>
         </div>
         <p className="field-hint">
-          当前支持持久化草稿、TXT / CSV / DOCX
+          当前支持任务与报告持久化、TXT / CSV / DOCX
           材料导入、本地模拟接口、来源可追溯的统计、五角色协作、审核返工、经理验收，以及报告修订和
           Markdown / PDF 文件交付。
         </p>
@@ -1205,7 +786,7 @@ export default function App() {
           dirty.current &&
           !skipGuard &&
           !(await confirm(
-            "当前有尚未保存的草稿或尚未确认的材料导入。离开将放弃这些输入，确定继续吗？",
+            "当前有尚未提交的需求、报告修改或尚未确认的材料导入。离开将放弃这些输入，确定继续吗？",
             "离开当前页面？",
           ))
         )
@@ -1230,7 +811,7 @@ export default function App() {
         if (
           dirty.current &&
           !(await confirm(
-            "当前有尚未保存的草稿或尚未确认的材料导入。离开将放弃这些输入，确定继续吗？",
+            "当前有尚未提交的需求、报告修改或尚未确认的材料导入。离开将放弃这些输入，确定继续吗？",
             "离开当前页面？",
           ))
         ) {
@@ -1419,7 +1000,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>v2.1.0</span>
+              本地运行<span>v2.1.1</span>
             </div>
           </div>
         </aside>
@@ -1528,7 +1109,7 @@ export default function App() {
                 onChanged={changed}
               />
             ) : /^\/reports\/[^/]+$/.test(path) ? (
-              <Editor
+              <ReportWorkspace
                 key={path}
                 id={path.split("/")[2]}
                 workspace={workspace}
@@ -1536,7 +1117,6 @@ export default function App() {
                 changed={changed}
                 onDirty={onDirty}
                 onSaving={onSaving}
-                confirm={confirm}
                 system={system}
               />
             ) : path === "/materials" ? (
@@ -1567,7 +1147,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.1.0</span>
+            汇报协作<span>v2.1.1</span>
           </footer>
         </div>
       </div>
