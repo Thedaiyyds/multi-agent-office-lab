@@ -628,7 +628,7 @@ def create_statistics_router(connection, material_service):
         request: StatisticsInput,
         x_workspace: Annotated[Workspace, Header()] = "normal",
     ):
-        # One transaction freezes the report version and material rows used. A
+        # One transaction freezes the report version and material metadata used. A
         # concurrent draft update cannot silently change the scope during this read.
         with connection() as db:
             db.execute("BEGIN IMMEDIATE")
@@ -642,8 +642,7 @@ def create_statistics_router(connection, material_service):
                 raise HTTPException(422, "工作日期须位于报告起止期间内，且不包含结束日")
             materials, series = [], set()
             for material_id in request.material_ids:
-                # Read the immutable rows in this same transaction instead of using
-                # the truncated preview or opening a new MaterialService connection.
+                # Read and validate the actual file using this transaction's metadata.
                 row = db.execute(
                     "SELECT * FROM material_versions WHERE id=? AND workspace=?",
                     (material_id, x_workspace),
@@ -655,7 +654,7 @@ def create_statistics_router(connection, material_service):
                 if key in series:
                     raise HTTPException(422, "同名同分类材料只能选择一个版本，请取消其他版本")
                 series.add(key)
-                materials.append(dict(payload, rows=json.loads(row["rows_json"])))
+                materials.append(material_service.read(row))
             result = calculate_statistics(
                 report,
                 materials,

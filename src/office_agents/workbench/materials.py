@@ -1,4 +1,4 @@
-"""Bounded local material imports, validated before immutable confirmation."""
+"""Local material files with metadata-only indexing and bounded on-demand parsing."""
 
 import csv
 import hashlib
@@ -409,16 +409,54 @@ class MaterialService:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS imports (
                     id TEXT PRIMARY KEY, workspace TEXT NOT NULL, payload TEXT NOT NULL,
-                    relative_path TEXT NOT NULL, rows_json TEXT NOT NULL,
+                    relative_path TEXT NOT NULL,
                     confirmed_material_id TEXT, confirmation_hash TEXT
                 );
                 CREATE TABLE IF NOT EXISTS material_versions (
                     id TEXT PRIMARY KEY, workspace TEXT NOT NULL, name TEXT NOT NULL,
                     kind TEXT NOT NULL, version INTEGER NOT NULL, fingerprint TEXT NOT NULL,
-                    relative_path TEXT NOT NULL, payload TEXT NOT NULL, rows_json TEXT NOT NULL,
+                    relative_path TEXT NOT NULL, payload TEXT NOT NULL,
                     UNIQUE(workspace, fingerprint), UNIQUE(workspace,name,kind,version)
                 );
             """)
+            # Legacy content caches are discarded; originals and stable IDs stay intact.
+            # Repeated starts must not rewrite metadata or historical report snapshots.
+            with db:
+                db.execute("BEGIN IMMEDIATE")
+                for table in ("imports", "material_versions"):
+                    columns = {row[1] for row in db.execute(f"PRAGMA table_info({table})")}
+                    if "rows_json" in columns:
+                        db.execute(f"ALTER TABLE {table} DROP COLUMN rows_json")
+                        db.execute(f"UPDATE {table} SET payload=json_remove(payload,'$.preview')")
+
+    def read(self, row, *, validate=True):
+        """Read actual bytes, never a database content cache or a truncated preview."""
+        metadata = json.loads(row["payload"])
+        try:
+            with self.original_path(row).open("rb") as handle:
+                data = handle.read(MAX_BYTES + 1)
+        except OSError:
+            reject("材料文件无法读取，请检查工作目录或重新导入", status=409)
+        if len(data) > MAX_BYTES or hashlib.sha256(data).hexdigest() != metadata["sha256"]:
+            reject("材料文件已发生变化，请重新导入并确认后使用", status=409)
+        columns, rows, issues = parse_material(data, metadata["name"], metadata["kind"])
+        if validate:
+            issues += validate_rows(metadata["kind"], columns, rows, metadata["mapping"])
+            if any(item["severity"] == "error" for item in issues):
+                reject("材料文件校验未通过，请修正后重新导入")
+        return dict(
+            metadata,
+            columns=columns,
+            rows=rows,
+            preview=preview_rows(rows),
+            row_count=len(rows),
+            issues=issues,
+        )
+
+    def detail(self, row):
+        result = self.read(row)
+        result.pop("rows")
+        return result
 
     def stage_import(
         self,
@@ -453,11 +491,15 @@ class MaterialService:
             reject("部门或期间过长")
         columns, rows, issues = parse_material(data, name, kind)
         draft_id = uuid4().hex
-        relative = f"{workspace}/{draft_id}{Path(name).suffix.lower()}"
+        # Some filesystems cap a filename at 255 bytes, rather than 200 characters.
+        stored_name = (
+            name if len(name.encode("utf-8")) <= 240 else "material" + Path(name).suffix.lower()
+        )
+        relative = f"{workspace}/{draft_id}/{stored_name}"
         target = self.root / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
         if not target.resolve().is_relative_to(self.root):
             reject("材料存储目录无效")
+        target.parent.mkdir(parents=True, exist_ok=True)
         payload = dict(
             id=draft_id,
             workspace=workspace,
@@ -482,18 +524,22 @@ class MaterialService:
             target.chmod(0o600)
             with self.connection() as db:
                 db.execute(
-                    "INSERT INTO imports(id,workspace,payload,relative_path,rows_json) "
-                    "VALUES(?,?,?,?,?)",
-                    (draft_id, workspace, canonical_json(payload), relative, canonical_json(rows)),
+                    "INSERT INTO imports(id,workspace,payload,relative_path) VALUES(?,?,?,?)",
+                    (
+                        draft_id,
+                        workspace,
+                        canonical_json({k: v for k, v in payload.items() if k != "preview"}),
+                        relative,
+                    ),
                 )
         except Exception:
             target.unlink(missing_ok=True)
             raise
         return payload
 
-    @staticmethod
-    def _prepare_confirmation(row, request):
-        draft = json.loads(row["payload"])
+    def _prepare_confirmation(self, row, request):
+        draft = self.read(row, validate=False)
+        rows = draft.pop("rows")
         metadata = {
             key: (
                 getattr(request, key) if getattr(request, key) is not None else draft[key]
@@ -518,7 +564,6 @@ class MaterialService:
             issues.append(issue("结束日必须晚于开始日，统计不包含结束日", "范围"))
         if draft["kind"] == "notes" and not all(metadata.values()):
             issues.append(issue("文字材料须确认部门和起止期间", "范围"))
-        rows = json.loads(row["rows_json"])
         issues.extend(validate_rows(draft["kind"], draft["columns"], rows, request.mapping))
         return draft, metadata, digest, issues
 
@@ -535,7 +580,7 @@ class MaterialService:
             raise HTTPException(404, "未找到该工作区的导入草稿")
         _, _, digest, issues = self._prepare_confirmation(row, request)
         if row["confirmed_material_id"] and row["confirmation_hash"] != digest:
-            raise HTTPException(409, "该导入已按其他配置确认，请重新导入以建立新版本")
+            raise HTTPException(409, "该导入已按其他配置确认，请重新导入以确认新设置")
         return issues[:201]
 
     def confirm(self, import_id, workspace, payload):
@@ -553,16 +598,16 @@ class MaterialService:
             canonical = dict(mapping=request.mapping, **metadata)
             if row["confirmed_material_id"]:
                 if row["confirmation_hash"] != digest:
-                    raise HTTPException(409, "该导入已按其他配置确认，请重新导入以建立新版本")
-                return json.loads(
+                    raise HTTPException(409, "该导入已按其他配置确认，请重新导入以确认新设置")
+                return self.detail(
                     db.execute(
-                        "SELECT payload FROM material_versions WHERE id=?",
+                        "SELECT * FROM material_versions WHERE id=?",
                         (row["confirmed_material_id"],),
-                    ).fetchone()[0]
+                    ).fetchone()
                 )
             if any(item["severity"] == "error" for item in issues):
                 raise HTTPException(
-                    422, {"message": "材料校验未通过，尚未入库", "issues": issues[:201]}
+                    422, {"message": "材料校验未通过，尚未确认导入", "issues": issues[:201]}
                 )
             fingerprint = hashlib.sha256(
                 canonical_json(
@@ -574,7 +619,7 @@ class MaterialService:
                 (workspace, fingerprint),
             ).fetchone()
             if existing:
-                material = json.loads(existing["payload"])
+                material = self.detail(existing)
             else:
                 version = db.execute(
                     "SELECT COALESCE(MAX(version),0)+1 FROM material_versions "
@@ -595,7 +640,7 @@ class MaterialService:
                     **metadata,
                 )
                 db.execute(
-                    "INSERT INTO material_versions VALUES(?,?,?,?,?,?,?,?,?)",
+                    "INSERT INTO material_versions VALUES(?,?,?,?,?,?,?,?)",
                     (
                         material["id"],
                         workspace,
@@ -604,8 +649,7 @@ class MaterialService:
                         version,
                         fingerprint,
                         row["relative_path"],
-                        canonical_json(material),
-                        row["rows_json"],
+                        canonical_json({k: v for k, v in material.items() if k != "preview"}),
                     ),
                 )
             db.execute(
@@ -681,11 +725,11 @@ def create_material_router(connection, material_root: Path, demo_root: Path):
                 "AND (?='' OR kind=?) ORDER BY rowid DESC",
                 (x_workspace, search.strip(), kind, kind),
             ).fetchall()
-        return {"items": [json.loads(row[0]) for row in rows]}
+        return {"items": [dict(json.loads(row[0]), preview=[]) for row in rows]}
 
     @router.get("/api/v1/materials/{material_id}")
     def material_detail(material_id: str, x_workspace: Annotated[Workspace, Header()] = "normal"):
-        return json.loads(service.get(material_id, x_workspace)["payload"])
+        return service.detail(service.get(material_id, x_workspace))
 
     @router.get("/api/v1/materials/{material_id}/download")
     def download_material(material_id: str, x_workspace: Annotated[Workspace, Header()] = "normal"):

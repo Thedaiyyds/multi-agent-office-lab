@@ -61,7 +61,7 @@ def imported(tmp_path):
         )
         assert not confirmed["issues"]
         stored = service.get(confirmed["id"], "normal")
-        materials[relative] = dict(confirmed, rows=json.loads(stored["rows_json"]))
+        materials[relative] = service.read(stored)
     return materials
 
 

@@ -1,6 +1,7 @@
 """Material imports exercise real files and SQLite; no external service is used."""
 
 import io
+import json
 import sqlite3
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
@@ -105,7 +106,7 @@ def test_csv_mapping_full_confirmation_and_original_survive_restart(tmp_path):
         restarted.get(f"/api/v1/materials/{material['id']}/download").content == PROJECTS.encode()
     )
     assert restarted.get("/api/v1/materials?search=项目&kind=projects").json()["items"] == [
-        material
+        dict(material, preview=[])
     ]
     assert restarted.get("/api/v1/materials?search=不存在").json()["items"] == []
 
@@ -130,7 +131,7 @@ def test_search_matches_confirmed_department_and_keeps_workspace_boundary(client
     draft = stage(client, **NOTES_SCOPE).json()
     material = confirm(client, draft).json()
     assert client.get("/api/v1/materials", params={"search": "技术部"}).json()["items"] == [
-        material
+        dict(material, preview=[])
     ]
     assert client.get("/api/v1/materials", params={"search": "行政部"}).json()["items"] == []
     assert (
@@ -323,6 +324,70 @@ def test_preview_truncates_only_preview_original_text_remains(client):
     assert len(draft["preview"][0]["values"]["text"]) == 1000
     material = confirm(client, draft, **NOTES_SCOPE).json()
     assert client.get(f"/api/v1/materials/{material['id']}/download").content == raw
+
+
+def test_material_contents_live_in_files_not_database_and_are_read_on_demand(tmp_path):
+    client, service = build_client(tmp_path)
+    draft = stage(client).json()
+    material = confirm(client, draft).json()
+    row = service.get(material["id"], "normal")
+    original = service.original_path(row)
+    assert original.name == "项目快照.csv"
+    with service.connection() as db:
+        for table in ("imports", "material_versions"):
+            assert "rows_json" not in {
+                column[1] for column in db.execute(f"PRAGMA table_info({table})")
+            }
+            payload = json.loads(db.execute(f"SELECT payload FROM {table}").fetchone()[0])
+            assert "preview" not in payload and "rows" not in payload
+    assert service.read(row)["rows"][1]["values"]["状态"] == "已完成"
+    original.write_text(PROJECTS.replace("30", "40"))
+    response = client.get(f"/api/v1/materials/{material['id']}")
+    assert response.status_code == 409 and "变化" in response.text
+    original.unlink()
+    assert client.get(f"/api/v1/materials/{material['id']}").status_code == 404
+    # The metadata list remains accessible even when one file needs repair.
+    assert client.get("/api/v1/materials").json()["items"][0]["id"] == material["id"]
+
+
+def test_long_unicode_filename_keeps_original_display_name_without_filesystem_overflow(tmp_path):
+    client, service = build_client(tmp_path)
+    name = "办公材料" * 30 + ".txt"
+    draft = stage(client, "工作记录".encode(), name, "notes").json()
+    material = confirm(client, draft, **NOTES_SCOPE).json()
+    assert material["name"] == name
+    assert service.original_path(service.get(material["id"], "normal")).is_file()
+    assert client.get(f"/api/v1/materials/{material['id']}/download").content == "工作记录".encode()
+
+
+def test_legacy_content_cache_migration_preserves_files_ids_and_configuration(tmp_path):
+    client, service = build_client(tmp_path)
+    draft = stage(client).json()
+    material = confirm(client, draft).json()
+    # Recreate the previous schema's caches, including a deliberately wrong copy.
+    with service.connection() as db:
+        for table in ("imports", "material_versions"):
+            db.execute(f"ALTER TABLE {table} ADD COLUMN rows_json TEXT NOT NULL DEFAULT '[]'")
+            db.execute(
+                f"UPDATE {table} SET rows_json=?, payload=json_set(payload,'$.preview',json(?))",
+                ('[{"cached":"obsolete"}]', json.dumps(material["preview"])),
+            )
+    restarted, migrated = build_client(tmp_path)
+    assert restarted.get(f"/api/v1/materials/{material['id']}").json() == material
+    assert (
+        restarted.get(f"/api/v1/materials/{material['id']}/download").content == PROJECTS.encode()
+    )
+    with migrated.connection() as db:
+        for table in ("imports", "material_versions"):
+            assert "rows_json" not in {
+                column[1] for column in db.execute(f"PRAGMA table_info({table})")
+            }
+            assert "preview" not in json.loads(
+                db.execute(f"SELECT payload FROM {table}").fetchone()[0]
+            )
+    # A second startup and an old confirmation ID are both still usable.
+    again, _ = build_client(tmp_path)
+    assert confirm(again, draft).json() == material
 
 
 def test_optional_completion_and_attendance_fields_are_suggested_and_validated(client):

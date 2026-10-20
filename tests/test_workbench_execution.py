@@ -332,6 +332,36 @@ def test_local_api_is_never_called_without_explicit_authorization(build_app):
         assert run["missing_fields"] == ["materials"]
 
 
+@pytest.mark.parametrize("damage", ["changed", "missing"])
+def test_data_reads_files_and_stops_before_writer_when_source_is_damaged(build_app, damage):
+    factory, _, materials = build_app
+    draft = materials.stage_import(
+        (ROOT / "data/demo/technical-q2/项目进度.csv").read_bytes(),
+        "项目进度.csv",
+        "projects",
+        "normal",
+    )
+    material = materials.confirm(draft["id"], "normal", {"mapping": draft["suggested_mapping"]})
+    path = materials.original_path(materials.get(material["id"], "normal"))
+    if damage == "changed":
+        path.write_bytes(b"changed after import")
+    else:
+        path.unlink()
+    app = factory()
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/runs",
+            headers={"Idempotency-Key": "damaged-source"},
+            json=dict(user_text=TECH_TEXT, mode="offline_mock", material_ids=[material["id"]]),
+        )
+        run = finished(client, app.state.execution_service, response)
+        assert run["status"] == "failed"
+        assert run["error"]["code"] == "material_file"
+        assert "Data无法读取" in run["error"]["message"]
+        assert [node["role"] for node in run["nodes"]] == ["manager", "planner", "data"]
+        assert run["statistics"] is None
+
+
 @pytest.mark.parametrize(
     "limit,value,expected_calls", [("request_budget", 1, 1), ("output_budget", 256, 1)]
 )

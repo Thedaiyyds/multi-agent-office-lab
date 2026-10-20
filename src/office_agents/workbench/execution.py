@@ -995,10 +995,18 @@ class ExecutionContext:
     def data(self):
         run = self.run()
         materials, datasets = [], []
+
+        def read_material(material_id):
+            try:
+                row = self.service.material_service.get(material_id, run["workspace"])
+                return self.service.material_service.read(row)
+            except HTTPException as error:
+                raise ModelCallError(
+                    "Material file unavailable or changed.", code="material_file"
+                ) from error
+
         for material_id in run["material_ids"]:
-            row = self.service.material_service.get(material_id, run["workspace"])
-            payload = json.loads(row["payload"])
-            materials.append(dict(payload, rows=json.loads(row["rows_json"])))
+            materials.append(read_material(material_id))
         if run["request"]["use_local_api"]:
             if self.service.local_provider is None:
                 raise ModelCallError("Local provider unavailable.", code="local_provider")
@@ -1015,8 +1023,7 @@ class ExecutionContext:
                     draft["id"], run["workspace"], {"mapping": draft["suggested_mapping"]}
                 )
                 if material["id"] not in {item["id"] for item in materials}:
-                    row = self.service.material_service.get(material["id"], run["workspace"])
-                    materials.append(dict(material, rows=json.loads(row["rows_json"])))
+                    materials.append(read_material(material["id"]))
                 datasets.append(
                     dict(
                         kind=group,
@@ -1044,10 +1051,7 @@ class ExecutionContext:
                         draft["id"], run["workspace"], {"mapping": draft["suggested_mapping"]}
                     )
                     if note_material["id"] not in {item["id"] for item in materials}:
-                        row = self.service.material_service.get(
-                            note_material["id"], run["workspace"]
-                        )
-                        materials.append(dict(note_material, rows=json.loads(row["rows_json"])))
+                        materials.append(read_material(note_material["id"]))
         if not materials:
             self.change(
                 lambda current: current.update(
@@ -1462,6 +1466,7 @@ class ExecutionContext:
                 "saved_context_scope",
                 "outline_scope",
                 "local_provider",
+                "material_file",
                 "acceptance_guard",
                 "context_limit",
                 "timeout",
@@ -1476,6 +1481,10 @@ class ExecutionContext:
             }
             code = error.code if error.code in allowed else "model_error"
             scope_messages = {
+                "material_file": (
+                    "Data无法读取所选材料：文件可能缺失、已修改或校验未通过，"
+                    "请在材料库检查并重新导入"
+                ),
                 "response_truncated": (
                     "角色回复达到本次输出上限，未采用不完整结果；请简化需求后重试"
                 ),
