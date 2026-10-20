@@ -1,0 +1,52 @@
+{
+  "version": "2.1.0",
+  "date": "2026-10-20",
+  "mode": "offline_mock",
+  "cases": [
+    {
+      "case": "technical",
+      "department": "技术部",
+      "run_status": "completed",
+      "roles": [
+        "manager",
+        "planner",
+        "data",
+        "writer",
+        "checker",
+        "manager"
+      ],
+      "external_requests": 0,
+      "mock_calls": 6,
+      "facts": 18,
+      "notes": 18,
+      "full_source_refs": 11052,
+      "markdown_chars": 5586,
+      "pdf_pages": 4,
+      "pdf_bytes": 83790
+    },
+    {
+      "case": "administration",
+      "department": "行政部",
+      "run_status": "completed",
+      "roles": [
+        "manager",
+        "planner",
+        "data",
+        "writer",
+        "checker",
+        "manager"
+      ],
+      "external_requests": 0,
+      "mock_calls": 6,
+      "facts": 2,
+      "notes": 13,
+      "full_source_refs": 408,
+      "markdown_chars": 1424,
+      "pdf_pages": 2,
+      "pdf_bytes": 60812
+    }
+  ],
+  "paid_model_validation": false,
+  "python_tests": 858,
+  "frontend_tests": 13
+}

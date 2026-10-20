@@ -220,6 +220,14 @@ export function RunComposer({
             <button
               className="text-button"
               type="button"
+              disabled={loading || !selected.length}
+              onClick={() => setSelected([])}
+            >
+              取消全部选择
+            </button>
+            <button
+              className="text-button"
+              type="button"
               disabled={loading}
               onClick={() => setRefresh((value) => value + 1)}
             >
@@ -277,7 +285,7 @@ export function RunComposer({
             />
             <span>
               使用系统本地样例数据（虚构）
-              <small>仅在你明确勾选时接入，不会替代所选的用户材料。</small>
+              <small>季度办公案例：12个项目、1560条考勤、42项成果；行政案例216条反馈。请取消无关旧材料。</small>
             </span>
           </label>
           <div className="cooperation-submit">

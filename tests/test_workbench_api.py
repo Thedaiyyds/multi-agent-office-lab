@@ -39,7 +39,7 @@ def test_empty_database_and_safe_system_info(client, monkeypatch):
     )
     assert client.get("/api/v1/health").json() == {
         "status": "ok",
-        "version": "2.0.0",
+        "version": "2.1.0",
     }
     assert client.get("/api/v1/reports").json() == {"items": []}
     info = client.get("/api/v1/system")

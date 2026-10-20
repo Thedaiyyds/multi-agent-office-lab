@@ -610,8 +610,9 @@ def test_normal_local_interface_can_supply_case_without_switching_workspace(tmp_
     with workbench(tmp_path) as (client, _):
         run = successful_submit(client, [], use_local_api=True)
         assert run["status"] == "completed", run
-        assert metric_values(run)["project_count"] == 4
-        assert metric_values(run)["sample_attendance_rate"] == 0.875
+        assert metric_values(run)["project_count"] == 12
+        assert metric_values(run)["person_days"] == 1560
+        assert metric_values(run)["attendance_rate"] is None
         assert {source["kind"] for source in run["source_datasets"]} == {
             "projects",
             "attendance",

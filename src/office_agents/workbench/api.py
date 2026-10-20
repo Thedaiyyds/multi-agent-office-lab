@@ -26,7 +26,7 @@ from office_agents.workbench.execution import create_execution_router
 from office_agents.workbench.materials import create_material_router
 from office_agents.workbench.statistics import create_statistics_router
 
-VERSION = "2.0.0"
+VERSION = "2.1.0"
 Workspace = Literal["normal", "demo"]
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "testserver"}
 
@@ -114,6 +114,7 @@ def create_app(
     demo_root: str | Path | None = None,
     execution_options: dict | None = None,
     delivery_options: dict | None = None,
+    local_data_root: str | Path | None = None,
 ):
     """Build an isolated app; callers can choose a temporary database in tests."""
     project_root = Path(__file__).resolve().parents[3]
@@ -162,13 +163,16 @@ def create_app(
 
     app = FastAPI(title="汇报协作工作台 API", version=VERSION)
     demo_root = Path(demo_root or project_root / "data/demo").resolve()
+    local_data_root = Path(local_data_root or project_root / "data/office-cases").resolve()
     material_router = create_material_router(connection, database.parent / "materials", demo_root)
     app.include_router(material_router)
     app.include_router(create_demo_router(material_router.material_service, connection, demo_root))
-    app.include_router(create_local_data_router(material_router.material_service, demo_root))
+    app.include_router(create_local_data_router(material_router.material_service, local_data_root))
     app.include_router(create_statistics_router(connection, material_router.material_service))
     options = {
-        "local_provider": lambda kind: load_local_dataset(demo_root, kind),
+        "local_provider": lambda kind: load_local_dataset(
+            local_data_root, kind, include_notes=True
+        ),
         **(execution_options or {}),
     }
     execution_router = create_execution_router(

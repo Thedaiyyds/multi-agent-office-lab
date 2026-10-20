@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "seed": "office-cases-2026-v1",
+  "fictional": true,
+  "statement": "全部数据为确定性虚构案例，不含真实企业、人员、服务或经营信息。",
+  "algorithm": "SHA-256(seed|event_kind|stable_ids); see generate.py; no random() or current time",
+  "files": {
+    "technical-q2/项目进度.csv": {
+      "sha256": "42d6209dc3cb459de5426f81682b6c20341529defe8730aa36beeef1417c79e1",
+      "byte_size": 4658
+    },
+    "technical-q2/人员考勤.csv": {
+      "sha256": "75e219967ff9977b3d3a81e576e4f2bbaf2bc118a19835756c0953748f3cf931",
+      "byte_size": 191006
+    },
+    "technical-q2/成果统计.csv": {
+      "sha256": "3f917c8af970a1f8e66d2096217463942ed0f988d0638b9b4abeac9250e79129",
+      "byte_size": 5990
+    },
+    "technical-q2/工作说明.txt": {
+      "sha256": "d1f3fcf09b9544a1cd6ce5288e2ce328d6f93a35bfc59e85b3c84aa15a2ade0b",
+      "byte_size": 3443
+    },
+    "administration-q1/满意度.csv": {
+      "sha256": "9cc530767ffe2c42c3156b2bfcee3ea8992c62fae5f00a84381f0ef41da68645",
+      "byte_size": 31168
+    },
+    "administration-q1/服务说明.txt": {
+      "sha256": "a671a776e2e397f33114c547ff43ee390610501b27e68a6c8d35a871913de6c2",
+      "byte_size": 2341
+    }
+  },
+  "technical_q2": {
+    "department": "技术部",
+    "start_date": "2026-04-01",
+    "end_date": "2026-07-01",
+    "attendance_scope": {
+      "calendar": "虚构企业周一至周五排班，不按法定节假日及调休调整",
+      "roster": [
+        "SYN-U001",
+        "SYN-U002",
+        "SYN-U003",
+        "SYN-U004",
+        "SYN-U005",
+        "SYN-U006",
+        "SYN-U007",
+        "SYN-U008",
+        "SYN-U009",
+        "SYN-U010",
+        "SYN-U011",
+        "SYN-U012",
+        "SYN-U013",
+        "SYN-U014",
+        "SYN-U015",
+        "SYN-U016",
+        "SYN-U017",
+        "SYN-U018",
+        "SYN-U019",
+        "SYN-U020",
+        "SYN-U021",
+        "SYN-U022",
+        "SYN-U023",
+        "SYN-U024"
+      ],
+      "work_dates": [
+        "2026-04-01",
+        "2026-04-02",
+        "2026-04-03",
+        "2026-04-06",
+        "2026-04-07",
+        "2026-04-08",
+        "2026-04-09",
+        "2026-04-10",
+        "2026-04-13",
+        "2026-04-14",
+        "2026-04-15",
+        "2026-04-16",
+        "2026-04-17",
+        "2026-04-20",
+        "2026-04-21",
+        "2026-04-22",
+        "2026-04-23",
+        "2026-04-24",
+        "2026-04-27",
+        "2026-04-28",
+        "2026-04-29",
+        "2026-04-30",
+        "2026-05-01",
+        "2026-05-04",
+        "2026-05-05",
+        "2026-05-06",
+        "2026-05-07",
+        "2026-05-08",
+        "2026-05-11",
+        "2026-05-12",
+        "2026-05-13",
+        "2026-05-14",
+        "2026-05-15",
+        "2026-05-18",
+        "2026-05-19",
+        "2026-05-20",
+        "2026-05-21",
+        "2026-05-22",
+        "2026-05-25",
+        "2026-05-26",
+        "2026-05-27",
+        "2026-05-28",
+        "2026-05-29",
+        "2026-06-01",
+        "2026-06-02",
+        "2026-06-03",
+        "2026-06-04",
+        "2026-06-05",
+        "2026-06-08",
+        "2026-06-09",
+        "2026-06-10",
+        "2026-06-11",
+        "2026-06-12",
+        "2026-06-15",
+        "2026-06-16",
+        "2026-06-17",
+        "2026-06-18",
+        "2026-06-19",
+        "2026-06-22",
+        "2026-06-23",
+        "2026-06-24",
+        "2026-06-25",
+        "2026-06-26",
+        "2026-06-29",
+        "2026-06-30"
+      ]
+    },
+    "expected": {
+      "project_snapshot_rows": 36,
+      "project_count": 12,
+      "completed_project_count": 6,
+      "completed_in_period": 6,
+      "completion_rate": 0.5,
+      "attendance_people": 24,
+      "attendance_work_dates": 65,
+      "attendance_rows": 1560,
+      "attendance_rows_by_month": {
+        "2026-04": 528,
+        "2026-05": 504,
+        "2026-06": 528
+      },
+      "attendance_status_counts": {
+        "正常": 1177,
+        "超计划": 184,
+        "迟到": 83,
+        "缺勤": 9,
+        "请假": 107
+      },
+      "sample_planned_hours": 12480.0,
+      "sample_actual_hours": 12190.5,
+      "sample_credited_hours": 11899.5,
+      "sample_excess_hours": 291.0,
+      "sample_leave_hours": 478,
+      "absent_hours": 72,
+      "late_minutes": 1830,
+      "sample_attendance_rate": 0.9534855769230769,
+      "declared_scope_attendance_coverage": 1.0,
+      "declared_scope_attendance_rate": 0.9534855769230769,
+      "achievement_count": 42,
+      "achievement_category_counts": {
+        "技术文档": 12,
+        "项目交付": 6,
+        "质量改进": 12,
+        "运维优化": 12
+      },
+      "achievement_rows_by_month": {
+        "2026-04": 13,
+        "2026-05": 14,
+        "2026-06": 15
+      }
+    }
+  },
+  "administration_q1": {
+    "department": "行政部",
+    "start_date": "2026-01-01",
+    "end_date": "2026-04-01",
+    "expected": {
+      "feedback_rows": 216,
+      "valid_feedback_rows": 204,
+      "invalid_feedback_rows": 12,
+      "score_sum": 810,
+      "satisfaction_mean": 3.9705882352941178,
+      "all_feedback_score_histogram": {
+        "1": 5,
+        "2": 9,
+        "3": 42,
+        "4": 96,
+        "5": 64
+      },
+      "valid_feedback_score_histogram": {
+        "1": 3,
+        "2": 9,
+        "3": 41,
+        "4": 89,
+        "5": 62
+      },
+      "feedback_by_month": {
+        "2026-01": {
+          "rows": 72,
+          "valid_rows": 68,
+          "valid_score_sum": 252
+        },
+        "2026-02": {
+          "rows": 72,
+          "valid_rows": 68,
+          "valid_score_sum": 269
+        },
+        "2026-03": {
+          "rows": 72,
+          "valid_rows": 68,
+          "valid_score_sum": 289
+        }
+      },
+      "service_type_counts": {
+        "物业报修": 48,
+        "会议支持": 54,
+        "差旅支持": 32,
+        "入离职支持": 26,
+        "办公用品": 38,
+        "档案借阅": 18
+      },
+      "invalid_reason_counts": {
+        "重复提交": 3,
+        "评价场景不符": 3,
+        "提交者主动撤回": 3,
+        "内部测试": 3
+      }
+    }
+  }
+}

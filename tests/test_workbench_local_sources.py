@@ -10,7 +10,7 @@ def test_normal_interface_import_is_explicit_frozen_and_workspace_scoped(tmp_pat
         source = client.get("/api/v1/data-sources/projects")
         assert source.status_code == 200
         assert source.json()["source"] == "local_sample_api"
-        assert len(source.json()["records"]) == 5
+        assert len(source.json()["records"]) == 36
         assert client.get("/api/v1/materials").json()["items"] == []
         draft = client.post("/api/v1/materials/from-local-api", json={"kind": "projects"})
         assert draft.status_code == 201
@@ -40,7 +40,7 @@ def test_normal_interface_import_is_explicit_frozen_and_workspace_scoped(tmp_pat
 
 def test_normal_interface_rejects_paths_urls_and_missing_sources(tmp_path):
     with TestClient(
-        create_app(tmp_path / "db.sqlite3", static_dir=False, demo_root=tmp_path / "missing")
+        create_app(tmp_path / "db.sqlite3", static_dir=False, local_data_root=tmp_path / "missing")
     ) as client:
         assert client.get("/api/v1/data-sources/satisfaction").status_code == 503
         assert client.get("/api/v1/data-sources/unknown").status_code == 422

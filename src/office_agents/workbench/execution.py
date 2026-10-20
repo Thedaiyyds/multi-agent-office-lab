@@ -1003,6 +1003,7 @@ class ExecutionContext:
                 raise ModelCallError("Local provider unavailable.", code="local_provider")
             from office_agents.workbench.demo import stage_local_dataset
 
+            loaded_notes = set()
             for group in run["outline"]["groups"]:
                 self.guard()
                 dataset = self.service.local_provider(group)
@@ -1024,6 +1025,28 @@ class ExecutionContext:
                         sha256=material["sha256"],
                     )
                 )
+                context_file = dataset.get("context_file")
+                if context_file and context_file["name"] not in loaded_notes:
+                    loaded_notes.add(context_file["name"])
+                    draft = self.service.material_service.stage_import(
+                        context_file["text"].encode("utf-8"),
+                        context_file["name"],
+                        "notes",
+                        run["workspace"],
+                        source="local_api",
+                        **{
+                            key: context_file[key]
+                            for key in ("department", "start_date", "end_date")
+                        },
+                    )
+                    note_material = self.service.material_service.confirm(
+                        draft["id"], run["workspace"], {"mapping": draft["suggested_mapping"]}
+                    )
+                    if note_material["id"] not in {item["id"] for item in materials}:
+                        row = self.service.material_service.get(
+                            note_material["id"], run["workspace"]
+                        )
+                        materials.append(dict(note_material, rows=json.loads(row["rows_json"])))
         if not materials:
             self.change(
                 lambda current: current.update(
@@ -1037,6 +1060,7 @@ class ExecutionContext:
             return dict(status="needs_input", summary="缺少授权材料", limitations=[])
         statistics = calculate_statistics(run["requirements"], materials, run["outline"]["groups"])
         statistics.update(
+            source_format="grouped-v1",
             id=uuid4().hex,
             report_id=run["report_id"],
             report_version=run["report_version"],
@@ -1055,6 +1079,7 @@ class ExecutionContext:
             for index, metric in enumerate(statistics["metrics"], 1)
         ]
         notes, text_size = [], 0
+        shortened_notes = omitted_notes = 0
         for item in materials:
             if (
                 item["kind"] != "notes"
@@ -1066,9 +1091,14 @@ class ExecutionContext:
             ):
                 continue
             for row in item["rows"]:
-                text = " | ".join(str(value) for value in row["values"].values())[:1000]
-                if not text.strip() or text_size + len(text) > 5000:
+                original = " | ".join(str(value) for value in row["values"].values())
+                text = original[:1000]
+                if not text.strip():
                     continue
+                if text_size + len(text) > 5000:
+                    omitted_notes += 1
+                    continue
+                shortened_notes += int(len(original) > len(text))
                 text_size += len(text)
                 notes.append(
                     dict(
@@ -1081,6 +1111,14 @@ class ExecutionContext:
                         location=row["location"],
                     )
                 )
+        note_limitations = []
+        if shortened_notes or omitted_notes:
+            note_limitations.append(
+                f"文字材料受每片段1000字、合计5000字限制：选取{len(notes)}个片段，"
+                f"其中{shortened_notes}个片段截短，另有{omitted_notes}个片段未纳入；"
+                "未纳入的文字不能作为本次报告依据，结构化记录仍全量统计。"
+            )
+        statistics["note_limitations"] = note_limitations
 
         def freeze(current):
             current.update(
@@ -1095,7 +1133,7 @@ class ExecutionContext:
                 current,
                 "data",
                 "tool_completed",
-                "已按Planner要求读取授权版本全量记录，完成确定性统计与来源冻结",
+                "已按Planner要求全量统计结构化记录，完成来源冻结。" + " ".join(note_limitations),
             )
 
         self.change(freeze)
@@ -1128,6 +1166,7 @@ class ExecutionContext:
                 for fact in facts
             ],
             notes=notes,
+            data_limitations=note_limitations,
         )
         summary = self.call(
             "data",
@@ -1151,6 +1190,7 @@ class ExecutionContext:
                 for fact in run["facts"]
             ],
             notes=run["notes"],
+            data_limitations=run["statistics"].get("note_limitations", []),
             previous_review=run["review"],
             previous_narrative=run.get("narrative"),
             revision=self.revision,
@@ -1191,6 +1231,7 @@ class ExecutionContext:
             ],
             notes=run["notes"],
             program_issues=local_issues,
+            data_limitations=run["statistics"].get("note_limitations", []),
         )
         model_review = self.call(
             "checker",
@@ -1258,7 +1299,10 @@ class ExecutionContext:
             draft_markdown=run["draft_markdown"].rsplit("\n## 数据限制与来源\n", 1)[0],
             draft_sha256=hashlib.sha256(run["draft_markdown"].encode()).hexdigest(),
             limitations=list(
-                dict.fromkeys(text for fact in run["facts"] for text in fact["limitations"])
+                dict.fromkeys(
+                    [text for fact in run["facts"] for text in fact["limitations"]]
+                    + run["statistics"].get("note_limitations", [])
+                )
             ),
             materials=run["materials"],
             policy_version=POLICY_VERSION,
@@ -1550,20 +1594,67 @@ def render_markdown(run, narrative):
         "",
     ]
     limitations = list(dict.fromkeys(text for fact in run["facts"] for text in fact["limitations"]))
+    limitations += (run.get("statistics") or {}).get("note_limitations", [])
     lines += ["- " + _cell(text) for text in limitations]
-    for fact in run["facts"]:
-        for reference in fact["source_refs"]:
+    if (run.get("statistics") or {}).get("source_format") == "grouped-v1":
+        lines += _grouped_source_lines(run["facts"])
+        note_groups = {}
+        for note in run["notes"]:
+            key = (note["material_id"], note["name"], note["version"], note["sha256"])
+            note_groups.setdefault(key, []).append(f"{note['id']}（{_cell(note['location'])}）")
+        for (_, name, version, sha), references in note_groups.items():
             lines.append(
-                f"- {fact['id']}：{_cell(reference['name'])}；版本{reference['version']}；"
-                f"{_cell(reference['location'])}；SHA256 {reference['sha256']}；"
-                f"字段 {_cell(', '.join(reference['fields']))}"
+                f"- 文字来源：{_cell(name)}；版本{version}；SHA256 {sha}；" + "、".join(references)
             )
-    for note in run["notes"]:
-        lines.append(
-            f"- {note['id']}：{_cell(note['name'])}；版本{note['version']}；"
-            f"{_cell(note['location'])}；SHA256 {note['sha256']}"
-        )
+    else:
+        # Approved historical revisions must retain their original canonical bytes.
+        for fact in run["facts"]:
+            for reference in fact["source_refs"]:
+                lines.append(
+                    f"- {fact['id']}：{_cell(reference['name'])}；版本{reference['version']}；"
+                    f"{_cell(reference['location'])}；SHA256 {reference['sha256']}；"
+                    f"字段 {_cell(', '.join(reference['fields']))}"
+                )
+        for note in run["notes"]:
+            lines.append(
+                f"- {note['id']}：{_cell(note['name'])}；版本{note['version']}；"
+                f"{_cell(note['location'])}；SHA256 {note['sha256']}"
+            )
     return "\n".join(lines).strip() + "\n"
+
+
+def _grouped_source_lines(facts):
+    """Compact display only; immutable statistics retain every original row reference."""
+    lines = []
+    for fact in facts:
+        groups = {}
+        for ref in fact["source_refs"]:
+            key = (
+                ref["material_id"],
+                ref["name"],
+                ref["version"],
+                ref["sha256"],
+                tuple(ref["fields"]),
+            )
+            groups.setdefault(key, set()).add(ref["location"])
+        for (_, name, version, sha, fields), locations in groups.items():
+            numbers, other = [], []
+            for location in locations:
+                match = re.fullmatch(r"行 (\d+)", location)
+                (numbers if match else other).append(int(match[1]) if match else location)
+            ranges = []
+            for number in sorted(numbers):
+                if ranges and number == ranges[-1][1] + 1:
+                    ranges[-1][1] = number
+                else:
+                    ranges.append([number, number])
+            rows = [f"行 {start}" if start == end else f"行 {start}–{end}" for start, end in ranges]
+            locations_text = "、".join(rows + sorted(other))
+            lines.append(
+                f"- {fact['id']}：{_cell(name)}；版本{version}；"
+                f"{_cell(locations_text)}；SHA256 {sha}；字段 {_cell(', '.join(fields))}"
+            )
+    return lines
 
 
 def validate_narrative(run):

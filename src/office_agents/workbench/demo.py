@@ -26,6 +26,10 @@ PROVIDER_FILES = {
     "achievements": ("technical-q2", "成果统计.csv"),
     "satisfaction": ("administration-q1", "满意度.csv"),
 }
+CASE_NOTES = {
+    "technical-q2": ("工作说明.txt", "技术部", "2026-04-01", "2026-07-01"),
+    "administration-q1": ("服务说明.txt", "行政部", "2026-01-01", "2026-04-01"),
+}
 
 
 class DemoImport(BaseModel):
@@ -33,7 +37,7 @@ class DemoImport(BaseModel):
     kind: DatasetKind
 
 
-def load_local_dataset(demo_root: Path, kind: str):
+def load_local_dataset(demo_root: Path, kind: str, *, include_notes=False):
     """Read one whitelisted local dataset without accepting a path or URL."""
     if kind not in PROVIDER_FILES:
         raise HTTPException(422, "不支持的数据类别")
@@ -49,11 +53,25 @@ def load_local_dataset(demo_root: Path, kind: str):
         raise HTTPException(503, "本地样例数据无法读取，请检查文件格式") from None
     if not records:
         raise HTTPException(503, "本地样例数据没有可用记录")
-    return {
+    result = {
         "dataset_id": f"{folder}:{kind}:" + hashlib.sha256(data).hexdigest()[:16],
         "source": "local_sample_api",
         "records": records,
     }
+    if include_notes:
+        name, department, start, end = CASE_NOTES[folder]
+        notes_path = (root / folder / name).resolve()
+        if not notes_path.is_relative_to(root):
+            raise HTTPException(503, "本地背景材料路径无效")
+        if notes_path.is_file():
+            try:
+                text = notes_path.read_text(encoding="utf-8")
+            except (OSError, UnicodeError):
+                raise HTTPException(503, "本地背景材料无法读取") from None
+            result["context_file"] = dict(
+                name=name, text=text, department=department, start_date=start, end_date=end
+            )
+    return result
 
 
 def stage_local_dataset(service, kind, workspace, snapshot):
@@ -77,12 +95,15 @@ def create_local_data_router(service, demo_root):
 
     @router.get("/api/v1/data-sources/{kind}")
     def read_source(kind: DatasetKind):
-        return load_local_dataset(demo_root, kind)
+        return load_local_dataset(demo_root, kind, include_notes=True)
 
     @router.post("/api/v1/materials/from-local-api", status_code=201)
     def import_source(payload: DemoImport, x_workspace: Annotated[Workspace, Header()] = "normal"):
         return stage_local_dataset(
-            service, payload.kind, x_workspace, load_local_dataset(demo_root, payload.kind)
+            service,
+            payload.kind,
+            x_workspace,
+            load_local_dataset(demo_root, payload.kind, include_notes=True),
         )
 
     return router
