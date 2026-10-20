@@ -21,12 +21,26 @@ from office_agents.agent_runtime import parse_json_model, response_content
 from office_agents.config import ConfigurationError, Settings
 from office_agents.llm import ModelCallError, OpenAICompatibleClient
 from office_agents.workbench.materials import canonical_json
+from office_agents.workbench.planning import (
+    material_profile,
+    plan_evidence,
+    scope_supported,
+    scope_title,
+)
 from office_agents.workbench.statistics import POLICY_VERSION, calculate_statistics
 
 Role = Literal["manager", "planner", "data", "writer", "checker"]
 Group = Literal["projects", "attendance", "achievements", "satisfaction"]
 Workspace = Literal["normal", "demo"]
-TERMINAL = {"needs_input", "completed", "review_failed", "failed", "cancelled", "interrupted"}
+TERMINAL = {
+    "needs_input",
+    "completed",
+    "review_failed",
+    "failed",
+    "cancelled",
+    "interrupted",
+    "awaiting_confirmation",
+}
 ROLE_CAPS = {"manager": 256, "planner": 384, "data": 192, "writer": 1024, "checker": 256}
 DEFAULT_SECTIONS = ["工作概况", "主要成果", "问题与风险", "后续计划"]
 
@@ -45,6 +59,7 @@ class RunInput(Contract):
     request_budget: int = Field(default=12, ge=1, le=12, strict=True)
     output_budget: int = Field(default=5568, ge=1, le=5568, strict=True)
     max_revisions: int = Field(default=2, ge=0, le=2, strict=True)
+    planning_only: StrictBool = False
 
     @field_validator("material_ids")
     @classmethod
@@ -59,6 +74,8 @@ class RunInput(Contract):
     def report_version_pair(self):
         if bool(self.report_id) != (self.expected_version is not None):
             raise ValueError("已有报告须同时提供report_id和expected_version")
+        if self.planning_only and (not self.material_ids or self.report_id or self.use_local_api):
+            raise ValueError("基于材料规划须选择文件，且不能绑定已有报告或额外数据接口")
         return self
 
 
@@ -119,7 +136,7 @@ class OutlineSection(Contract):
 
 class Outline(Contract):
     sections: list[OutlineSection] = Field(min_length=1, max_length=12)
-    groups: list[Group] = Field(min_length=1, max_length=4)
+    groups: list[Group] = Field(max_length=4)
 
     @model_validator(mode="after")
     def unique(self):
@@ -128,6 +145,22 @@ class Outline(Contract):
             raise ValueError("大纲章节和数据分类不能重复")
         if any(set(section.groups) - set(self.groups) for section in self.sections):
             raise ValueError("章节数据分类必须属于总体分类")
+        return self
+
+
+class PlanConfirmation(Contract):
+    plan_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
+    requirements: Requirements
+    outline: Outline
+
+    @model_validator(mode="after")
+    def consistent(self):
+        if self.requirements.sections != [section.title for section in self.outline.sections]:
+            raise ValueError("需求章节须与确认大纲逐项一致")
+        if set(self.outline.groups) != {
+            group for section in self.outline.sections for group in section.groups
+        }:
+            raise ValueError("总体数据分类须与章节实际使用的分类一致")
         return self
 
 
@@ -356,7 +389,10 @@ class ExecutionService:
         return False
 
     def submit(self, request, workspace, key):
-        digest = hashlib.sha256(canonical_json(request.model_dump()).encode()).hexdigest()
+        digest_data = request.model_dump()
+        if not request.planning_only:
+            digest_data.pop("planning_only")
+        digest = hashlib.sha256(canonical_json(digest_data).encode()).hexdigest()
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
             saved = db.execute(
@@ -564,7 +600,7 @@ class ExecutionService:
         self._read(run_id, workspace)
 
         def mutate(run):
-            if run["status"] in TERMINAL:
+            if run["status"] in TERMINAL and run["status"] != "awaiting_confirmation":
                 return
             run["cancel_requested"] = True
             self._event(
@@ -573,13 +609,102 @@ class ExecutionService:
                 "cancel_requested",
                 "已申请取消；在途请求可能仍返回，但不会启动后续模型请求",
             )
-            if run["status"] == "queued":
+            if run["status"] in {"queued", "awaiting_confirmation"}:
                 run.update(status="cancelled", stage="cancelled")
 
         result = self._change(run_id, mutate)
         if result["status"] in TERMINAL:
             self._notify_terminal(run_id)
         return result
+
+    def confirm_plan(self, run_id, workspace, request, key):
+        digest = hashlib.sha256(canonical_json(request.model_dump()).encode()).hexdigest()
+        with self.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute(
+                "SELECT payload FROM execution_runs WHERE id=? AND workspace=?", (run_id, workspace)
+            ).fetchone()
+            if row is None:
+                raise HTTPException(404, "未找到该工作区中的方案")
+            run = json.loads(row[0])
+            previous = run.get("plan_confirmation")
+            if previous:
+                if previous["key"] == key and previous["request_hash"] == digest:
+                    return run
+                raise HTTPException(409, "该方案已按其他内容确认，请查看已有任务")
+            if run["status"] != "awaiting_confirmation" or request.plan_hash != run.get(
+                "plan_hash"
+            ):
+                raise HTTPException(409, "方案状态已改变，请刷新后重试")
+            if not self.available:
+                raise HTTPException(503, "执行队列尚未启动，请稍后重试")
+            requirements, outline = request.requirements.model_dump(), request.outline.model_dump()
+            if not scope_supported(requirements, run["material_profile"]):
+                raise HTTPException(422, "部门和期间须在所选文件能够支持的范围内")
+            materials = []
+            for material_id in run["material_ids"]:
+                material = db.execute(
+                    "SELECT * FROM material_versions WHERE id=? AND workspace=?",
+                    (material_id, workspace),
+                ).fetchone()
+                if material is None:
+                    raise HTTPException(409, "方案所用文件已不可用，请重新规划")
+                materials.append(self.material_service.read(material))
+            evidence = plan_evidence(requirements, outline, material_profile(materials))
+            if any(not section["material_ids"] for section in evidence["sections"]):
+                raise HTTPException(422, "每个章节至少需要一份所选材料作为依据，请调整数据分类")
+            applicable_ids = {
+                mid for section in evidence["sections"] for mid in section["material_ids"]
+            }
+            applicable_kinds = {item["kind"] for item in materials if item["id"] in applicable_ids}
+            if set(outline["groups"]) - applicable_kinds:
+                raise HTTPException(422, "缺少确认大纲所需的数据分类，请调整方案或补充材料")
+            if not outline["groups"] and "notes" not in applicable_kinds:
+                raise HTTPException(422, "无统计分类的方案至少需要一份文字说明")
+            report_id, now = uuid4().hex, _now()
+            db.execute(
+                "INSERT INTO reports(id,workspace,title,department,start_date,end_date,focus,"
+                "sections,version,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    report_id,
+                    workspace,
+                    requirements["title"],
+                    requirements["department"],
+                    requirements["start_date"],
+                    requirements["end_date"],
+                    requirements["focus"],
+                    canonical_json(requirements["sections"]),
+                    1,
+                    "draft",
+                    now,
+                    now,
+                ),
+            )
+            run.update(
+                report_id=report_id,
+                report_version=1,
+                status="queued",
+                stage="queued",
+                requirements=requirements,
+                outline=outline,
+                plan_evidence=evidence,
+                plan_confirmation=dict(
+                    key=key,
+                    request_hash=digest,
+                    created_at=now,
+                    requirements=requirements,
+                    outline=outline,
+                ),
+            )
+            self._event(
+                run,
+                "user",
+                "plan_confirmed",
+                "用户已确认材料、汇报范围和大纲，接续Data阶段，不重复调用Manager与Planner",
+            )
+            self._save(db, run)
+        self._wake.set()
+        return run
 
     def _notify_terminal(self, run_id):
         if self.on_terminal is None:
@@ -613,6 +738,8 @@ class ExecutionService:
                             status="running",
                             stage="checker"
                             if run.get("run_type") == "revision_review"
+                            else "data"
+                            if run.get("plan_confirmation")
                             else "manager",
                         )
                         self._save(db, run)
@@ -737,6 +864,8 @@ class ExecutionContext:
             )
         elif role == "planner":
             system += "每章purpose最多20个汉字；章节标题与requirements.sections完全一致。"
+            if context.get("material_profile"):
+                system += "按材料分类规划groups；仅文字说明时groups为空。缺少的数据不得假装已提供。"
         elif role == "writer":
             system += (
                 "数值引用自带指标名、数值和单位，作为完整短语使用，不先重复其指标名。"
@@ -749,6 +878,12 @@ class ExecutionContext:
             system += "问题和修改要求最多各三条，每条最多30个汉字；程序问题不能忽略。"
         elif phase == "acceptance":
             system += "reasons最多两条，每条最多30个汉字。"
+        if role == "manager" and context.get("planning_only"):
+            system += (
+                "当前只提出汇报方案，不写报告。部门及起止日期必须逐字复制suggested_scope，"
+                "标题参考suggested_title，focus简写用户重点；章节按文件类型规划。"
+                "文件行数不是项目数或成果数，不输出业务统计结论。"
+            )
         messages = [
             {"role": "system", "content": system},
             {"role": "user", "content": canonical_json(context)},
@@ -789,7 +924,6 @@ class ExecutionContext:
                 )
             content = response_content(response)
         finally:
-            totals = self.client.usage_statistics
 
             def record(run):
                 run["model_attempts"][-1]["status"] = (
@@ -803,6 +937,9 @@ class ExecutionContext:
                 # Persist only allowlisted numeric usage, never provider extensions.
                 raw = run["model_attempts"][-1]["usage"]
                 if raw is not None:
+                    details = raw.get("completion_tokens_details")
+                    if raw.get("reasoning_tokens") is None and isinstance(details, dict):
+                        raw = dict(raw, reasoning_tokens=details.get("reasoning_tokens"))
                     run["model_attempts"][-1]["usage"] = {
                         key: value
                         for key, value in raw.items()
@@ -822,7 +959,12 @@ class ExecutionContext:
                     "total_tokens",
                     "reasoning_tokens",
                 ):
-                    run["usage"][key] = totals[key]
+                    values = [
+                        (attempt.get("usage") or {}).get(key) for attempt in run["model_attempts"]
+                    ]
+                    run["usage"][key] = (
+                        sum(values) if all(value is not None for value in values) else None
+                    )
                 self.service._event(
                     run, role, "model_completed", "模型请求已结束，供应商缺失的用量保留为空"
                 )
@@ -834,6 +976,36 @@ class ExecutionContext:
     def manager(self):
         run = self.run()
         saved = run["saved_report"]
+        planning = run["request"].get("planning_only", False)
+        profile = None
+        if planning:
+            try:
+                profile = material_profile(
+                    [
+                        self.service.material_service.read(
+                            self.service.material_service.get(mid, run["workspace"])
+                        )
+                        for mid in run["material_ids"]
+                    ]
+                )
+            except HTTPException as error:
+                raise ModelCallError("Plan material unavailable.", code="material_file") from error
+            except ValueError:
+                question = (
+                    "文件涉及的部门、日期范围过多或超出可规划日期，请按部门和期间拆分文件后重试。"
+                )
+                self.change(
+                    lambda current: current.update(
+                        missing_fields=["material_scope"], questions=[question]
+                    )
+                )
+                self.service.terminal(self.run_id, "needs_input", message=question)
+                return dict(
+                    status="needs_input", missing_fields=["material_scope"], questions=[question]
+                )
+            if len(profile["scopes"]) > 24:
+                raise ModelCallError("Too many material scopes.", code="context_limit")
+            self.change(lambda current: current.update(material_profile=profile))
         context = dict(
             user_text=run["user_text"],
             saved_report=saved,
@@ -843,9 +1015,56 @@ class ExecutionContext:
                 for start, end in sorted(_periods(run["user_text"]))
             ],
         )
+        if profile:
+            departments = sorted({scope["department"] for scope in profile["scopes"]})
+            named = [department for department in departments if department in run["user_text"]]
+            departments = named or departments
+            periods = sorted(_periods(run["user_text"]))
+            choices = [
+                dict(department=department, start_date=start, end_date=end)
+                for department in departments
+                for start, end in periods
+                if scope_supported(
+                    dict(department=department, start_date=start, end_date=end), profile
+                )
+            ]
+            if not periods:
+                choices = [
+                    scope for scope in profile["scopes"] if scope["department"] in departments
+                ]
+            if len(choices) != 1:
+                question = (
+                    "无法确定唯一且有材料支持的范围，请调整选择，或在规划重点中明确部门和期间。"
+                )
+                self.change(
+                    lambda current: current.update(
+                        missing_fields=["material_scope"], questions=[question]
+                    )
+                )
+                self.service.terminal(self.run_id, "needs_input", message=question)
+                return dict(
+                    status="needs_input", missing_fields=["material_scope"], questions=[question]
+                )
+            context.update(
+                material_profile=profile,
+                planning_only=True,
+                suggested_scope=choices[0],
+                suggested_title=scope_title(choices[0]),
+                grounded_periods=[
+                    dict(start_date=choices[0]["start_date"], end_date=choices[0]["end_date"])
+                ],
+            )
 
         def mock():
-            if saved:
+            if planning:
+                scope = context["suggested_scope"]
+                requirements = dict(
+                    **scope,
+                    title=scope_title(scope),
+                    focus=run["user_text"][:2000],
+                    sections=DEFAULT_SECTIONS,
+                )
+            elif saved:
                 requirements = {key: saved[key] for key in Requirements.model_fields}
             else:
                 periods = sorted(_periods(run["user_text"]))
@@ -891,7 +1110,15 @@ class ExecutionContext:
             )
             return output
         requirements = decision.requirements.model_dump()
-        if saved:
+        if planning:
+            if any(
+                requirements[key] != context["suggested_scope"][key]
+                for key in ("department", "start_date", "end_date")
+            ):
+                raise ModelCallError(
+                    "Plan scope is not supported by files.", code="saved_context_scope"
+                )
+        elif saved:
             if any(requirements[key] != saved[key] for key in Requirements.model_fields):
                 raise ModelCallError("Manager changed saved scope.", code="saved_context_scope")
         elif requirements["department"] not in run["user_text"]:
@@ -911,7 +1138,7 @@ class ExecutionContext:
             )
             if current["status"] != "running" or current["cancel_requested"]:
                 raise RunStopped
-            if not current["report_id"]:
+            if not current["report_id"] and not planning:
                 report_id, now = uuid4().hex, _now()
                 db.execute(
                     "INSERT INTO reports(id,workspace,title,department,start_date,end_date,"
@@ -939,9 +1166,24 @@ class ExecutionContext:
 
     def planner(self):
         run = self.run()
+        planning = run["request"].get("planning_only", False)
         available = sorted(
             {material["kind"] for material in run["materials"] if material["kind"] != "notes"}
         )
+        if planning:
+            available = sorted(
+                {
+                    item["kind"]
+                    for item in run["material_profile"]["files"]
+                    if item["kind"] != "notes"
+                    and any(
+                        scope["department"] == run["requirements"]["department"]
+                        and scope["start_date"] < run["requirements"]["end_date"]
+                        and run["requirements"]["start_date"] < scope["end_date"]
+                        for scope in item["scopes"]
+                    )
+                }
+            )
         context = dict(
             requirements=run["requirements"],
             manager=next(
@@ -954,8 +1196,18 @@ class ExecutionContext:
             available_groups=available,
             local_api_authorized=run["request"]["use_local_api"],
         )
+        if planning:
+            context["material_profile"] = run["material_profile"]
 
         def mock():
+            if planning:
+                return dict(
+                    groups=available,
+                    sections=[
+                        dict(title=title, purpose="依据文件整理本章节要点", groups=available)
+                        for title in run["requirements"]["sections"]
+                    ],
+                )
             text = run["user_text"]
             groups = []
             for group, words in (
@@ -989,7 +1241,26 @@ class ExecutionContext:
         # Planner may request a missing group, which Data will report explicitly;
         # it cannot request arbitrary tools, external URLs, or additional material IDs.
         output = outline.model_dump()
-        self.change(lambda current: current.update(outline=output))
+
+        def save(current):
+            current["outline"] = output
+            if planning:
+                current.update(
+                    plan_evidence=plan_evidence(
+                        current["requirements"], output, current["material_profile"]
+                    ),
+                    plan_hash=hashlib.sha256(
+                        canonical_json(
+                            dict(
+                                requirements=current["requirements"],
+                                outline=output,
+                                materials=current["materials"],
+                            )
+                        ).encode()
+                    ).hexdigest(),
+                )
+
+        self.change(save)
         return output
 
     def data(self):
@@ -1396,12 +1667,26 @@ class ExecutionContext:
                 self.service._event(
                     current, role, "node_completed", f"{role}节点已完成结果回传：{phase}"
                 )
+                if (
+                    role == "planner"
+                    and current["request"].get("planning_only")
+                    and current["status"] == "running"
+                    and not current["cancel_requested"]
+                ):
+                    current.update(status="awaiting_confirmation", stage="awaiting_confirmation")
+                    self.service._event(
+                        current,
+                        "planner",
+                        "plan_ready",
+                        "方案已准备，等待用户确认；尚未统计数据或生成报告",
+                    )
 
             self.change(finish)
             current = self.run()
             route = (
                 "stop"
                 if current["status"] in TERMINAL
+                or (role == "planner" and run["request"].get("planning_only"))
                 else "acceptance"
                 if role == "checker" and current["review"]["passed"]
                 else "writer"
@@ -1424,7 +1709,12 @@ class ExecutionContext:
         ):
             graph.add_node(name, self._node(role, phase, method))
         graph.add_edge(
-            START, "checker" if self.run().get("run_type") == "revision_review" else "manager"
+            START,
+            "checker"
+            if self.run().get("run_type") == "revision_review"
+            else "data"
+            if self.run().get("plan_confirmation")
+            else "manager",
         )
         for node, next_node in (
             ("manager", "planner"),
@@ -1766,5 +2056,14 @@ def create_execution_router(
     @router.post("/api/v1/runs/{run_id}/cancel")
     def cancel_run(run_id: str, x_workspace: Annotated[Workspace, Header()] = "normal"):
         return service.cancel(run_id, x_workspace)
+
+    @router.post("/api/v1/runs/{run_id}/confirm-plan", status_code=202)
+    def confirm_plan(
+        run_id: str,
+        request: PlanConfirmation,
+        idempotency_key: Annotated[str, Header(min_length=1, max_length=128)],
+        x_workspace: Annotated[Workspace, Header()] = "normal",
+    ):
+        return service.confirm_plan(run_id, x_workspace, request, idempotency_key)
 
     return router

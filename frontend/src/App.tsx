@@ -28,12 +28,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import {
-  api,
-  type Report,
-  type SystemInfo,
-  type Workspace,
-} from "./api";
+import { api, type Report, type SystemInfo, type Workspace } from "./api";
 import { useConfirmation } from "./confirm";
 import Materials from "./Materials";
 import { Archive as ReportArchive, ReportDelivery } from "./Archive";
@@ -1000,7 +995,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>v2.2.0</span>
+              本地运行<span>v2.3.0</span>
             </div>
           </div>
         </aside>
@@ -1057,7 +1052,8 @@ export default function App() {
                 />
                 <RunHistory workspace={workspace} navigate={navigate} />
               </>
-            ) : path === "/reports/new" ? (
+            ) : path === "/reports/new" ||
+              path.split("?")[0] === "/reports/plan" ? (
               <>
                 <button
                   className="back-link"
@@ -1069,14 +1065,24 @@ export default function App() {
                 <div className="page-heading">
                   <div>
                     <div className="eyebrow">NEW REPORT</div>
-                    <h1>新建工作汇报</h1>
+                    <h1>
+                      {path.split("?")[0] === "/reports/plan"
+                        ? "基于材料规划汇报"
+                        : "新建工作汇报"}
+                    </h1>
                     <p>
-                      输入工作需求，让五角色团队自动完成规划、整理、撰写与审核。
+                      {path.split("?")[0] === "/reports/plan"
+                        ? "先看方案，再决定是否生成。文件内容从工作目录按需读取。"
+                        : "输入工作需求，让五角色团队自动完成规划、整理、撰写与审核。"}
                     </p>
                   </div>
                 </div>
                 <RunComposer
-                  key={`${workspace}:new`}
+                  key={`${workspace}:${path}`}
+                  planning={path.split("?")[0] === "/reports/plan"}
+                  initialMaterialIds={new URLSearchParams(path.split("?")[1])
+                    .getAll("material")
+                    .slice(0, 50)}
                   workspace={workspace}
                   system={system}
                   onDirty={onDirty}
@@ -1121,6 +1127,7 @@ export default function App() {
               />
             ) : path === "/materials" ? (
               <Materials
+                navigate={navigate}
                 workspace={workspace}
                 onDirty={onDirty}
                 onSaving={onSaving}
@@ -1147,7 +1154,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.2.0</span>
+            汇报协作<span>v2.3.0</span>
           </footer>
         </div>
       </div>

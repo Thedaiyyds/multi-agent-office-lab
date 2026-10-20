@@ -1,0 +1,50 @@
+{
+  "version": "2.3.0",
+  "mode": "offline_and_local_scripted_transports",
+  "paid_model_requests": 0,
+  "python_tests_passed": 874,
+  "frontend_api_tests_passed": 13,
+  "build": "passed",
+  "ruff": "passed",
+  "browser": {
+    "tool": "agent-browser",
+    "data": "temporary_database_and_synthetic_files",
+    "desktop_viewport": [
+      1360,
+      1000
+    ],
+    "mobile_viewport": [
+      390,
+      844
+    ],
+    "mobile_document_width": 390,
+    "selection_passed_from_materials": 4,
+    "paused_roles": [
+      "manager",
+      "planner"
+    ],
+    "reports_before_confirmation": 0,
+    "dirty_navigation_guard": "passed",
+    "edited_title_and_outline_used": true,
+    "roles_after_confirmation": [
+      "manager",
+      "planner",
+      "data",
+      "writer",
+      "checker",
+      "manager"
+    ],
+    "duplicate_planning_calls": 0,
+    "decline_creates_no_report": true,
+    "exports": {
+      "md": 200,
+      "pdf": 200
+    }
+  },
+  "normal_workspace_preserved": {
+    "reports": 8,
+    "materials": 14,
+    "runs": 10,
+    "existing_files_hash_unchanged": 30
+  }
+}

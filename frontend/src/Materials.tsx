@@ -307,11 +307,13 @@ export default function Materials({
   onDirty,
   onSaving,
   confirm,
+  navigate,
 }: {
   workspace: Workspace;
   onDirty: (value: boolean) => void;
   onSaving: (value: boolean) => void;
   confirm: Confirm;
+  navigate: (path: string) => void;
 }) {
   const [items, setItems] = useState<MaterialVersion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -332,6 +334,7 @@ export default function Materials({
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
   const [includeHistory, setIncludeHistory] = useState(false);
+  const [planFiles, setPlanFiles] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const alive = useRef(true);
   const lock = useRef(false);
@@ -614,14 +617,28 @@ export default function Materials({
           <h1>材料库</h1>
           <p>管理工作目录中的文件，DataAgent 在生成报告时直接读取和整理。</p>
         </div>
-        <button
-          className="button primary"
-          onClick={startImport}
-          disabled={busy}
-        >
-          <Upload size={17} />
-          导入材料
-        </button>
+        <div className="report-heading-actions">
+          <button
+            className="button secondary"
+            onClick={() => {
+              const query = new URLSearchParams();
+              planFiles.forEach((id) => query.append("material", id));
+              navigate(`/reports/plan${query.size ? `?${query}` : ""}`);
+            }}
+            disabled={busy}
+          >
+            <FileText size={17} />
+            规划汇报{planFiles.length ? `（${planFiles.length}）` : ""}
+          </button>
+          <button
+            className="button primary"
+            onClick={startImport}
+            disabled={busy}
+          >
+            <Upload size={17} />
+            导入材料
+          </button>
+        </div>
       </div>
       {error && (
         <div className="notice error" role="alert">
@@ -880,32 +897,61 @@ export default function Materials({
         ) : filtered.length ? (
           <div className="material-rows">
             {filtered.map((item) => (
-              <button
-                className={`material-row ${selected?.id === item.id ? "selected" : ""}`}
-                key={item.id}
-                onClick={(event) => {
-                  detailTrigger.current = event.currentTarget;
-                  void open(item);
-                }}
-                disabled={busy}
-              >
-                <span className="document-icon">
-                  <FileText size={21} />
-                </span>
-                <span className="material-row-content">
-                  <strong>{item.name}</strong>
-                  <span>
-                    {kinds[item.kind]} · {item.department || "部门见数据列"} ·{" "}
-                    {item.row_count} 条 · {sourceName(item.source)}
+              <div className="material-row-selectable" key={item.id}>
+                <input
+                  type="checkbox"
+                  aria-label={`选择文件 ${item.name} ${new Date(item.created_at).toLocaleString("zh-CN")}`}
+                  checked={planFiles.includes(item.id)}
+                  disabled={
+                    busy ||
+                    (planFiles.length >= 50 && !planFiles.includes(item.id))
+                  }
+                  onChange={(event) =>
+                    setPlanFiles((previous) =>
+                      event.target.checked
+                        ? [
+                            ...previous.filter(
+                              (id) =>
+                                !items.some(
+                                  (other) =>
+                                    other.id === id &&
+                                    other.kind === item.kind &&
+                                    other.name === item.name,
+                                ),
+                            ),
+                            item.id,
+                          ]
+                        : previous.filter((id) => id !== item.id),
+                    )
+                  }
+                />
+                <button
+                  className={`material-row ${selected?.id === item.id ? "selected" : ""}`}
+                  key={item.id}
+                  onClick={(event) => {
+                    detailTrigger.current = event.currentTarget;
+                    void open(item);
+                  }}
+                  disabled={busy}
+                >
+                  <span className="document-icon">
+                    <FileText size={21} />
                   </span>
-                  <small>
-                    {new Date(item.created_at).toLocaleString("zh-CN", {
-                      hour12: false,
-                    })}
-                  </small>
-                </span>
-                <span className="material-view-label">查看</span>
-              </button>
+                  <span className="material-row-content">
+                    <strong>{item.name}</strong>
+                    <span>
+                      {kinds[item.kind]} · {item.department || "部门见数据列"} ·{" "}
+                      {item.row_count} 条 · {sourceName(item.source)}
+                    </span>
+                    <small>
+                      {new Date(item.created_at).toLocaleString("zh-CN", {
+                        hour12: false,
+                      })}
+                    </small>
+                  </span>
+                  <span className="material-view-label">查看</span>
+                </button>
+              </div>
             ))}
           </div>
         ) : (
