@@ -1000,7 +1000,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>v2.1.1</span>
+              本地运行<span>v2.2.0</span>
             </div>
           </div>
         </aside>
@@ -1147,7 +1147,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.1.1</span>
+            汇报协作<span>v2.2.0</span>
           </footer>
         </div>
       </div>

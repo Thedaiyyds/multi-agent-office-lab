@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   type FormEvent,
+  type ReactNode,
 } from "react";
 import {
   Check,
@@ -164,6 +165,49 @@ function Preview({
     </div>
   );
 }
+
+function MaterialDrawer({
+  children,
+  onClose,
+  returnFocus,
+}: {
+  children: ReactNode;
+  onClose: () => void;
+  returnFocus: HTMLElement | null;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const element = dialog.current!;
+    const previousOverflow = document.body.style.overflow;
+    element.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      element.close();
+      document.body.style.overflow = previousOverflow;
+      returnFocus?.focus();
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className="material-drawer"
+      aria-labelledby="material-detail-title"
+      onCancel={(event) => {
+        event.preventDefault();
+        onClose();
+      }}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (event.clientX < bounds.left || event.clientX > bounds.right)
+            onClose();
+        }
+      }}
+    >
+      {children}
+    </dialog>
+  );
+}
 export function DemoMaterials({
   workspace,
   navigate,
@@ -285,10 +329,14 @@ export default function Materials({
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [issues, setIssues] = useState<MaterialIssue[]>([]);
   const [selected, setSelected] = useState<MaterialVersion | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState("");
+  const [includeHistory, setIncludeHistory] = useState(false);
   const [busy, setBusy] = useState(false);
   const alive = useRef(true);
   const lock = useRef(false);
   const detailRequest = useRef(0);
+  const detailTrigger = useRef<HTMLButtonElement | null>(null);
   const dirty =
     uploading && Boolean(file || draft || department || start || end);
   useEffect(() => {
@@ -348,7 +396,7 @@ export default function Materials({
     if (
       dirty &&
       !(await confirm(
-        "当前材料尚未确认入库。关闭将放弃页面中的导入设置，原始文件不会改变。",
+        "当前材料尚未确认。关闭将放弃页面中的导入设置，原始文件不会改变。",
         "取消本次导入？",
         "放弃导入",
       ))
@@ -435,9 +483,9 @@ export default function Materials({
           (item) => item.name === draft.name && item.kind === draft.kind,
         ) &&
         !(await confirm(
-          "该分类下已有同名材料。系统将按内容和映射核对：相同内容复用原版本，修改后的内容保存为新版本，历史版本保留。",
-          "确认材料版本",
-          "确认入库",
+          "该分类下已有同名文件。新文件将单独保存，已有报告使用的文件仍会保留；相同内容及设置不会重复导入。",
+          "确认同名文件",
+          "确认导入",
         ))
       )
         return;
@@ -462,6 +510,9 @@ export default function Materials({
       );
       if (!alive.current) return;
       const duplicate = items.some((item) => item.id === result.id);
+      detailTrigger.current = null;
+      setDetailLoading(false);
+      setDetailError("");
       setSelected(result);
       setDraft(null);
       setFile(null);
@@ -469,8 +520,8 @@ export default function Materials({
       onDirty(false);
       setSuccess(
         duplicate
-          ? `相同内容及设置已入库，复用已有版本 v${result.version}，没有新增重复材料。`
-          : `材料已确认入库 · v${result.version}。原始文件与映射记录已保存。`,
+          ? "该文件及设置已存在，没有重复导入。"
+          : "文件已保存到材料工作目录，生成报告时将直接读取文件。",
       );
       await refresh();
     } catch (reason) {
@@ -490,7 +541,7 @@ export default function Materials({
       dirty &&
       !(await confirm(
         "打开材料详情会放弃本次尚未确认的导入设置。",
-        "查看已入库材料？",
+        "查看已保存材料？",
         "查看材料",
       ))
     )
@@ -499,7 +550,9 @@ export default function Materials({
     setUploading(false);
     setFile(null);
     setDraft(null);
-    setSelected(null);
+    setSelected(material);
+    setDetailLoading(true);
+    setDetailError("");
     setIssues([]);
     setError("");
     onDirty(false);
@@ -512,8 +565,17 @@ export default function Materials({
         setSelected(result);
     } catch (reason) {
       if (alive.current && sequence === detailRequest.current)
-        setError(describe(reason));
+        setDetailError(describe(reason));
+    } finally {
+      if (alive.current && sequence === detailRequest.current)
+        setDetailLoading(false);
     }
+  };
+  const closeDetail = () => {
+    detailRequest.current += 1;
+    setSelected(null);
+    setDetailError("");
+    setDetailLoading(false);
   };
   const download = async () => {
     if (!selected || lock.current) return;
@@ -523,14 +585,21 @@ export default function Materials({
     try {
       await downloadMaterial(selected.id, selected.name, workspace);
     } catch (reason) {
-      if (alive.current) setError(describe(reason));
+      if (alive.current) setDetailError(describe(reason));
     } finally {
       lock.current = false;
       onSaving(false);
       if (alive.current) setBusy(false);
     }
   };
-  const filtered = items.filter(
+  const currentIds = new Set<string>();
+  const current = items.filter((item) => {
+    const key = JSON.stringify([item.kind, item.name]);
+    if (currentIds.has(key)) return false;
+    currentIds.add(key);
+    return true;
+  });
+  const filtered = (includeHistory ? items : current).filter(
     (item) =>
       (!filter || item.kind === filter) &&
       `${item.name} ${item.department}`
@@ -543,7 +612,7 @@ export default function Materials({
         <div>
           <div className="eyebrow">MATERIAL LIBRARY</div>
           <h1>材料库</h1>
-          <p>整理原始材料，确认数据来源，为工作汇报做好准备。</p>
+          <p>管理工作目录中的文件，DataAgent 在生成报告时直接读取和整理。</p>
         </div>
         <button
           className="button primary"
@@ -572,7 +641,7 @@ export default function Materials({
               <h2>{draft ? "确认材料与字段" : "导入原始材料"}</h2>
               <p>
                 {draft
-                  ? "检查预览与定位信息，确认后保存不可变材料版本。"
+                  ? "确认文件分类和字段对应关系；内容保存在工作目录，预览实时读取文件。"
                   : "支持 TXT、CSV、DOCX，单个文件不超过 10 MiB。"}
               </p>
             </div>
@@ -737,7 +806,7 @@ export default function Materials({
                     ) : (
                       <Upload size={17} />
                     )}
-                    {draft ? "确认入库" : "上传并预览"}
+                    {draft ? "确认导入" : "上传并预览"}
                   </button>
                 </div>
               </div>
@@ -782,7 +851,15 @@ export default function Materials({
               ))}
             </select>
           </label>
-          <span className="list-count">{filtered.length} 个版本</span>
+          <label className="material-history-toggle">
+            <input
+              type="checkbox"
+              checked={includeHistory}
+              onChange={(event) => setIncludeHistory(event.target.checked)}
+            />
+            包含历史文件
+          </label>
+          <span className="list-count">{filtered.length} 份文件</span>
           <button
             className="icon-button"
             onClick={() => {
@@ -806,7 +883,10 @@ export default function Materials({
               <button
                 className={`material-row ${selected?.id === item.id ? "selected" : ""}`}
                 key={item.id}
-                onClick={() => open(item)}
+                onClick={(event) => {
+                  detailTrigger.current = event.currentTarget;
+                  void open(item);
+                }}
                 disabled={busy}
               >
                 <span className="document-icon">
@@ -824,7 +904,7 @@ export default function Materials({
                     })}
                   </small>
                 </span>
-                <span className="status-badge">v{item.version}</span>
+                <span className="material-view-label">查看</span>
               </button>
             ))}
           </div>
@@ -853,57 +933,90 @@ export default function Materials({
         )}
         {filtered.length > 0 && (
           <p className="material-history-note">
-            同名、同分类材料的新内容保留为新版本；以下列表包含历史版本。相同内容和导入设置会复用已有记录。
+            默认展示同名、同分类的最新文件。历史文件保留用于核对已有报告，查看时直接读取磁盘原件。
           </p>
         )}
       </section>
       {selected && !uploading && (
-        <section className="card material-detail">
-          <div className="material-section-heading">
+        <MaterialDrawer
+          onClose={closeDetail}
+          returnFocus={detailTrigger.current}
+        >
+          <div className="material-drawer-header">
             <div>
-              <h2>{selected.name}</h2>
+              <h2 id="material-detail-title">{selected.name}</h2>
               <p>
-                {kinds[selected.kind]} · 版本 {selected.version} ·{" "}
-                {sourceName(selected.source)}
+                {kinds[selected.kind]} · {sourceName(selected.source)} ·{" "}
+                {selected.row_count} 条
               </p>
             </div>
             <button
-              className="button secondary"
-              disabled={busy}
-              onClick={download}
+              className="icon-button"
+              aria-label="关闭材料预览"
+              onClick={closeDetail}
+              autoFocus
             >
-              <Download size={16} />
-              下载原始材料
+              <X size={20} />
             </button>
           </div>
-          <div className="material-facts">
-            <span>
-              部门：{selected.department || "由数据列提供"} · 范围：
-              {selected.start_date || "由数据列提供"} →{" "}
-              {selected.end_date || "由数据列提供"}
-              {selected.end_date ? "（不含结束日）" : ""}
-            </span>
-            <code>SHA-256: {selected.sha256}</code>
+          <div className="material-drawer-body">
+            {detailLoading ? (
+              <div className="loading-panel" role="status">
+                <Loader2 size={20} className="spin" />
+                正在读取文件…
+              </div>
+            ) : detailError ? (
+              <div className="notice error" role="alert">
+                {detailError}
+              </div>
+            ) : (
+              <>
+                <div className="material-preview-actions">
+                  <span>
+                    从工作目录读取 · 预览前 {selected.preview.length} 条
+                  </span>
+                  <button
+                    className="button secondary"
+                    disabled={busy}
+                    onClick={download}
+                  >
+                    <Download size={16} />
+                    下载原始材料
+                  </button>
+                </div>
+                <div className="material-facts">
+                  <span>
+                    部门：{selected.department || "由数据列提供"} · 范围：
+                    {selected.start_date || "由数据列提供"} →{" "}
+                    {selected.end_date || "由数据列提供"}
+                    {selected.end_date ? "（不含结束日）" : ""}
+                  </span>
+                  <code>SHA-256: {selected.sha256}</code>
+                </div>
+                {Object.keys(selected.mapping).length > 0 && (
+                  <div className="confirmed-mapping">
+                    {Object.entries(selected.mapping).map(
+                      ([canonical, column]) => (
+                        <span key={canonical}>
+                          {fields[selected.kind][canonical] ||
+                            optionalFields[selected.kind]?.[canonical] ||
+                            canonical}
+                          <strong>{column}</strong>
+                        </span>
+                      ),
+                    )}
+                  </div>
+                )}
+                <Preview
+                  columns={selected.columns}
+                  rows={selected.preview}
+                  count={selected.row_count}
+                />
+                <Issues issues={selected.issues} />
+              </>
+            )}
           </div>
-          {Object.keys(selected.mapping).length > 0 && (
-            <div className="confirmed-mapping">
-              {Object.entries(selected.mapping).map(([canonical, column]) => (
-                <span key={canonical}>
-                  {fields[selected.kind][canonical] ||
-                    optionalFields[selected.kind]?.[canonical] ||
-                    canonical}
-                  <strong>{column}</strong>
-                </span>
-              ))}
-            </div>
-          )}
-          <Preview
-            columns={selected.columns}
-            rows={selected.preview}
-            count={selected.row_count}
-          />
-          <Issues issues={selected.issues} />
-        </section>
+        </MaterialDrawer>
       )}
     </>
   );

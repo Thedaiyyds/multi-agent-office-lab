@@ -1,0 +1,38 @@
+{
+  "version": "2.2.0",
+  "mode": "offline",
+  "paid_model_requests": 0,
+  "python_tests_passed": 863,
+  "frontend_api_tests_passed": 13,
+  "offline_acceptance_cases_passed": 8,
+  "lint": "passed",
+  "build": "passed",
+  "migration": {
+    "existing_materials_readable": 14,
+    "existing_files_hash_unchanged": 30,
+    "material_content_cache_columns": 0,
+    "material_preview_cache_entries": 0
+  },
+  "browser": {
+    "tool": "agent-browser",
+    "desktop_viewport": [
+      1360,
+      900
+    ],
+    "mobile_viewport": [
+      390,
+      844
+    ],
+    "mobile_document_width": 390,
+    "desktop_table_scroll_top": 500,
+    "background_scroll_top": 0,
+    "mobile_panel_scroll_top": 128,
+    "fixed_header_top": 0,
+    "escape_closes": true,
+    "focus_restored_to_file_button": true,
+    "history_toggle_counts": [
+      8,
+      14
+    ]
+  }
+}

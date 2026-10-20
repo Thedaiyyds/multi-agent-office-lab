@@ -240,7 +240,7 @@ export function RunComposer({
           ) : materials.length ? (
             <>
               <p className="field-hint">
-                已预选每个同名、同类材料的最新版本，可取消或调整；最多 50
+                已预选每个同名、同类材料的最新文件，可取消或调整；最多 50
                 份。文字说明也可作为业务依据。
               </p>
               <div className="cooperation-materials">
@@ -263,7 +263,8 @@ export function RunComposer({
                     <span>
                       {item.name}
                       <small>
-                        v{item.version} · {item.row_count} 条记录
+                        {item.row_count} 条记录 ·{" "}
+                        {new Date(item.created_at).toLocaleDateString("zh-CN")}
                       </small>
                     </span>
                   </label>
@@ -283,7 +284,9 @@ export function RunComposer({
             />
             <span>
               使用系统本地样例数据（虚构）
-              <small>季度办公案例：12个项目、1560条考勤、42项成果；行政案例216条反馈。请取消无关旧材料。</small>
+              <small>
+                季度办公案例：12个项目、1560条考勤、42项成果；行政案例216条反馈。请取消无关旧材料。
+              </small>
             </span>
           </label>
           <div className="cooperation-submit">
