@@ -780,7 +780,7 @@ function DraftForm({
               通过上方协作入口可由五角色完成规划、整理、撰写和审核。合格修订自动提供
               Markdown / PDF；修改文字后需重新审核。下方可核对统计与来源。
             </p>
-            <div className="version-label">v2.0.0 · 报告交付</div>
+            <div className="version-label">v2.1.0 · 报告交付</div>
           </div>
           <div className="privacy-note">
             <ShieldCheck size={16} />
@@ -1419,7 +1419,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>v2.0.0</span>
+              本地运行<span>v2.1.0</span>
             </div>
           </div>
         </aside>
@@ -1567,7 +1567,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.0.0</span>
+            汇报协作<span>v2.1.0</span>
           </footer>
         </div>
       </div>

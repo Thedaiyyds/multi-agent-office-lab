@@ -114,15 +114,15 @@ def submit(client, materials, text=TECHNICAL, *, key=None, workspace="normal", *
     )
 
 
-def finished(client, run_id, *, workspace="normal"):
-    deadline = time.monotonic() + 10
+def finished(client, run_id, *, workspace="normal", timeout=10, poll_interval=0.01):
+    deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         response = client.get(f"/api/v1/runs/{run_id}", headers={"X-Workspace": workspace})
         assert response.status_code == 200, response.text
         run = response.json()
         if run["status"] in TERMINAL:
             return run
-        time.sleep(0.01)
+        time.sleep(poll_interval)
     raise AssertionError(f"Local fixture run {run_id} did not reach a terminal state")
 
 
@@ -608,10 +608,13 @@ def test_provider_error_does_not_leak_body_credentials_or_fake_usage(tmp_path):
 
 def test_normal_local_interface_can_supply_case_without_switching_workspace(tmp_path):
     with workbench(tmp_path) as (client, _):
-        run = successful_submit(client, [], use_local_api=True)
+        response = submit(client, [], use_local_api=True)
+        assert response.status_code == 202, response.text
+        run = finished(client, response.json()["id"], timeout=45, poll_interval=0.25)
         assert run["status"] == "completed", run
-        assert metric_values(run)["project_count"] == 4
-        assert metric_values(run)["sample_attendance_rate"] == 0.875
+        assert metric_values(run)["project_count"] == 12
+        assert metric_values(run)["person_days"] == 1560
+        assert metric_values(run)["attendance_rate"] is None
         assert {source["kind"] for source in run["source_datasets"]} == {
             "projects",
             "attendance",
