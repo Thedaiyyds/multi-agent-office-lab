@@ -2,6 +2,8 @@
 
 from datetime import date, timedelta
 
+from office_agents.workbench.statistics import calculate_statistics
+
 
 def material_profile(materials):
     files, scopes = [], set()
@@ -77,17 +79,110 @@ def scope_title(scope):
     return period + scope["department"] + "工作汇报"
 
 
-def plan_evidence(requirements, outline, profile):
-    applicable = [
+def report_options(profile):
+    scopes = profile["scopes"]
+    options = [
+        dict(id=f"scope-{i}", title=scope_title(scope), scopes=[scope], **scope)
+        for i, scope in enumerate(scopes)
+    ]
+    if len(scopes) > 1:
+        departments = {scope["department"] for scope in scopes}
+        options.insert(
+            0,
+            dict(
+                id="all",
+                title="跨部门工作情况汇编" if len(departments) > 1 else "跨期间工作情况汇编",
+                department="多部门" if len(departments) > 1 else scopes[0]["department"],
+                start_date=min(scope["start_date"] for scope in scopes),
+                end_date=max(scope["end_date"] for scope in scopes),
+                scopes=scopes,
+            ),
+        )
+    return options
+
+
+def option_scopes(requirements, option):
+    if (
+        requirements["department"] != option["department"]
+        or not option["start_date"]
+        <= requirements["start_date"]
+        < requirements["end_date"]
+        <= option["end_date"]
+    ):
+        return []
+    return [
+        dict(
+            department=scope["department"],
+            start_date=max(scope["start_date"], requirements["start_date"]),
+            end_date=min(scope["end_date"], requirements["end_date"]),
+        )
+        for scope in option["scopes"]
+        if scope["start_date"] < requirements["end_date"]
+        and requirements["start_date"] < scope["end_date"]
+    ]
+
+
+def matching_files(scopes, profile):
+    return [
         item
         for item in profile["files"]
         if any(
-            scope["department"] == requirements["department"]
-            and scope["start_date"] < requirements["end_date"]
-            and requirements["start_date"] < scope["end_date"]
-            for scope in item["scopes"]
+            source["department"] == scope["department"]
+            and source["start_date"] < scope["end_date"]
+            and scope["start_date"] < source["end_date"]
+            for source in item["scopes"]
+            for scope in scopes
         )
     ]
+
+
+def scoped_statistics(requirements, materials, groups, scopes):
+    profile = material_profile(materials)
+    metrics, issues, statuses = [], [], []
+    qualified = len(scopes) > 1 or scopes[0]["department"] != requirements["department"]
+    for i, scope in enumerate(scopes, 1):
+        ids = {item["id"] for item in matching_files([scope], profile)}
+        scoped = [item for item in materials if item["id"] in ids]
+        available = {item["kind"] for item in scoped}
+        selected = [group for group in groups if group in available]
+        label = f"{scope['department']}（{scope['start_date']}至{scope['end_date']}，不含结束日）"
+        if not selected and "notes" not in available:
+            issues.append(
+                dict(severity="error", location=label, message="该范围没有所选数据维度或文字依据")
+            )
+            statuses.append("invalid_data")
+            continue
+        result = calculate_statistics(scope, scoped, selected)
+        statuses.append(result["status"])
+        issues.extend(
+            dict(item, location=label + " / " + item["location"]) for item in result["issues"]
+        )
+        for metric in result["metrics"]:
+            if qualified:
+                metric = dict(
+                    metric,
+                    id=f"scope{i}_" + metric["id"],
+                    label=label + " · " + metric["label"],
+                    definition=label + "：" + metric["definition"],
+                    scope=scope,
+                    limitations=[
+                        *metric["limitations"],
+                        "各部门、期间独立统计，不作无依据合计或同比比较。",
+                    ],
+                )
+            metrics.append(metric)
+    status = (
+        "invalid_data"
+        if "invalid_data" in statuses
+        else "needs_input"
+        if "needs_input" in statuses
+        else "ready"
+    )
+    return dict(status=status, metrics=metrics, issues=issues, data_scopes=scopes)
+
+
+def plan_evidence(requirements, outline, profile, scopes=None):
+    applicable = matching_files(scopes or [requirements], profile)
     groups = {item["kind"] for item in applicable}
     names = {
         "projects": "项目进度",
@@ -111,6 +206,10 @@ def plan_evidence(requirements, outline, profile):
     gaps.append(
         "文件记录和日期只说明材料范围，不保证整期数据完整；预算等未提供的数据不作事实结论。"
     )
+    if scopes and len(scopes) > 1:
+        gaps.append(
+            "本方案包含多个部门或期间，数据按各自范围分别呈现，不计算混合总量或跨口径增长率。"
+        )
     return dict(
         gaps=gaps,
         sections=[

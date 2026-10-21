@@ -38,11 +38,13 @@ export function MaterialPlanReview({
     (run.outline as ReportOutline).sections,
   );
   const [busy, setBusy] = useState(false);
+  const [optionId, setOptionId] = useState(run.default_plan_option || "");
   const [error, setError] = useState("");
   const alive = useRef(true);
   const lock = useRef(false);
   const attempt = useRef<{ body: string; key: string } | null>(null);
   const dirty =
+    optionId !== (run.default_plan_option || "") ||
     JSON.stringify(draft) !== JSON.stringify(run.requirements) ||
     JSON.stringify(sections) !==
       JSON.stringify((run.outline as ReportOutline).sections);
@@ -58,12 +60,37 @@ export function MaterialPlanReview({
     };
   }, [onSaving]);
   const files = run.material_profile!.files;
-  const applicable = files.filter((file) =>
-    file.scopes.some(
+  const option = run.plan_options?.find((item) => item.id === optionId);
+  const selectedScopes = (
+    option?.scopes || [
+      {
+        department: draft.department,
+        start_date: draft.start_date,
+        end_date: draft.end_date,
+      },
+    ]
+  )
+    .filter(
       (scope) =>
-        scope.department === draft.department &&
-        scope.start_date < draft.end_date &&
-        draft.start_date < scope.end_date,
+        scope.start_date < draft.end_date && draft.start_date < scope.end_date,
+    )
+    .map((scope) => ({
+      ...scope,
+      start_date:
+        scope.start_date > draft.start_date
+          ? scope.start_date
+          : draft.start_date,
+      end_date:
+        scope.end_date < draft.end_date ? scope.end_date : draft.end_date,
+    }));
+  const applicable = files.filter((file) =>
+    file.scopes.some((source) =>
+      selectedScopes.some(
+        (scope) =>
+          source.department === scope.department &&
+          source.start_date < scope.end_date &&
+          scope.start_date < source.end_date,
+      ),
     ),
   );
   const requested = [...new Set(sections.flatMap((section) => section.groups))];
@@ -79,13 +106,55 @@ export function MaterialPlanReview({
       ),
   );
   const scopes = run.material_profile!.scopes;
-  const validScope = scopes.some(
-    (scope) =>
-      scope.department === draft.department &&
-      scope.start_date <= draft.start_date &&
+  const validScope = option
+    ? option.department === draft.department &&
+      option.start_date <= draft.start_date &&
       draft.start_date < draft.end_date &&
-      draft.end_date <= scope.end_date,
-  );
+      draft.end_date <= option.end_date &&
+      selectedScopes.length > 0
+    : scopes.some(
+        (scope) =>
+          scope.department === draft.department &&
+          scope.start_date <= draft.start_date &&
+          draft.start_date < draft.end_date &&
+          draft.end_date <= scope.end_date,
+      );
+  const chooseOption = (id: string) => {
+    const choice = run.plan_options!.find((item) => item.id === id)!;
+    setOptionId(id);
+    setDraft((previous) => ({
+      ...previous,
+      title: choice.title,
+      department: choice.department,
+      start_date: choice.start_date,
+      end_date: choice.end_date,
+    }));
+    const kinds = [
+      ...new Set(
+        files
+          .filter((file) =>
+            file.scopes.some((source) =>
+              choice.scopes.some(
+                (scope) =>
+                  source.department === scope.department &&
+                  source.start_date < scope.end_date &&
+                  scope.start_date < source.end_date,
+              ),
+            ),
+          )
+          .map((file) => file.kind),
+      ),
+    ].filter((kind) => kind !== "notes") as StatisticsGroup[];
+    setSections(
+      id === run.default_plan_option
+        ? (run.outline as ReportOutline).sections
+        : ["工作概况", "主要成果", "问题与风险", "后续计划"].map((title) => ({
+            title,
+            purpose: "依据所选范围的材料整理",
+            groups: kinds,
+          })),
+    );
+  };
   const patchSection = (
     index: number,
     changes: Partial<ReportOutline["sections"][number]>,
@@ -118,6 +187,7 @@ export function MaterialPlanReview({
     }
     const body = JSON.stringify({
       plan_hash: run.plan_hash,
+      ...(option ? { option_id: optionId } : {}),
       requirements: {
         ...draft,
         sections: sections.map((section) => section.title.trim()),
@@ -184,6 +254,24 @@ export function MaterialPlanReview({
       <form onSubmit={confirm}>
         <fieldset disabled={busy || declining} className="plan-fields">
           <legend className="sr-only">修改并确认汇报方案</legend>
+          {run.plan_options && run.plan_options.length > 1 && (
+            <label className="field">
+              汇报方向
+              <select
+                value={optionId}
+                onChange={(event) => chooseOption(event.target.value)}
+              >
+                {run.plan_options.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title}
+                  </option>
+                ))}
+              </select>
+              <small className="field-hint">
+                默认综合使用所选材料，也可以选择其中一个方向；切换后可继续调整大纲。
+              </small>
+            </label>
+          )}
           <label className="field">
             报告标题
             <input
@@ -197,22 +285,19 @@ export function MaterialPlanReview({
           </label>
           <div className="plan-scope-fields">
             <label className="field">
-              所属部门
-              <select
-                value={draft.department}
-                onChange={(event) =>
-                  setDraft((value) => ({
-                    ...value,
-                    department: event.target.value,
-                  }))
+              覆盖部门
+              <input
+                readOnly
+                value={
+                  option
+                    ? [
+                        ...new Set(
+                          selectedScopes.map((scope) => scope.department),
+                        ),
+                      ].join("、")
+                    : draft.department
                 }
-              >
-                {[...new Set(scopes.map((scope) => scope.department))].map(
-                  (department) => (
-                    <option key={department}>{department}</option>
-                  ),
-                )}
-              </select>
+              />
             </label>
             <label className="field">
               开始日期（含）
@@ -247,6 +332,22 @@ export function MaterialPlanReview({
             <p className="notice error">
               所选文件不支持这个部门或期间，请调整范围。
             </p>
+          )}
+          {selectedScopes.length > 1 && (
+            <div className="plan-source-list">
+              <h3>各组汇报范围</h3>
+              {selectedScopes.map((scope) => (
+                <div key={`${scope.department}:${scope.start_date}`}>
+                  <strong>{scope.department}</strong>
+                  <span>
+                    {scope.start_date} 至 {scope.end_date}（不含）
+                  </span>
+                </div>
+              ))}
+              <p className="field-hint">
+                各组独立整理，跨部门、期间不混算指标或推断增长率。
+              </p>
+            </div>
           )}
           <label className="field">
             汇报重点

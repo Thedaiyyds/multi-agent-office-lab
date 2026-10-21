@@ -213,7 +213,7 @@ export function RunComposer({
       </div>
       <p className="field-hint">
         {planning
-          ? "先由需求经理和规划专员提出主题、大纲、材料依据及缺口；你确认后才开始整理数据和撰写。建议选择同一部门、同一期间的文件。"
+          ? "先由需求经理和规划专员提出主题、大纲、材料依据及缺口；你确认后才开始整理数据和撰写。跨部门、跨期间也可以规划，系统会列出综合汇编及各组方向。"
           : "需求经理会先理解这段话，确认主题、部门与期间，再交给其余角色。缺少信息时会明确提示，不会替你编造。"}
       </p>
       {error && (
@@ -382,12 +382,13 @@ export function RunHistory({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(0);
+  const [page, setPage] = useState(1);
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
     setError("");
     api<{ items: AgentRun[] }>(
-      `/runs${reportId ? `?report_id=${encodeURIComponent(reportId)}` : ""}`,
+      `/runs?summary=true${reportId ? `&report_id=${encodeURIComponent(reportId)}` : ""}`,
       workspace,
       { signal: controller.signal },
     )
@@ -403,9 +404,10 @@ export function RunHistory({
     return () => controller.abort();
   }, [workspace, reportId, refresh]);
   return (
-    <section className="card cooperation-history">
+    <details className="card cooperation-history">
+      <summary>执行历史 · {items.length} 次</summary>
       <div className="cooperation-material-header">
-        <h2>协作运行记录</h2>
+        <h3>本报告的执行过程</h3>
         <button
           className="text-button"
           type="button"
@@ -431,28 +433,61 @@ export function RunHistory({
         </p>
       ) : (
         <div className="cooperation-history-list">
-          {items.map((item) => (
-            <button key={item.id} onClick={() => navigate(`/runs/${item.id}`)}>
-              <span>
-                <strong>
-                  {item.request?.planning_only
-                    ? `${item.requirements?.title || item.user_text}（材料方案）`
-                    : item.user_text}
-                </strong>
-                <small>
-                  {item.mode === "offline_mock" ? "离线模拟" : "真实模型"} ·{" "}
-                  {item.created_at
-                    ? time(item.created_at)
-                    : item.id.slice(0, 8)}
-                </small>
-              </span>
-              <span className="status-badge">{statusLabels[item.status]}</span>
-              <ArrowRight size={16} />
-            </button>
-          ))}
+          {items
+            .slice(
+              (Math.min(page, Math.max(1, Math.ceil(items.length / 5))) - 1) *
+                5,
+              Math.min(page, Math.max(1, Math.ceil(items.length / 5))) * 5,
+            )
+            .map((item) => (
+              <button
+                key={item.id}
+                onClick={() => navigate(`/runs/${item.id}`)}
+              >
+                <span>
+                  <strong>
+                    {item.request?.planning_only
+                      ? `${item.requirements?.title || item.user_text}（材料方案）`
+                      : item.user_text}
+                  </strong>
+                  <small>
+                    {item.mode === "offline_mock" ? "离线模拟" : "真实模型"} ·{" "}
+                    {item.created_at
+                      ? time(item.created_at)
+                      : item.id.slice(0, 8)}
+                  </small>
+                </span>
+                <span className="status-badge">
+                  {statusLabels[item.status]}
+                </span>
+                <ArrowRight size={16} />
+              </button>
+            ))}
         </div>
       )}
-    </section>
+      {items.length > 5 && (
+        <div className="task-pagination">
+          <button
+            className="button secondary"
+            disabled={page <= 1}
+            onClick={() => setPage((value) => value - 1)}
+          >
+            上一页
+          </button>
+          <span>
+            第 {Math.min(page, Math.ceil(items.length / 5))} /{" "}
+            {Math.ceil(items.length / 5)} 页
+          </span>
+          <button
+            className="button secondary"
+            disabled={page >= Math.ceil(items.length / 5)}
+            onClick={() => setPage((value) => value + 1)}
+          >
+            下一页
+          </button>
+        </div>
+      )}
+    </details>
   );
 }
 
@@ -650,7 +685,7 @@ export function RunDetail({
                     onClick={() =>
                       navigate(
                         run.request?.planning_only
-                          ? "/reports/plan"
+                          ? `/reports/plan?${new URLSearchParams((run.material_ids || []).map((id) => ["material", id]))}`
                           : "/reports/new",
                       )
                     }

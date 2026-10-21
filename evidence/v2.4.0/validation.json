@@ -1,0 +1,30 @@
+{
+  "version": "2.4.0",
+  "date": "2026-10-21",
+  "python_tests": 881,
+  "frontend_tests": 13,
+  "ruff": "passed",
+  "build": "passed",
+  "paid_model_calls": 0,
+  "browser": {
+    "mixed_files": 6,
+    "plan_directions": 3,
+    "completed_nodes": 6,
+    "scoped_facts": 20,
+    "md_bytes": 13732,
+    "pdf_bytes": 91020,
+    "pagination": [
+      10,
+      3
+    ],
+    "mobile_viewport": 390,
+    "mobile_document_width": 390
+  },
+  "preserved": {
+    "reports": 8,
+    "material_versions": 14,
+    "execution_runs": 11,
+    "unchanged_files": 30
+  },
+  "test_data": "temporary database; deterministic and scripted models only"
+}

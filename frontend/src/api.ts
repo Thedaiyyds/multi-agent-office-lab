@@ -153,6 +153,16 @@ export interface AgentRun {
   requirements?: Draft | null;
   material_profile?: MaterialProfile;
   plan_hash?: string;
+  plan_options?: {
+    id: string;
+    title: string;
+    department: string;
+    start_date: string;
+    end_date: string;
+    scopes: { department: string; start_date: string; end_date: string }[];
+  }[];
+  default_plan_option?: string;
+  material_ids?: string[];
   plan_evidence?: {
     gaps: string[];
     sections: { title: string; material_ids: string[] }[];

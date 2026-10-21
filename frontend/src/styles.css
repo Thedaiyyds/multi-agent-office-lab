@@ -2489,3 +2489,127 @@ select:focus-visible {
     justify-content: space-between;
   }
 }
+
+.task-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
+  border-bottom: 1px solid #edf0f6;
+}
+.task-row > input {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  flex: 0 0 16px;
+}
+.task-row.is-hidden {
+  background: #f5f7fa;
+}
+.task-list .material-history-toggle input {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+}
+.task-open {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  text-align: left;
+  background: transparent;
+}
+.task-open > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.task-open strong {
+  color: #354964;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.task-open small {
+  font-size: 11px;
+  color: #7a8aa0;
+  overflow-wrap: anywhere;
+}
+.task-open > svg {
+  color: #7891b0;
+  flex-shrink: 0;
+}
+.task-pagination,
+.task-bulk {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  font-size: 12px;
+  color: #6d809b;
+}
+.task-bulk {
+  justify-content: flex-start;
+  border-bottom: 1px solid #e9eef6;
+  background: #f5f8ff;
+}
+.task-unfinished {
+  margin-top: 24px;
+}
+.task-unfinished > summary {
+  cursor: pointer;
+  padding: 20px 24px;
+  font-weight: 500;
+  color: #637791;
+}
+.task-unfinished > p {
+  padding: 0 24px 14px;
+}
+.task-attempts {
+  width: 100%;
+  padding-left: 28px;
+  font-size: 12px;
+  color: #69809e;
+}
+.task-attempts summary {
+  cursor: pointer;
+}
+.task-attempts > div {
+  display: grid;
+  gap: 10px;
+  max-height: 220px;
+  overflow: auto;
+  padding: 12px 0;
+}
+.cooperation-history > summary {
+  cursor: pointer;
+  padding: 18px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+@media (max-width: 760px) {
+  .task-list .search-field {
+    flex: 1 0 100%;
+  }
+  .task-row {
+    padding: 16px 12px;
+  }
+  .task-open {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .task-open > span:first-of-type {
+    flex-basis: calc(100% - 40px);
+  }
+  .task-open > .status-badge {
+    margin-left: 30px;
+  }
+  .plan-source-list span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
