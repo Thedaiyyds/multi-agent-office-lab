@@ -102,13 +102,14 @@ def test_confirm_is_atomic_workspace_scoped_and_bounded_by_files(tmp_path):
         assert len(client.get("/api/v1/runs").json()["items"]) == 1
 
 
-def test_mixed_materials_need_scope_and_cancelled_plan_never_generates(tmp_path):
+def test_mixed_materials_offer_directions_and_cancelled_plan_never_generates(tmp_path):
     with workbench(tmp_path) as (client, app):
         technical = ordinary_case(client)
         administrative = ordinary_case(client, "administration-q1")
         ambiguous = planned(client, app, technical + administrative)
-        assert ambiguous["status"] == "needs_input"
-        assert ambiguous["usage"]["mock_calls"] == 0
+        assert ambiguous["status"] == "awaiting_confirmation"
+        assert len(ambiguous["plan_options"]) == 3
+        assert ambiguous["usage"]["mock_calls"] == 2
         run = planned(client, app, technical)
         assert client.post(f"/api/v1/runs/{run['id']}/cancel").json()["status"] == "cancelled"
         assert approve(client, run).status_code == 409

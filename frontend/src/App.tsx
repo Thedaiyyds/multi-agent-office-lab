@@ -22,7 +22,6 @@ import {
   Menu,
   Plus,
   RefreshCw,
-  Search,
   Settings2,
   ShieldCheck,
   Upload,
@@ -31,6 +30,7 @@ import {
 import { api, type Report, type SystemInfo, type Workspace } from "./api";
 import { useConfirmation } from "./confirm";
 import Materials from "./Materials";
+import Tasks from "./Tasks";
 import { Archive as ReportArchive, ReportDelivery } from "./Archive";
 import { RunComposer, RunDetail, RunHistory } from "./Cooperation";
 
@@ -314,110 +314,6 @@ function Home({
         <span className="caption-dot" />
         本地工作空间<span>协作记录与报告结果自动保留</span>
       </div>
-    </>
-  );
-}
-
-function ReportList({
-  reports,
-  loading,
-  error,
-  retry,
-  navigate,
-}: {
-  reports: Report[];
-  loading: boolean;
-  error: string;
-  retry: () => void;
-  navigate: (path: string) => void;
-}) {
-  const [search, setSearch] = useState("");
-  const filtered = reports.filter((report) =>
-    `${report.title} ${report.department}`
-      .toLocaleLowerCase()
-      .includes(search.toLocaleLowerCase()),
-  );
-  return (
-    <>
-      <div className="page-heading">
-        <div>
-          <div className="eyebrow">REPORTS</div>
-          <h1>报告任务</h1>
-          <p>查找并继续处理已保存的工作汇报。</p>
-        </div>
-        <button
-          className="button primary"
-          onClick={() => navigate("/reports/new")}
-        >
-          <Plus size={18} />
-          新建报告
-        </button>
-      </div>
-      <section className="card">
-        <div className="list-toolbar">
-          <label className="search-field">
-            <Search size={18} />
-            <span className="sr-only">搜索报告标题或部门</span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="搜索报告标题或部门"
-            />
-          </label>
-          <span className="list-count">{filtered.length} 份报告</span>
-          <button
-            className="icon-button"
-            onClick={retry}
-            disabled={loading}
-            aria-label="刷新报告列表"
-          >
-            <RefreshCw size={17} className={loading ? "spin" : ""} />
-          </button>
-        </div>
-        {error ? (
-          <div className="panel-padding">
-            <Notice
-              kind="error"
-              action={
-                <button className="text-button" onClick={retry}>
-                  重试
-                </button>
-              }
-            >
-              {error}
-            </Notice>
-          </div>
-        ) : loading ? (
-          <div className="loading-panel" role="status">
-            <Loader2 className="spin" size={22} />
-            正在读取报告…
-          </div>
-        ) : filtered.length ? (
-          <ReportRows
-            reports={filtered}
-            open={(id) => navigate(`/reports/${id}`)}
-          />
-        ) : (
-          <EmptyState
-            title={search ? "没有匹配的报告" : "从一份新报告开始"}
-            description={
-              search
-                ? "尝试其他标题或部门名称。"
-                : "输入部门、期间和汇报重点，选择材料即可开始生成。"
-            }
-          >
-            {!search && (
-              <button
-                className="button primary"
-                onClick={() => navigate("/reports/new")}
-              >
-                <Plus size={17} />
-                新建报告
-              </button>
-            )}
-          </EmptyState>
-        )}
-      </section>
     </>
   );
 }
@@ -995,7 +891,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>v2.3.0</span>
+              本地运行<span>v2.4.0</span>
             </div>
           </div>
         </aside>
@@ -1042,16 +938,12 @@ export default function App() {
                 system={system}
               />
             ) : path === "/reports" ? (
-              <>
-                <ReportList
-                  reports={reports}
-                  loading={loading}
-                  error={error}
-                  retry={changed}
-                  navigate={navigate}
-                />
-                <RunHistory workspace={workspace} navigate={navigate} />
-              </>
+              <Tasks
+                key={workspace}
+                workspace={workspace}
+                navigate={navigate}
+                onSaving={onSaving}
+              />
             ) : path === "/reports/new" ||
               path.split("?")[0] === "/reports/plan" ? (
               <>
@@ -1092,7 +984,6 @@ export default function App() {
                     navigate(`/runs/${run.id}`, true);
                   }}
                 />
-                <RunHistory workspace={workspace} navigate={navigate} />
               </>
             ) : /^\/runs\/[^/]+$/.test(path) ? (
               <RunDetail
@@ -1154,7 +1045,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.3.0</span>
+            汇报协作<span>v2.4.0</span>
           </footer>
         </div>
       </div>

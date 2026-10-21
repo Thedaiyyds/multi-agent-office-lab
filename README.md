@@ -2,7 +2,7 @@
 
 课程项目目标是使用 LangGraph 搭建部门工作汇报系统：需求解析 → 大纲规划 → 数据整理 → 报告撰写 → 审核与有限返工。代码按 [开发路线](ROADMAP.md) 逐版推进。
 
-当前交付版本为 **v2.3.0 多智能体工作汇报系统**：在材料库勾选文件即可规划汇报；Manager与Planner先给出主题、大纲、材料依据和限制，用户调整并确认后，接续Data→Writer→Checker→Manager验收，确认前不会创建报告或撰写正文。保持8520入口、文件直接读取与Markdown/PDF交付。[操作说明](docs/material-report-planning.md) · [本版变更](docs/releases/v2.3.0.md) · [一段文本直接生成演示](docs/report-example.md)。
+当前交付版本为 **v2.4.0 多智能体工作汇报系统**：材料可跨部门、跨期间规划综合汇编，也可选择单独汇报方向；用户确认后由Data按各自范围统计，接续Writer→Checker→Manager验收。报告任务每份报告保留一个入口，执行历史收进详情；未成稿尝试折叠并合并重复展示，支持筛选、分页和可恢复的收起操作。保持8520入口、文件直接读取与Markdown/PDF交付。[规划操作说明](docs/material-report-planning.md) · [任务整理说明](docs/report-task-management.md) · [本版变更](docs/releases/v2.4.0.md) · [一段文本直接生成演示](docs/report-example.md)。
 
 v2.0.0的小案例已通过DeepSeek V4 Pro真实运行及双格式验证；v2.1.0新增大案例采用零付费调用的离线全图与实际导出测试，未把旧模型证据当成新案例验收。[课程实验报告 Word](docs/report/experiment-report-v2.docx) · [可编辑报告 Markdown](docs/report/experiment-report-v2.md) · [安装启动](docs/deployment-v2.0.md) · [v2.0正式验收](docs/releases/v2.0.0.md)。
 

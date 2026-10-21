@@ -22,10 +22,14 @@ from office_agents.config import ConfigurationError, Settings
 from office_agents.llm import ModelCallError, OpenAICompatibleClient
 from office_agents.workbench.materials import canonical_json
 from office_agents.workbench.planning import (
+    matching_files,
     material_profile,
+    option_scopes,
     plan_evidence,
+    report_options,
     scope_supported,
     scope_title,
+    scoped_statistics,
 )
 from office_agents.workbench.statistics import POLICY_VERSION, calculate_statistics
 
@@ -152,6 +156,7 @@ class PlanConfirmation(Contract):
     plan_hash: str = Field(pattern=r"^[0-9a-f]{64}$")
     requirements: Requirements
     outline: Outline
+    option_id: str | None = Field(default=None, max_length=80)
 
     @model_validator(mode="after")
     def consistent(self):
@@ -483,6 +488,17 @@ class ExecutionService:
                 facts=[],
                 notes=[],
             )
+            if report:
+                previous = db.execute(
+                    "SELECT json_extract(payload,'$.data_scopes') FROM execution_runs "
+                    "WHERE workspace=? AND report_id=? "
+                    "AND json_extract(payload,'$.report_version')=? "
+                    "AND json_extract(payload,'$.data_scopes') IS NOT NULL "
+                    "ORDER BY rowid DESC LIMIT 1",
+                    (workspace, request.report_id, request.expected_version),
+                ).fetchone()
+                if previous:
+                    run["data_scopes"] = json.loads(previous[0])
             self._event(
                 run,
                 "system",
@@ -618,7 +634,10 @@ class ExecutionService:
         return result
 
     def confirm_plan(self, run_id, workspace, request, key):
-        digest = hashlib.sha256(canonical_json(request.model_dump()).encode()).hexdigest()
+        digest_data = request.model_dump()
+        if request.option_id is None:
+            digest_data.pop("option_id")
+        digest = hashlib.sha256(canonical_json(digest_data).encode()).hexdigest()
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute(
@@ -639,7 +658,17 @@ class ExecutionService:
             if not self.available:
                 raise HTTPException(503, "执行队列尚未启动，请稍后重试")
             requirements, outline = request.requirements.model_dump(), request.outline.model_dump()
-            if not scope_supported(requirements, run["material_profile"]):
+            options = run.get("plan_options", [])
+            option_id = request.option_id or run.get("default_plan_option")
+            option = next((item for item in options if item["id"] == option_id), None)
+            scopes = (
+                option_scopes(requirements, option)
+                if option
+                else [requirements]
+                if not options and scope_supported(requirements, run["material_profile"])
+                else []
+            )
+            if not scopes:
                 raise HTTPException(422, "部门和期间须在所选文件能够支持的范围内")
             materials = []
             for material_id in run["material_ids"]:
@@ -650,7 +679,7 @@ class ExecutionService:
                 if material is None:
                     raise HTTPException(409, "方案所用文件已不可用，请重新规划")
                 materials.append(self.material_service.read(material))
-            evidence = plan_evidence(requirements, outline, material_profile(materials))
+            evidence = plan_evidence(requirements, outline, material_profile(materials), scopes)
             if any(not section["material_ids"] for section in evidence["sections"]):
                 raise HTTPException(422, "每个章节至少需要一份所选材料作为依据，请调整数据分类")
             applicable_ids = {
@@ -687,6 +716,7 @@ class ExecutionService:
                 stage="queued",
                 requirements=requirements,
                 outline=outline,
+                data_scopes=scopes,
                 plan_evidence=evidence,
                 plan_confirmation=dict(
                     key=key,
@@ -694,6 +724,8 @@ class ExecutionService:
                     created_at=now,
                     requirements=requirements,
                     outline=outline,
+                    option_id=option_id,
+                    data_scopes=scopes,
                 ),
             )
             self._event(
@@ -873,9 +905,13 @@ class ExecutionContext:
                 "不得转述notes中的日期、数量、人员数或工作日数；引用整段[[note:N001]]，"
                 "或省略数字细节，写‘所提供样本’。不得写‘两个工作日’等裸数量。"
                 "返工时逐项修复previous_review所指原句，previous_narrative为上一稿。"
+                "跨部门、跨期间汇编必须保留各组归属，不混算总量、平均值或无依据比较。"
             )
         elif role == "checker":
-            system += "问题和修改要求最多各三条，每条最多30个汉字；程序问题不能忽略。"
+            system += (
+                "问题和修改要求最多各三条，每条最多30个汉字；程序问题不能忽略。"
+                "跨部门或期间须检查各组归属，拒绝混合统计或无口径比较。"
+            )
         elif phase == "acceptance":
             system += "reasons最多两条，每条最多30个汉字。"
         if role == "manager" and context.get("planning_only"):
@@ -883,6 +919,7 @@ class ExecutionContext:
                 "当前只提出汇报方案，不写报告。部门及起止日期必须逐字复制suggested_scope，"
                 "标题参考suggested_title，focus简写用户重点；章节按文件类型规划。"
                 "文件行数不是项目数或成果数，不输出业务统计结论。"
+                "材料可以跨部门和期间，综合汇编按各自范围说明，不要求用户补填统一部门。"
             )
         messages = [
             {"role": "system", "content": system},
@@ -1015,27 +1052,33 @@ class ExecutionContext:
                 for start, end in sorted(_periods(run["user_text"]))
             ],
         )
+        if run.get("data_scopes"):
+            context["data_scopes"] = run["data_scopes"]
         if profile:
+            options = report_options(profile)
             departments = sorted({scope["department"] for scope in profile["scopes"]})
             named = [department for department in departments if department in run["user_text"]]
             departments = named or departments
             periods = sorted(_periods(run["user_text"]))
             choices = [
-                dict(department=department, start_date=start, end_date=end)
-                for department in departments
-                for start, end in periods
-                if scope_supported(
-                    dict(department=department, start_date=start, end_date=end), profile
+                dict(
+                    department=scope["department"],
+                    start_date=max(start, scope["start_date"]),
+                    end_date=min(end, scope["end_date"]),
                 )
+                for scope in profile["scopes"]
+                for start, end in periods
+                if scope["department"] in departments
+                and start < scope["end_date"]
+                and scope["start_date"] < end
             ]
             if not periods:
                 choices = [
                     scope for scope in profile["scopes"] if scope["department"] in departments
                 ]
-            if len(choices) != 1:
-                question = (
-                    "无法确定唯一且有材料支持的范围，请调整选择，或在规划重点中明确部门和期间。"
-                )
+            choices = list({canonical_json(scope): scope for scope in choices}.values())
+            if not choices:
+                question = "所填写期间没有对应材料，请调整期间；也可以留空，让团队根据文件规划。"
                 self.change(
                     lambda current: current.update(
                         missing_fields=["material_scope"], questions=[question]
@@ -1045,13 +1088,38 @@ class ExecutionContext:
                 return dict(
                     status="needs_input", missing_fields=["material_scope"], questions=[question]
                 )
+            if len(choices) > 1:
+                options[0] = report_options(dict(profile, scopes=choices))[0]
+            suggested = (
+                choices[0]
+                if len(choices) == 1
+                else {key: options[0][key] for key in ("department", "start_date", "end_date")}
+            )
+            default_option = (
+                options[0]
+                if len(choices) > 1
+                else next(
+                    item
+                    for item in options
+                    if len(item["scopes"]) == 1
+                    and scope_supported(suggested, {"scopes": item["scopes"]})
+                )
+            )
+            self.change(
+                lambda current: current.update(
+                    plan_options=options, default_plan_option=default_option["id"]
+                )
+            )
             context.update(
                 material_profile=profile,
                 planning_only=True,
-                suggested_scope=choices[0],
-                suggested_title=scope_title(choices[0]),
+                suggested_scope=suggested,
+                suggested_title=scope_title(suggested)
+                if len(choices) == 1
+                else default_option["title"],
+                report_directions=options,
                 grounded_periods=[
-                    dict(start_date=choices[0]["start_date"], end_date=choices[0]["end_date"])
+                    dict(start_date=suggested["start_date"], end_date=suggested["end_date"])
                 ],
             )
 
@@ -1060,7 +1128,7 @@ class ExecutionContext:
                 scope = context["suggested_scope"]
                 requirements = dict(
                     **scope,
-                    title=scope_title(scope),
+                    title=context["suggested_title"],
                     focus=run["user_text"][:2000],
                     sections=DEFAULT_SECTIONS,
                 )
@@ -1171,17 +1239,15 @@ class ExecutionContext:
             {material["kind"] for material in run["materials"] if material["kind"] != "notes"}
         )
         if planning:
+            option = next(
+                item for item in run["plan_options"] if item["id"] == run["default_plan_option"]
+            )
+            planned_scopes = option_scopes(run["requirements"], option)
             available = sorted(
                 {
                     item["kind"]
-                    for item in run["material_profile"]["files"]
+                    for item in matching_files(planned_scopes, run["material_profile"])
                     if item["kind"] != "notes"
-                    and any(
-                        scope["department"] == run["requirements"]["department"]
-                        and scope["start_date"] < run["requirements"]["end_date"]
-                        and run["requirements"]["start_date"] < scope["end_date"]
-                        for scope in item["scopes"]
-                    )
                 }
             )
         context = dict(
@@ -1198,6 +1264,8 @@ class ExecutionContext:
         )
         if planning:
             context["material_profile"] = run["material_profile"]
+        if run.get("data_scopes"):
+            context["data_scopes"] = run["data_scopes"]
 
         def mock():
             if planning:
@@ -1247,7 +1315,7 @@ class ExecutionContext:
             if planning:
                 current.update(
                     plan_evidence=plan_evidence(
-                        current["requirements"], output, current["material_profile"]
+                        current["requirements"], output, current["material_profile"], planned_scopes
                     ),
                     plan_hash=hashlib.sha256(
                         canonical_json(
@@ -1334,7 +1402,12 @@ class ExecutionContext:
                 self.run_id, "needs_input", message="Data没有获得可读取的材料或本地接口授权"
             )
             return dict(status="needs_input", summary="缺少授权材料", limitations=[])
-        statistics = calculate_statistics(run["requirements"], materials, run["outline"]["groups"])
+        scopes = run.get("data_scopes")
+        statistics = (
+            scoped_statistics(run["requirements"], materials, run["outline"]["groups"], scopes)
+            if scopes
+            else calculate_statistics(run["requirements"], materials, run["outline"]["groups"])
+        )
         statistics.update(
             source_format="grouped-v1",
             id=uuid4().hex,
@@ -1357,14 +1430,23 @@ class ExecutionContext:
         notes, text_size = [], 0
         shortened_notes = omitted_notes = 0
         for item in materials:
-            if (
-                item["kind"] != "notes"
-                or item["department"] != run["requirements"]["department"]
-                or not (
-                    item["start_date"] <= run["requirements"]["start_date"]
-                    and item["end_date"] >= run["requirements"]["end_date"]
-                )
-            ):
+            matches = (
+                [
+                    scope
+                    for scope in (scopes or [run["requirements"]])
+                    if item["department"] == scope["department"]
+                    and (
+                        item["start_date"] < scope["end_date"]
+                        and scope["start_date"] < item["end_date"]
+                        if scopes
+                        else item["start_date"] <= scope["start_date"]
+                        and item["end_date"] >= scope["end_date"]
+                    )
+                ]
+                if item["kind"] == "notes"
+                else []
+            )
+            if item["kind"] != "notes" or not matches:
                 continue
             for row in item["rows"]:
                 original = " | ".join(str(value) for value in row["values"].values())
@@ -1387,6 +1469,12 @@ class ExecutionContext:
                         location=row["location"],
                     )
                 )
+                if scopes and len(scopes) > 1:
+                    notes[-1]["scope"] = dict(
+                        department=item["department"],
+                        start_date=item["start_date"],
+                        end_date=item["end_date"],
+                    )
         note_limitations = []
         if shortened_notes or omitted_notes:
             note_limitations.append(
@@ -1480,6 +1568,8 @@ class ExecutionContext:
             previous_narrative=run.get("narrative"),
             revision=self.revision,
         )
+        if run["statistics"].get("data_scopes"):
+            context["data_scopes"] = run["statistics"]["data_scopes"]
 
         def mock():
             refs = " ".join(
@@ -1842,9 +1932,17 @@ def render_markdown(run, narrative):
                 + f"（{identifier}）"
             )
         if kind == "note" and identifier in notes:
+            note = notes[identifier]
+            scope = note.get("scope")
             return (
                 "【材料原文，非统计指标："
-                + _cell(notes[identifier]["text"])
+                + (
+                    _cell(scope["department"])
+                    + f"（{scope['start_date']}至{scope['end_date']}，不含结束日）："
+                    if scope
+                    else ""
+                )
+                + _cell(note["text"])
                 + f"；来源{identifier}】"
             )
         return match.group(0)
@@ -1856,6 +1954,19 @@ def render_markdown(run, narrative):
         f"部门：{_cell(requirements['department'])}；期间：{requirements['start_date']}（含）至{requirements['end_date']}（不含）。",
         "",
     ]
+    scopes = (run.get("statistics") or {}).get("data_scopes", [])
+    if len(scopes) > 1:
+        lines += [
+            "## 汇编范围",
+            "",
+            "各范围分别整理，以下期间均不包含结束日；不跨口径混算指标。",
+            "",
+        ]
+        lines += [
+            f"- {_cell(scope['department'])}：{scope['start_date']} 至 {scope['end_date']}"
+            for scope in scopes
+        ]
+        lines += [""]
     if run["mode"] == "offline_mock":
         lines += ["> 离线夹具演练：五角色使用本地确定性回复，不代表真实大模型生成。", ""]
     for section in narrative["sections"]:
@@ -2032,6 +2143,7 @@ def create_execution_router(
     def list_runs(
         x_workspace: Annotated[Workspace, Header()] = "normal",
         report_id: Annotated[str | None, Query(max_length=128)] = None,
+        summary: bool = False,
     ):
         with connection() as db:
             if report_id is not None:
@@ -2040,6 +2152,10 @@ def create_execution_router(
                 ).fetchone()
                 if row is None:
                     raise HTTPException(404, "未找到该工作区中的报告")
+            if summary:
+                from office_agents.workbench.tasks import run_summaries
+
+                return JSONResponse({"items": run_summaries(db, x_workspace, report_id)})
             rows = db.execute(
                 "SELECT payload FROM execution_runs WHERE workspace=? "
                 "AND (? IS NULL OR report_id=?) ORDER BY rowid DESC LIMIT 100",
