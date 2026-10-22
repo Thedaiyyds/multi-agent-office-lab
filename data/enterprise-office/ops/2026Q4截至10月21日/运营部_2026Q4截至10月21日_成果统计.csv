@@ -1,0 +1,6 @@
+achievement_id,department,date,category,name,project_id,owner_id,evidence_id,acceptance_status,fictional
+ENT-OPS-P010-A3,运营部,2026-10-01,项目交付,服务知识库·2期：验收签认与运行交接,ENT-OPS-P010,ENT-OPS-U028,ENT-OPS-P010-E3,已确认,true
+ENT-OPS-P012-A3,运营部,2026-10-09,项目交付,工单回访·2期：验收签认与运行交接,ENT-OPS-P012,ENT-OPS-U034,ENT-OPS-P012-E3,已确认,true
+ENT-OPS-P013-A3,运营部,2026-10-13,项目交付,用户培训·2期：验收签认与运行交接,ENT-OPS-P013,ENT-OPS-U037,ENT-OPS-P013-E3,已确认,true
+ENT-OPS-P014-A3,运营部,2026-10-17,项目交付,续约跟进·2期：验收签认与运行交接,ENT-OPS-P014,ENT-OPS-U040,ENT-OPS-P014-E3,已确认,true
+ENT-OPS-P015-A3,运营部,2026-10-21,项目交付,客户交接·3期：验收签认与运行交接,ENT-OPS-P015,ENT-OPS-U003,ENT-OPS-P015-E3,已确认,true
