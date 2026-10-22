@@ -240,6 +240,37 @@ def _periods(text):
     return found
 
 
+def compact_model_context(context):
+    """Share repeated evidence metadata without dropping a fact, note or limitation."""
+    if len(canonical_json(context)) < 32000:
+        return context
+    compact = deepcopy(context)
+    if compact.get("facts") and "fact_limitations" not in compact:
+        limitations = list(
+            dict.fromkeys(text for fact in compact["facts"] for text in fact.get("limitations", []))
+        )
+        compact["fact_limitations"] = {f"L{i}": text for i, text in enumerate(limitations, 1)}
+        identifiers = {text: key for key, text in compact["fact_limitations"].items()}
+        for fact in compact["facts"]:
+            fact["limitation_ids"] = [identifiers[text] for text in fact.pop("limitations", [])]
+    if compact.get("notes") and "note_sources" not in compact:
+        sources, identifiers = {}, {}
+        for note in compact["notes"]:
+            metadata = {
+                key: value for key, value in note.items() if key not in {"id", "text", "location"}
+            }
+            key = canonical_json(metadata)
+            if key not in identifiers:
+                identifier = f"NS{len(sources) + 1}"
+                identifiers[key] = identifier
+                sources[identifier] = metadata
+            for field in metadata:
+                del note[field]
+            note["source_id"] = identifiers[key]
+        compact["note_sources"] = sources
+    return compact
+
+
 class RunStopped(Exception):
     """Control flow only; safe terminal details are already persisted."""
 
@@ -851,6 +882,7 @@ class ExecutionContext:
 
     def call(self, role, phase, model, context, mock):
         self.guard()
+        context = compact_model_context(context)
         self.change(lambda run: run["nodes"][-1]["inputs"].update(context=deepcopy(context)))
         if self.run()["mode"] == "offline_mock":
 
@@ -906,6 +938,7 @@ class ExecutionContext:
                 "或省略数字细节，写‘所提供样本’。不得写‘两个工作日’等裸数量。"
                 "返工时逐项修复previous_review所指原句，previous_narrative为上一稿。"
                 "跨部门、跨期间汇编必须保留各组归属，不混算总量、平均值或无依据比较。"
+                "正文选取与章节相关的代表性事实即可；完整指标表由程序附加，无需逐项复述。"
             )
         elif role == "checker":
             system += (
@@ -920,6 +953,12 @@ class ExecutionContext:
                 "标题参考suggested_title，focus简写用户重点；章节按文件类型规划。"
                 "文件行数不是项目数或成果数，不输出业务统计结论。"
                 "材料可以跨部门和期间，综合汇编按各自范围说明，不要求用户补填统一部门。"
+            )
+        if context.get("fact_limitations") or context.get("note_sources"):
+            system += (
+                "上下文采用共享索引：facts的limitation_ids对应fact_limitations中的限制；"
+                "notes的source_id对应note_sources中的文件、部门、期间和校验值。"
+                "须按索引还原归属与限制，引用编号仍用原fact/note的id。"
             )
         messages = [
             {"role": "system", "content": system},
@@ -1575,9 +1614,10 @@ class ExecutionContext:
             context["data_scopes"] = run["statistics"]["data_scopes"]
 
         def mock():
-            refs = " ".join(
-                "[[fact:" + fact["id"] + "]]" for fact in run["facts"] if fact["value"] is not None
-            )
+            eligible = [fact for fact in run["facts"] if fact["value"] is not None]
+            if len(eligible) > 50:
+                eligible = eligible[:: (len(eligible) + 11) // 12]
+            refs = " ".join("[[fact:" + fact["id"] + "]]" for fact in eligible)
             return dict(
                 sections=[
                     dict(
@@ -1864,6 +1904,10 @@ class ExecutionContext:
             }
             code = error.code if error.code in allowed else "model_error"
             scope_messages = {
+                "context_limit": (
+                    "当前角色所需的材料摘要超出处理容量，已停止后续模型调用；"
+                    "请调整所选材料或大纲后重试，已完成的统计和执行记录仍保留"
+                ),
                 "material_file": (
                     "Data无法读取所选材料：文件可能缺失、已修改或校验未通过，"
                     "请在材料库检查并重新导入"
