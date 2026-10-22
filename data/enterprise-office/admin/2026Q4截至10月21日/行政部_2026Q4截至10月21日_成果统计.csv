@@ -1,0 +1,4 @@
+achievement_id,department,date,category,name,project_id,owner_id,evidence_id,acceptance_status,fictional
+ENT-ADMIN-P009-A3,行政部,2026-10-04,项目交付,资产领用·2期：验收签认与运行交接,ENT-ADMIN-P009,ENT-ADMIN-U001,ENT-ADMIN-P009-E3,已确认,true
+ENT-ADMIN-P010-A3,行政部,2026-10-08,项目交付,报修闭环·2期：验收签认与运行交接,ENT-ADMIN-P010,ENT-ADMIN-U004,ENT-ADMIN-P010-E3,已确认,true
+ENT-ADMIN-P012-A3,行政部,2026-10-16,项目交付,档案借阅·2期：验收签认与运行交接,ENT-ADMIN-P012,ENT-ADMIN-U010,ENT-ADMIN-P012-E3,已确认,true

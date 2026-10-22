@@ -440,7 +440,7 @@ class ExecutionService:
                 materials.append(
                     {
                         field: material[field]
-                        for field in ("id", "name", "kind", "version", "sha256")
+                        for field in ("id", "name", "kind", "version", "sha256", "department")
                     }
                 )
             now = _now()
@@ -1136,10 +1136,13 @@ class ExecutionContext:
                 requirements = {key: saved[key] for key in Requirements.model_fields}
             else:
                 periods = sorted(_periods(run["user_text"]))
+                known_departments = {"技术部", "行政部", "研发部", "财务部", "人事部"} | {
+                    material["department"]
+                    for material in run["materials"]
+                    if material.get("department")
+                }
                 departments = [
-                    name
-                    for name in ("技术部", "行政部", "研发部", "财务部", "人事部")
-                    if name in run["user_text"]
+                    name for name in sorted(known_departments) if name in run["user_text"]
                 ]
                 if len(periods) != 1 or len(departments) != 1:
                     return dict(

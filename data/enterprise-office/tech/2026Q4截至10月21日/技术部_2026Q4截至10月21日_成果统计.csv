@@ -1,0 +1,6 @@
+achievement_id,department,date,category,name,project_id,owner_id,evidence_id,acceptance_status,fictional
+ENT-TECH-P014-A3,技术部,2026-10-03,项目交付,备份恢复·2期：验收签认与运行交接,ENT-TECH-P014,ENT-TECH-U040,ENT-TECH-P014-E3,已确认,true
+ENT-TECH-P015-A3,技术部,2026-10-07,项目交付,统一身份·3期：验收签认与运行交接,ENT-TECH-P015,ENT-TECH-U043,ENT-TECH-P015-E3,已确认,true
+ENT-TECH-P016-A3,技术部,2026-10-11,项目交付,服务网关·3期：验收签认与运行交接,ENT-TECH-P016,ENT-TECH-U046,ENT-TECH-P016-E3,已确认,true
+ENT-TECH-P017-A3,技术部,2026-10-15,项目交付,知识检索·3期：验收签认与运行交接,ENT-TECH-P017,ENT-TECH-U049,ENT-TECH-P017-E3,已确认,true
+ENT-TECH-P018-A3,技术部,2026-10-19,项目交付,数据治理·3期：验收签认与运行交接,ENT-TECH-P018,ENT-TECH-U052,ENT-TECH-P018-E3,已确认,true

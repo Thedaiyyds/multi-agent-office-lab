@@ -1,0 +1,552 @@
+{
+  "fictional": true,
+  "company": "衡川数智（虚构）",
+  "as_of": "2026-10-21",
+  "seed": "enterprise-office-v1",
+  "files": [
+    {
+      "path": "tech/2026Q3/技术部_2026Q3_项目进度.csv",
+      "name": "技术部_2026Q3_项目进度.csv",
+      "kind": "projects",
+      "department": "技术部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 364,
+      "sha256": "7ef4791129c706cf5bad5ed3bebd1174920ffc84a15c46985d4a8daeb8d06603"
+    },
+    {
+      "path": "tech/2026Q3/技术部_2026Q3_人员考勤.csv",
+      "name": "技术部_2026Q3_人员考勤.csv",
+      "kind": "attendance",
+      "department": "技术部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 4904,
+      "sha256": "5571933ba062b15e849cee516557035353f840f30732d58ec755e76f979b79ae"
+    },
+    {
+      "path": "tech/2026Q3/技术部_2026Q3_成果统计.csv",
+      "name": "技术部_2026Q3_成果统计.csv",
+      "kind": "achievements",
+      "department": "技术部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 68,
+      "sha256": "4cedf48b1fcbbd55b70898abe6d769f85475d5fb280fcada950d5336e55a80c3"
+    },
+    {
+      "path": "tech/2026Q3/技术部_2026Q3_满意度.csv",
+      "name": "技术部_2026Q3_满意度.csv",
+      "kind": "satisfaction",
+      "department": "技术部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 735,
+      "sha256": "126f692a4daa185fa9d1cb82e5f1f542b644e09d52dc97faf8091e57c3796083"
+    },
+    {
+      "path": "tech/2026Q3/技术部_2026Q3_工作说明.txt",
+      "name": "技术部_2026Q3_工作说明.txt",
+      "kind": "notes",
+      "department": "技术部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 14,
+      "sha256": "f516ea00f399ece0127129265b99f60c1b125966419e2b0956f3d3efa6f6a90e"
+    },
+    {
+      "path": "tech/2026Q4截至10月21日/技术部_2026Q4截至10月21日_项目进度.csv",
+      "name": "技术部_2026Q4截至10月21日_项目进度.csv",
+      "kind": "projects",
+      "department": "技术部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 112,
+      "sha256": "5d7e7a77cda58a0d65fe78ec441f32a7bd21bfed7e3174c32157e87dcdecd434"
+    },
+    {
+      "path": "tech/2026Q4截至10月21日/技术部_2026Q4截至10月21日_人员考勤.csv",
+      "name": "技术部_2026Q4截至10月21日_人员考勤.csv",
+      "kind": "attendance",
+      "department": "技术部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 1155,
+      "sha256": "49d012df9eec4a2a1dd609c76f3d321dca8505781db9a1d0379beb9848c17950"
+    },
+    {
+      "path": "tech/2026Q4截至10月21日/技术部_2026Q4截至10月21日_成果统计.csv",
+      "name": "技术部_2026Q4截至10月21日_成果统计.csv",
+      "kind": "achievements",
+      "department": "技术部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 5,
+      "sha256": "277edc96deecdd98d3496f91643d51543c38275b56fa8115f932db31eafbe06b"
+    },
+    {
+      "path": "tech/2026Q4截至10月21日/技术部_2026Q4截至10月21日_满意度.csv",
+      "name": "技术部_2026Q4截至10月21日_满意度.csv",
+      "kind": "satisfaction",
+      "department": "技术部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 158,
+      "sha256": "47d36f65979a707fb8b47189214edbaf215bf8de3430b86633c8bee44e9df9ab"
+    },
+    {
+      "path": "tech/2026Q4截至10月21日/技术部_2026Q4截至10月21日_工作说明.txt",
+      "name": "技术部_2026Q4截至10月21日_工作说明.txt",
+      "kind": "notes",
+      "department": "技术部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 14,
+      "sha256": "8fb83c1da2714fb41ee326a11db0494b3808aeaa8a51865d55214ea92496aa36"
+    },
+    {
+      "path": "rd/2026Q3/研发部_2026Q3_项目进度.csv",
+      "name": "研发部_2026Q3_项目进度.csv",
+      "kind": "projects",
+      "department": "研发部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 286,
+      "sha256": "807812e3163e03ed435dfc9d7c5f4a89519e561ace41b20e02e25500b9922ea2"
+    },
+    {
+      "path": "rd/2026Q3/研发部_2026Q3_人员考勤.csv",
+      "name": "研发部_2026Q3_人员考勤.csv",
+      "kind": "attendance",
+      "department": "研发部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 3460,
+      "sha256": "1c4f73a47569c250b7ba4664070efcfbd15f0cc4228eebc595e23f323bd73295"
+    },
+    {
+      "path": "rd/2026Q3/研发部_2026Q3_成果统计.csv",
+      "name": "研发部_2026Q3_成果统计.csv",
+      "kind": "achievements",
+      "department": "研发部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 54,
+      "sha256": "256411985d2aaf06d922b493f987cd5b17359a7ce4422923d0943de9ff5bd7b7"
+    },
+    {
+      "path": "rd/2026Q3/研发部_2026Q3_满意度.csv",
+      "name": "研发部_2026Q3_满意度.csv",
+      "kind": "satisfaction",
+      "department": "研发部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 731,
+      "sha256": "cd4034f7ea4eaaa97edc1e8134704c684b2a85214b525959fd11736beeee492f"
+    },
+    {
+      "path": "rd/2026Q3/研发部_2026Q3_工作说明.txt",
+      "name": "研发部_2026Q3_工作说明.txt",
+      "kind": "notes",
+      "department": "研发部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 14,
+      "sha256": "84badf80a12eec58a6ca92f6fd119c1a4d88369ac7ee2bd22a0d441cf5072faf"
+    },
+    {
+      "path": "rd/2026Q4截至10月21日/研发部_2026Q4截至10月21日_项目进度.csv",
+      "name": "研发部_2026Q4截至10月21日_项目进度.csv",
+      "kind": "projects",
+      "department": "研发部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 88,
+      "sha256": "fb6bfc1a702a6c8bfc430e406ff009e6b0c770f43c633a687078d01df5df6381"
+    },
+    {
+      "path": "rd/2026Q4截至10月21日/研发部_2026Q4截至10月21日_人员考勤.csv",
+      "name": "研发部_2026Q4截至10月21日_人员考勤.csv",
+      "kind": "attendance",
+      "department": "研发部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 810,
+      "sha256": "13744c919e745a26280b4d8d020084477f121ab435185d9a6a9969e1d11eb0fd"
+    },
+    {
+      "path": "rd/2026Q4截至10月21日/研发部_2026Q4截至10月21日_成果统计.csv",
+      "name": "研发部_2026Q4截至10月21日_成果统计.csv",
+      "kind": "achievements",
+      "department": "研发部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 5,
+      "sha256": "0f7619f8d893d80847f5b0edbf0e30f92f678072d4f8880f2a84de958e1b7de6"
+    },
+    {
+      "path": "rd/2026Q4截至10月21日/研发部_2026Q4截至10月21日_满意度.csv",
+      "name": "研发部_2026Q4截至10月21日_满意度.csv",
+      "kind": "satisfaction",
+      "department": "研发部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 170,
+      "sha256": "2dcd925a5d59ff3b9a4d112121054b6bc29617948cd278b69c0975e69346f0f7"
+    },
+    {
+      "path": "rd/2026Q4截至10月21日/研发部_2026Q4截至10月21日_工作说明.txt",
+      "name": "研发部_2026Q4截至10月21日_工作说明.txt",
+      "kind": "notes",
+      "department": "研发部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 14,
+      "sha256": "1bf11c5501b0b67e6dd553446610a329ca714dbef74f7e0f1d42dfa7743be098"
+    },
+    {
+      "path": "ops/2026Q3/运营部_2026Q3_项目进度.csv",
+      "name": "运营部_2026Q3_项目进度.csv",
+      "kind": "projects",
+      "department": "运营部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 234,
+      "sha256": "c88fe953494e7281012fc29367ead5ebb42dcbbbed54a4cd763045fbdf61a825"
+    },
+    {
+      "path": "ops/2026Q3/运营部_2026Q3_人员考勤.csv",
+      "name": "运营部_2026Q3_人员考勤.csv",
+      "kind": "attendance",
+      "department": "运营部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 2456,
+      "sha256": "2699996a54b4620b9c348532775d4854b67e179c992a3263094286e2da876bd2"
+    },
+    {
+      "path": "ops/2026Q3/运营部_2026Q3_成果统计.csv",
+      "name": "运营部_2026Q3_成果统计.csv",
+      "kind": "achievements",
+      "department": "运营部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 45,
+      "sha256": "bc80878c5bf7f9af2f1a65df99b53f3cbf446b8acb897358e19f7efc3f129662"
+    },
+    {
+      "path": "ops/2026Q3/运营部_2026Q3_满意度.csv",
+      "name": "运营部_2026Q3_满意度.csv",
+      "kind": "satisfaction",
+      "department": "运营部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 764,
+      "sha256": "ed40f65aab1e1938f4063546e3aafdb4e74eefd341cb20c44eb5828c04750357"
+    },
+    {
+      "path": "ops/2026Q3/运营部_2026Q3_工作说明.txt",
+      "name": "运营部_2026Q3_工作说明.txt",
+      "kind": "notes",
+      "department": "运营部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 14,
+      "sha256": "5b2b1e56573d8205ddb0454e832aa4e8b76aa24669573dbbcec76d200a5e5b80"
+    },
+    {
+      "path": "ops/2026Q4截至10月21日/运营部_2026Q4截至10月21日_项目进度.csv",
+      "name": "运营部_2026Q4截至10月21日_项目进度.csv",
+      "kind": "projects",
+      "department": "运营部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 72,
+      "sha256": "ec5cc5e70e618fbe83322145817f33b5394a778bd0ec3e23a7a4d07e38e8712c"
+    },
+    {
+      "path": "ops/2026Q4截至10月21日/运营部_2026Q4截至10月21日_人员考勤.csv",
+      "name": "运营部_2026Q4截至10月21日_人员考勤.csv",
+      "kind": "attendance",
+      "department": "运营部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 585,
+      "sha256": "8246c1cebf87fe74c0f59ccd79c9659b8937e18d282c4d2445383702802eddd9"
+    },
+    {
+      "path": "ops/2026Q4截至10月21日/运营部_2026Q4截至10月21日_成果统计.csv",
+      "name": "运营部_2026Q4截至10月21日_成果统计.csv",
+      "kind": "achievements",
+      "department": "运营部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 5,
+      "sha256": "48e66b3721527b6b2627cc7381b7a1e3eb20526df3aca87510353ca529794c55"
+    },
+    {
+      "path": "ops/2026Q4截至10月21日/运营部_2026Q4截至10月21日_满意度.csv",
+      "name": "运营部_2026Q4截至10月21日_满意度.csv",
+      "kind": "satisfaction",
+      "department": "运营部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 163,
+      "sha256": "d192a4ea21075a8367a4f52364bededafb276834f5da04f286c174fb89baa7b1"
+    },
+    {
+      "path": "ops/2026Q4截至10月21日/运营部_2026Q4截至10月21日_工作说明.txt",
+      "name": "运营部_2026Q4截至10月21日_工作说明.txt",
+      "kind": "notes",
+      "department": "运营部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 14,
+      "sha256": "f57c65525370cf4d6ef1ab2568ba40260aa4b3f08e38d5cedc0a0933376dd0e4"
+    },
+    {
+      "path": "admin/2026Q3/行政部_2026Q3_项目进度.csv",
+      "name": "行政部_2026Q3_项目进度.csv",
+      "kind": "projects",
+      "department": "行政部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 156,
+      "sha256": "8a3fa061ccbcacf7f4dbc926492f5c529089e3325af8b06e1a9a4a858206ac6d"
+    },
+    {
+      "path": "admin/2026Q3/行政部_2026Q3_人员考勤.csv",
+      "name": "行政部_2026Q3_人员考勤.csv",
+      "kind": "attendance",
+      "department": "行政部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 1488,
+      "sha256": "74417a2213f2da6f1c55d8dd30aa247cfa258553d8a2d10eb7e3759fcc6999d9"
+    },
+    {
+      "path": "admin/2026Q3/行政部_2026Q3_成果统计.csv",
+      "name": "行政部_2026Q3_成果统计.csv",
+      "kind": "achievements",
+      "department": "行政部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 32,
+      "sha256": "689f800536ba2fba1cb8a0fd50255cf9971f9ed161d5fd502ef4da2505328e3b"
+    },
+    {
+      "path": "admin/2026Q3/行政部_2026Q3_满意度.csv",
+      "name": "行政部_2026Q3_满意度.csv",
+      "kind": "satisfaction",
+      "department": "行政部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 728,
+      "sha256": "397634637aa7c0b033a64e336bcfedd4e1aa3b1e62928ee2ca1ae7e227db8765"
+    },
+    {
+      "path": "admin/2026Q3/行政部_2026Q3_工作说明.txt",
+      "name": "行政部_2026Q3_工作说明.txt",
+      "kind": "notes",
+      "department": "行政部",
+      "start_date": "2026-07-01",
+      "end_date": "2026-10-01",
+      "rows": 14,
+      "sha256": "1a6aaa668202238062aa77a156763a9e291fe272a6f170874a8fede16157403e"
+    },
+    {
+      "path": "admin/2026Q4截至10月21日/行政部_2026Q4截至10月21日_项目进度.csv",
+      "name": "行政部_2026Q4截至10月21日_项目进度.csv",
+      "kind": "projects",
+      "department": "行政部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 48,
+      "sha256": "c77491d6d0e371d12e7a9b1f0eb20839b4e84f1cbd2efa82979dcc22f88f8159"
+    },
+    {
+      "path": "admin/2026Q4截至10月21日/行政部_2026Q4截至10月21日_人员考勤.csv",
+      "name": "行政部_2026Q4截至10月21日_人员考勤.csv",
+      "kind": "attendance",
+      "department": "行政部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 345,
+      "sha256": "70f746bbf70986cc584ccdd2a45a7f4426df24c9f33122bd46f44d313741ba4d"
+    },
+    {
+      "path": "admin/2026Q4截至10月21日/行政部_2026Q4截至10月21日_成果统计.csv",
+      "name": "行政部_2026Q4截至10月21日_成果统计.csv",
+      "kind": "achievements",
+      "department": "行政部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 3,
+      "sha256": "3b240ee75d971290208484b03d9920aa5c04a200a24a64815e90741b29006422"
+    },
+    {
+      "path": "admin/2026Q4截至10月21日/行政部_2026Q4截至10月21日_满意度.csv",
+      "name": "行政部_2026Q4截至10月21日_满意度.csv",
+      "kind": "satisfaction",
+      "department": "行政部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 179,
+      "sha256": "2b4e9bc9dc2d5fc5535a114a0125ac9ea4aa6cc47d736427886d1d728e0ce952"
+    },
+    {
+      "path": "admin/2026Q4截至10月21日/行政部_2026Q4截至10月21日_工作说明.txt",
+      "name": "行政部_2026Q4截至10月21日_工作说明.txt",
+      "kind": "notes",
+      "department": "行政部",
+      "start_date": "2026-10-01",
+      "end_date": "2026-10-22",
+      "rows": 14,
+      "sha256": "6fd219a439241f3a4711ae08efe8e8a79cb47f971a6084a9ce36f063fb84ee9f"
+    }
+  ],
+  "departments": [
+    {
+      "name": "技术部",
+      "roster_size": 80,
+      "projects": 28
+    },
+    {
+      "name": "研发部",
+      "roster_size": 56,
+      "projects": 22
+    },
+    {
+      "name": "运营部",
+      "roster_size": 40,
+      "projects": 18
+    },
+    {
+      "name": "行政部",
+      "roster_size": 24,
+      "projects": 12
+    }
+  ],
+  "expected": [
+    {
+      "department": "技术部",
+      "period": "2026Q3",
+      "project_count": 28,
+      "project_states": {
+        "completed": 12,
+        "paused": 2,
+        "in_progress": 14
+      },
+      "attendance_rows": 4904,
+      "people": 80,
+      "achievements": 68,
+      "feedback": 735,
+      "valid_feedback": 723
+    },
+    {
+      "department": "技术部",
+      "period": "2026Q4截至10月21日",
+      "project_count": 28,
+      "project_states": {
+        "completed": 17,
+        "paused": 2,
+        "in_progress": 9
+      },
+      "attendance_rows": 1155,
+      "people": 77,
+      "achievements": 5,
+      "feedback": 158,
+      "valid_feedback": 154
+    },
+    {
+      "department": "研发部",
+      "period": "2026Q3",
+      "project_count": 22,
+      "project_states": {
+        "completed": 10,
+        "paused": 2,
+        "in_progress": 10
+      },
+      "attendance_rows": 3460,
+      "people": 56,
+      "achievements": 54,
+      "feedback": 731,
+      "valid_feedback": 719
+    },
+    {
+      "department": "研发部",
+      "period": "2026Q4截至10月21日",
+      "project_count": 22,
+      "project_states": {
+        "completed": 15,
+        "paused": 2,
+        "in_progress": 5
+      },
+      "attendance_rows": 810,
+      "people": 54,
+      "achievements": 5,
+      "feedback": 170,
+      "valid_feedback": 168
+    },
+    {
+      "department": "运营部",
+      "period": "2026Q3",
+      "project_count": 18,
+      "project_states": {
+        "completed": 9,
+        "in_progress": 8,
+        "paused": 1
+      },
+      "attendance_rows": 2456,
+      "people": 40,
+      "achievements": 45,
+      "feedback": 764,
+      "valid_feedback": 749
+    },
+    {
+      "department": "运营部",
+      "period": "2026Q4截至10月21日",
+      "project_count": 18,
+      "project_states": {
+        "completed": 14,
+        "paused": 1,
+        "in_progress": 3
+      },
+      "attendance_rows": 585,
+      "people": 39,
+      "achievements": 5,
+      "feedback": 163,
+      "valid_feedback": 162
+    },
+    {
+      "department": "行政部",
+      "period": "2026Q3",
+      "project_count": 12,
+      "project_states": {
+        "completed": 8,
+        "in_progress": 3,
+        "paused": 1
+      },
+      "attendance_rows": 1488,
+      "people": 24,
+      "achievements": 32,
+      "feedback": 728,
+      "valid_feedback": 716
+    },
+    {
+      "department": "行政部",
+      "period": "2026Q4截至10月21日",
+      "project_count": 12,
+      "project_states": {
+        "completed": 11,
+        "paused": 1
+      },
+      "attendance_rows": 345,
+      "people": 23,
+      "achievements": 3,
+      "feedback": 179,
+      "valid_feedback": 177
+    }
+  ],
+  "total_rows": 20520
+}

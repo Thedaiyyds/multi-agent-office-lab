@@ -1,0 +1,6 @@
+achievement_id,department,date,category,name,project_id,owner_id,evidence_id,acceptance_status,fictional
+ENT-RD-P012-A3,研发部,2026-10-02,项目交付,测试平台·2期：验收签认与运行交接,ENT-RD-P012,ENT-RD-U034,ENT-RD-P012-E3,已确认,true
+ENT-RD-P013-A3,研发部,2026-10-06,项目交付,组件库·2期：验收签认与运行交接,ENT-RD-P013,ENT-RD-U037,ENT-RD-P013-E3,已确认,true
+ENT-RD-P014-A3,研发部,2026-10-10,项目交付,模型评测·2期：验收签认与运行交接,ENT-RD-P014,ENT-RD-U040,ENT-RD-P014-E3,已确认,true
+ENT-RD-P015-A3,研发部,2026-10-14,项目交付,需求协同·3期：验收签认与运行交接,ENT-RD-P015,ENT-RD-U043,ENT-RD-P015-E3,已确认,true
+ENT-RD-P016-A3,研发部,2026-10-18,项目交付,智能检索·3期：验收签认与运行交接,ENT-RD-P016,ENT-RD-U046,ENT-RD-P016-E3,已确认,true
