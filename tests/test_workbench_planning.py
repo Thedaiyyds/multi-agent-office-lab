@@ -50,7 +50,8 @@ def test_plan_pauses_without_report_or_data_then_uses_user_edits_and_same_file_s
         assert run["usage"]["mock_calls"] == 2 and run["usage"]["request_count"] == 0
         assert client.get("/api/v1/reports").json()["items"] == []
         assert run["plan_evidence"]["sections"][0]["material_ids"]
-        assert "2026年第二季度" in run["requirements"]["title"]
+        assert "季度" not in run["requirements"]["title"]
+        assert run["requirements"]["end_date"] == "2026-07-01"
         payload = confirmation(run)
         payload["requirements"]["title"] = "技术部季度交付复盘"
         payload["requirements"]["focus"] = "关注交付问题"

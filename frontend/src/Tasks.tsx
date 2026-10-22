@@ -1,3 +1,4 @@
+import { periodText } from "./format";
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowRight,
@@ -181,7 +182,7 @@ export default function Tasks({
           <small>
             {task.department}
             {task.start_date
-              ? ` · ${task.start_date} 至 ${task.end_date}（不含）`
+              ? ` · ${periodText(task.start_date, task.end_date)}`
               : ""}
           </small>
           <small>

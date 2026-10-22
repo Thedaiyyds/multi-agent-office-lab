@@ -21,7 +21,11 @@ export interface SystemInfo {
   capabilities: string[];
 }
 export type MaterialKind =
-  "projects" | "attendance" | "achievements" | "satisfaction" | "notes";
+  | "projects"
+  | "attendance"
+  | "achievements"
+  | "satisfaction"
+  | "notes";
 export interface MaterialIssue {
   severity: "error" | "warning";
   location: string;
@@ -49,16 +53,17 @@ export interface ImportDraft {
   issues: MaterialIssue[];
   confirmed_material_id: string | null;
 }
-export interface MaterialVersion extends Omit<
-  ImportDraft,
-  "suggested_mapping" | "confirmed_material_id"
-> {
+export interface MaterialVersion
+  extends Omit<ImportDraft, "suggested_mapping" | "confirmed_material_id"> {
   version: number;
   mapping: Record<string, string>;
   created_at: string;
 }
 export type StatisticsGroup =
-  "projects" | "attendance" | "achievements" | "satisfaction";
+  | "projects"
+  | "attendance"
+  | "achievements"
+  | "satisfaction";
 export interface SourceRef {
   material_id: string;
   name: string;
@@ -68,6 +73,7 @@ export interface SourceRef {
   fields: string[];
 }
 export interface StatisticsMetric {
+  scope?: { department: string; start_date: string; end_date: string };
   id: string;
   label: string;
   value: number | null;
@@ -100,6 +106,7 @@ export interface StatisticsSnapshot {
 }
 export type RunMode = "live" | "offline_mock";
 export interface ReportOutline {
+  periods?: { start_date: string; end_date: string }[];
   groups: StatisticsGroup[];
   sections: { title: string; purpose: string; groups: StatisticsGroup[] }[];
 }
@@ -231,6 +238,15 @@ export interface RevisionList {
 export interface RevisionDetail extends ReportRevision {
   snapshot: {
     requirements: Draft;
+    statistics?: {
+      presentation?: string;
+      note_limitations?: string[];
+      coverage_scopes?: {
+        department: string;
+        start_date: string;
+        end_date: string;
+      }[];
+    };
     mode: RunMode;
     narrative: Narrative;
     markdown: string;

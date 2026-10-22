@@ -1,3 +1,4 @@
+import { periodText } from "./format";
 import {
   useCallback,
   useEffect,
@@ -378,7 +379,7 @@ function ReportWorkspace({
           <h1>{report?.title || "报告工作区"}</h1>
           <p>
             {report
-              ? `${report.department} · ${report.start_date} 至 ${report.end_date}（结束日不计入）`
+              ? `${report.department} · ${periodText(report.start_date!, report.end_date!)}`
               : "查看报告需求、生成记录与交付结果。"}
           </p>
         </div>
@@ -891,7 +892,7 @@ export default function App() {
             </a>
             <div className="sidebar-footer">
               <span className="caption-dot" />
-              本地运行<span>v2.4.2</span>
+              本地运行<span>v2.5.0</span>
             </div>
           </div>
         </aside>
@@ -1045,7 +1046,7 @@ export default function App() {
             )}
           </main>
           <footer className="app-footer">
-            汇报协作<span>v2.4.2</span>
+            汇报协作<span>v2.5.0</span>
           </footer>
         </div>
       </div>

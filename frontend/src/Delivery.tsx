@@ -1,3 +1,4 @@
+import { metricValue, periodText } from "./format";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Loader2, Pencil, RefreshCw, Save, X } from "lucide-react";
 import {
@@ -20,30 +21,39 @@ const labels: Record<ReportRevision["status"], string> = {
 };
 const describe = (reason: unknown) =>
   reason instanceof Error ? reason.message : "操作未完成，请重试。";
-const display = (value: number | null, unit: string) =>
-  value === null
-    ? "未定义"
-    : unit === "ratio"
-      ? `${(value * 100).toFixed(2)}%`
-      : String(value);
+const display = metricValue;
 
 function ReportPreview({ revision }: { revision: RevisionDetail }) {
   const snapshot = revision.snapshot;
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [selectedSource, setSelectedSource] = useState("");
+  const business = snapshot.statistics?.presentation === "business-v1";
   const expand = (text: string) =>
-    text.replace(/\[\[(fact|note):([A-Z]\d{3})\]\]/g, (original, kind, id) => {
-      if (kind === "fact") {
-        const fact = snapshot.facts.find((item) => item.id === id);
-        return fact
-          ? `${fact.label}：${display(fact.value, fact.unit)}${fact.unit === "ratio" ? "" : fact.unit}（${id}）`
+    text.replace(
+      /\[\[(fact|value|note):([A-Z]\d{3})\]\]/g,
+      (original, kind, id) => {
+        if (kind === "fact" || kind === "value") {
+          const fact = snapshot.facts.find((item) => item.id === id);
+          if (!fact) return original;
+          const label =
+            business && fact.scope
+              ? fact.label.split(" · ").slice(1).join(" · ")
+              : fact.label;
+          return `${kind === "value" ? "" : label + "："}${display(fact.value, fact.unit)}${fact.unit === "ratio" || fact.value === null ? "" : fact.unit}${business || kind === "value" ? "" : `（${id}）`}`;
+        }
+        const note = snapshot.notes.find((item) => item.id === id);
+        return note
+          ? business
+            ? `“${note.text}”`
+            : `【材料原文，非统计指标：${note.text}；来源${id}】`
           : original;
-      }
-      const note = snapshot.notes.find((item) => item.id === id);
-      return note
-        ? `【材料原文，非统计指标：${note.text}；来源${id}】`
-        : original;
-    });
+      },
+    );
   const limitations = [
-    ...new Set(snapshot.facts.flatMap((fact) => fact.limitations)),
+    ...new Set([
+      ...snapshot.facts.flatMap((fact) => fact.limitations),
+      ...(snapshot.statistics?.note_limitations || []),
+    ]),
   ];
   return (
     <article className="delivery-document" aria-label="当前修订报告阅读视图">
@@ -51,10 +61,24 @@ function ReportPreview({ revision }: { revision: RevisionDetail }) {
         <h2>{snapshot.requirements.title}</h2>
         <p>
           {snapshot.requirements.department} ·{" "}
-          {snapshot.requirements.start_date}（含）至{" "}
-          {snapshot.requirements.end_date}（不含）
+          {periodText(
+            snapshot.requirements.start_date,
+            snapshot.requirements.end_date,
+          )}
         </p>
       </header>
+      {!!snapshot.statistics?.coverage_scopes?.length && (
+        <p className="field-hint">
+          材料覆盖：
+          {snapshot.statistics.coverage_scopes
+            .map(
+              (scope) =>
+                `${scope.department} ${periodText(scope.start_date, scope.end_date)}`,
+            )
+            .join("；")}
+          。仅依据已提供记录，不代表期间内数据完整。
+        </p>
+      )}
       {snapshot.mode === "offline_mock" && (
         <p className="notice">
           离线模拟演练：本报告使用本地确定性回复，不代表真实大模型生成。
@@ -76,8 +100,8 @@ function ReportPreview({ revision }: { revision: RevisionDetail }) {
           </ul>
         </section>
       )}
-      <section>
-        <h3>权威统计与口径</h3>
+      <details className="cooperation-object">
+        <summary>统计附录：查看全部指标与计算口径</summary>
         <div
           className="delivery-table-scroll"
           tabIndex={0}
@@ -108,9 +132,9 @@ function ReportPreview({ revision }: { revision: RevisionDetail }) {
             </tbody>
           </table>
         </div>
-      </section>
-      <section>
-        <h3>数据限制</h3>
+      </details>
+      <details className="cooperation-object">
+        <summary>数据使用限制</summary>
         {limitations.length ? (
           <ul>
             {limitations.map((item) => (
@@ -120,34 +144,57 @@ function ReportPreview({ revision }: { revision: RevisionDetail }) {
         ) : (
           <p>请结合所选材料范围理解报告，文字材料不直接生成权威指标。</p>
         )}
-      </section>
-      <details className="cooperation-object">
+      </details>
+      <details
+        className="cooperation-object"
+        onToggle={(event) => setSourcesOpen(event.currentTarget.open)}
+      >
         <summary>查看数据来源与材料哈希</summary>
-        {snapshot.facts.map((fact) => (
-          <section key={fact.id}>
-            <h3>
-              {fact.id} · {fact.label}
-            </h3>
-            <ul className="delivery-sources">
-              {fact.source_refs.map((source, index) => (
-                <li key={index}>
-                  {source.name} · 版本 {source.version} · {source.location}
-                  <br />
-                  字段：{source.fields.join("、")}
-                  <br />
-                  <code>SHA256 {source.sha256}</code>
-                </li>
+        {sourcesOpen && (
+          <label className="field">
+            选择需要追溯的指标
+            <select
+              value={selectedSource}
+              onChange={(event) => setSelectedSource(event.target.value)}
+            >
+              <option value="">请选择指标</option>
+              {snapshot.facts.map((fact) => (
+                <option key={fact.id} value={fact.id}>
+                  {fact.id} · {fact.label}
+                </option>
               ))}
-            </ul>
-          </section>
-        ))}
-        {snapshot.notes.map((note) => (
-          <p className="delivery-source-note" key={note.id}>
-            {note.id} · {note.name} · 版本 {note.version} · {note.location}
-            <br />
-            <code>SHA256 {note.sha256}</code>
-          </p>
-        ))}
+            </select>
+          </label>
+        )}
+        {sourcesOpen &&
+          snapshot.facts
+            .filter((fact) => fact.id === selectedSource)
+            .map((fact) => (
+              <section key={fact.id}>
+                <h3>
+                  {fact.id} · {fact.label}
+                </h3>
+                <ul className="delivery-sources">
+                  {fact.source_refs.map((source, index) => (
+                    <li key={index}>
+                      {source.name} · 版本 {source.version} · {source.location}
+                      <br />
+                      字段：{source.fields.join("、")}
+                      <br />
+                      <code>SHA256 {source.sha256}</code>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+        {sourcesOpen &&
+          snapshot.notes.map((note) => (
+            <p className="delivery-source-note" key={note.id}>
+              {note.id} · {note.name} · 版本 {note.version} · {note.location}
+              <br />
+              <code>SHA256 {note.sha256}</code>
+            </p>
+          ))}
       </details>
       <details className="cooperation-object">
         <summary>查看同一快照的 Markdown 原文</summary>

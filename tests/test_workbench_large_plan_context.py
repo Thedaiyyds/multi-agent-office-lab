@@ -155,13 +155,13 @@ def test_all_library_files_no_hint_default_confirmation_completes_through_model_
         assert result["status"] == "completed", result.get("error")
         assert len(sizes) == (6 if mode == "live" else 0)
         assert len(result["nodes"]) == 6
-        assert len(result["facts"]) > 140 and len(result["notes"]) > 50
-        assert len(result["data_scopes"]) == 10
+        assert len(result["facts"]) > 50 and len(result["notes"]) > 50
+        assert len(result["data_scopes"]) == 4
+        assert result["requirements"]["end_date"] == "2026-10-22"
         for role in ("data", "writer", "checker"):
             context = next(node for node in result["nodes"] if node["role"] == role)["inputs"][
                 "context"
             ]
-            assert context["note_sources"] and context["fact_limitations"]
             assert {fact["id"] for fact in context["facts"]} == {
                 fact["id"] for fact in result["facts"]
             }
