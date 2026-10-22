@@ -148,7 +148,9 @@ def test_all_library_files_no_hint_default_confirmation_completes_through_model_
         plan = client.get("/api/v1/runs/" + run_id).json()
         assert plan["status"] == "awaiting_confirmation", plan.get("error")
         assert approve(client, plan).status_code == 202
-        assert app.state.execution_service.wait_for_idle(90)
+        # Full row-level provenance is persisted throughout this company-sized run.
+        # Shared CI CPUs need more time than the local machine; require completion.
+        assert app.state.execution_service.wait_for_idle(180)
         result = client.get("/api/v1/runs/" + run_id).json()
         assert result["status"] == "completed", result.get("error")
         assert len(sizes) == (6 if mode == "live" else 0)
