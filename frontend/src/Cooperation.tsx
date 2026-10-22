@@ -225,7 +225,7 @@ export function RunComposer({
         <fieldset disabled={busy} className="cooperation-fields">
           <legend className="sr-only">提交五角色协作任务</legend>
           <label className="field">
-            {planning ? "规划重点（可选）" : "汇报需求"}
+            {planning ? "汇报要求（可选）" : "汇报需求"}
             <textarea
               required={!planning}
               maxLength={8000}
@@ -234,7 +234,7 @@ export function RunComposer({
               onChange={(event) => setUserText(event.target.value)}
               placeholder={
                 planning
-                  ? "例如：重点突出项目交付和存在的问题。留空时，根据材料提出建议；跨部门或期间时请明确范围。"
+                  ? "例如：整理近期交付情况，或按月对比工作进展。留空时，由模型根据材料提出主题、期间和大纲。"
                   : "例如：请根据所选材料生成技术部2026年第二季度工作汇报，包含项目进度、成果、考勤样本、问题和下季度计划。"
               }
             />

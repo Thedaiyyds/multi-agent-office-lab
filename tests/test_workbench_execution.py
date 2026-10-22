@@ -262,7 +262,7 @@ def test_real_transport_runs_six_bounded_calls_and_persists_only_safe_numeric_us
         assert run["status"] == "completed", run
         assert len(supplier.calls) == 6
         assert run["usage"]["request_count"] == 6
-        assert run["usage"]["reserved_output_tokens"] == 2368
+        assert run["usage"]["reserved_output_tokens"] == 2752
         assert run["usage"]["total_tokens"] == 90
         assert run["usage"]["reasoning_tokens"] is None
         assert all(call[2]["thinking"] == {"type": "disabled"} for call in supplier.calls)
@@ -680,7 +680,7 @@ def test_wrong_quarter_end_is_rejected_and_typed_candidate_remains_inspectable(b
         payload = json.loads(request.content)
         context = json.loads(payload["messages"][1]["content"])
         hints.extend(context["grounded_periods"])
-        assert "下季度第一天" in payload["messages"][0]["content"]
+        assert "用户明确要求季度时才换算季度边界" in payload["messages"][0]["content"]
         response = supplier(request)
         data = response.json()
         candidate = json.loads(data["choices"][0]["message"]["content"])
@@ -694,7 +694,7 @@ def test_wrong_quarter_end_is_rejected_and_typed_candidate_remains_inspectable(b
         assert hints == [dict(start_date="2026-04-01", end_date="2026-07-01")]
         assert run["status"] == "failed"
         assert run["error"]["code"] == "ungrounded_period"
-        assert "季度结束日应为下季度第一天" in run["error"]["message"]
+        assert "期间与用户指定日期或材料覆盖范围不一致" in run["error"]["message"]
         node = run["nodes"][0]
         assert node["candidate_output"]["requirements"]["end_date"] == "2026-06-30"
         assert node["candidate_status"] == "pending_business_validation"

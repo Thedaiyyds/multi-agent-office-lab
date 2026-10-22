@@ -8,24 +8,22 @@ from office_agents.workbench.statistics import calculate_statistics
 def material_profile(materials):
     files, scopes = [], set()
     for material in materials:
-        periods = set()
+        ranges = {}
         if material["kind"] == "notes":
-            periods.add((material["department"], material["start_date"], material["end_date"]))
+            ranges[material["department"]] = [material["start_date"], material["end_date"]]
         else:
             mapping = material["mapping"]
             day_field = "snapshot_date" if material["kind"] == "projects" else "date"
             for row in material["rows"]:
                 department = row["values"][mapping["department"]]
                 day = date.fromisoformat(row["values"][mapping[day_field]])
-                month = ((day.month - 1) // 3) * 3 + 1
-                start = date(day.year, month, 1)
-                end = date(day.year + 1, 1, 1) if month == 10 else date(day.year, month + 3, 1)
-                periods.add((department, start.isoformat(), end.isoformat()))
-                if len(periods) > 48:
-                    raise ValueError("材料涉及的部门或期间过多，请先拆分文件")
+                start, end = day.isoformat(), (day + timedelta(days=1)).isoformat()
+                previous = ranges.setdefault(department, [start, end])
+                previous[:] = [min(previous[0], start), max(previous[1], end)]
+                if len(ranges) > 48:
+                    raise ValueError("材料涉及的部门过多，请先拆分文件")
+        periods = {(department, start, end) for department, (start, end) in ranges.items()}
         scopes.update(periods)
-        if len(scopes) > 48:
-            raise ValueError("材料涉及的部门或期间过多，请缩小文件选择范围")
         files.append(
             dict(
                 id=material["id"],
@@ -38,21 +36,17 @@ def material_profile(materials):
                 ],
             )
         )
-    # A monthly note within a quarter doesn't create a competing report scope.
-    scopes = {
-        scope
-        for scope in scopes
-        if not any(
-            scope != other
-            and scope[0] == other[0]
-            and other[1] <= scope[1]
-            and scope[2] <= other[2]
-            for other in scopes
-        )
-    }
+    # Inventory actual/declared coverage only. Agents decide report periods later.
+    by_department = {}
+    for department, start, end in scopes:
+        previous = by_department.setdefault(department, [start, end])
+        previous[:] = [min(previous[0], start), max(previous[1], end)]
     return dict(
         files=files,
-        scopes=[dict(department=d, start_date=s, end_date=e) for d, s, e in sorted(scopes)],
+        scopes=[
+            dict(department=d, start_date=s, end_date=e)
+            for d, (s, e) in sorted(by_department.items())
+        ],
     )
 
 
@@ -69,13 +63,7 @@ def scope_supported(requirements, profile):
 
 def scope_title(scope):
     start, end = date.fromisoformat(scope["start_date"]), date.fromisoformat(scope["end_date"])
-    month = ((start.month - 1) // 3) * 3 + 1
-    quarter_end = date(start.year + 1, 1, 1) if month == 10 else date(start.year, month + 3, 1)
-    period = (
-        f"{start.year}年第{'一二三四'[(month - 1) // 3]}季度"
-        if start.day == 1 and start.month == month and end == quarter_end
-        else f"{start}至{end - timedelta(days=1)}"
-    )
+    period = f"{start}至{end - timedelta(days=1)}"
     return period + scope["department"] + "工作汇报"
 
 
@@ -134,6 +122,36 @@ def matching_files(scopes, profile):
             for scope in scopes
         )
     ]
+
+
+def partition_scopes(scopes, periods):
+    if not periods:
+        return scopes
+    return [
+        dict(
+            department=scope["department"],
+            start_date=max(scope["start_date"], period["start_date"]),
+            end_date=min(scope["end_date"], period["end_date"]),
+        )
+        for scope in scopes
+        for period in periods
+        if scope["start_date"] < period["end_date"] and period["start_date"] < scope["end_date"]
+    ]
+
+
+def validate_periods(requirements, periods):
+    previous = None
+    for period in sorted(periods or [], key=lambda item: item["start_date"]):
+        if (
+            not requirements["start_date"]
+            <= period["start_date"]
+            < period["end_date"]
+            <= requirements["end_date"]
+        ):
+            raise ValueError("统计分段必须在报告期间内")
+        if previous and period["start_date"] < previous:
+            raise ValueError("统计分段不能重叠，以免重复计算")
+        previous = period["end_date"]
 
 
 def scoped_statistics(requirements, materials, groups, scopes):

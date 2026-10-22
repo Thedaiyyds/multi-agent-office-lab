@@ -1,3 +1,4 @@
+import { periodText, shiftDate } from "./format";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowDown, ArrowUp, Check, Loader2, Plus, X } from "lucide-react";
 import {
@@ -37,6 +38,9 @@ export function MaterialPlanReview({
   const [sections, setSections] = useState(
     (run.outline as ReportOutline).sections,
   );
+  const [periods, setPeriods] = useState(
+    (run.outline as ReportOutline).periods || [],
+  );
   const [busy, setBusy] = useState(false);
   const [optionId, setOptionId] = useState(run.default_plan_option || "");
   const [error, setError] = useState("");
@@ -44,6 +48,8 @@ export function MaterialPlanReview({
   const lock = useRef(false);
   const attempt = useRef<{ body: string; key: string } | null>(null);
   const dirty =
+    JSON.stringify(periods) !==
+      JSON.stringify((run.outline as ReportOutline).periods || []) ||
     optionId !== (run.default_plan_option || "") ||
     JSON.stringify(draft) !== JSON.stringify(run.requirements) ||
     JSON.stringify(sections) !==
@@ -106,29 +112,50 @@ export function MaterialPlanReview({
       ),
   );
   const scopes = run.material_profile!.scopes;
-  const validScope = option
-    ? option.department === draft.department &&
-      option.start_date <= draft.start_date &&
-      draft.start_date < draft.end_date &&
-      draft.end_date <= option.end_date &&
-      selectedScopes.length > 0
-    : scopes.some(
-        (scope) =>
-          scope.department === draft.department &&
-          scope.start_date <= draft.start_date &&
-          draft.start_date < draft.end_date &&
-          draft.end_date <= scope.end_date,
-      );
+  const orderedPeriods = [...periods].sort((a, b) =>
+    a.start_date.localeCompare(b.start_date),
+  );
+  const validPeriods = orderedPeriods.every(
+    (period, index) =>
+      draft.start_date <= period.start_date &&
+      period.start_date < period.end_date &&
+      period.end_date <= draft.end_date &&
+      (!index || orderedPeriods[index - 1].end_date <= period.start_date),
+  );
+  const validScope =
+    validPeriods &&
+    (option
+      ? option.department === draft.department &&
+        option.start_date <= draft.start_date &&
+        draft.start_date < draft.end_date &&
+        draft.end_date <= option.end_date &&
+        selectedScopes.length > 0
+      : scopes.some(
+          (scope) =>
+            scope.department === draft.department &&
+            scope.start_date <= draft.start_date &&
+            draft.start_date < draft.end_date &&
+            draft.end_date <= scope.end_date,
+        ));
   const chooseOption = (id: string) => {
     const choice = run.plan_options!.find((item) => item.id === id)!;
     setOptionId(id);
-    setDraft((previous) => ({
-      ...previous,
-      title: choice.title,
-      department: choice.department,
-      start_date: choice.start_date,
-      end_date: choice.end_date,
-    }));
+    setPeriods(
+      id === run.default_plan_option
+        ? (run.outline as ReportOutline).periods || []
+        : [],
+    );
+    setDraft((previous) =>
+      id === run.default_plan_option
+        ? { ...run.requirements! }
+        : {
+            ...previous,
+            title: choice.title,
+            department: choice.department,
+            start_date: choice.start_date,
+            end_date: choice.end_date,
+          },
+    );
     const kinds = [
       ...new Set(
         files
@@ -193,6 +220,7 @@ export function MaterialPlanReview({
         sections: sections.map((section) => section.title.trim()),
       },
       outline: {
+        ...(periods.length ? { periods } : {}),
         groups: requested,
         sections: sections.map((section) => ({
           ...section,
@@ -300,7 +328,7 @@ export function MaterialPlanReview({
               />
             </label>
             <label className="field">
-              开始日期（含）
+              开始日期
               <input
                 required
                 type="date"
@@ -314,20 +342,40 @@ export function MaterialPlanReview({
               />
             </label>
             <label className="field">
-              结束日期（不含）
+              结束日期（含）
               <input
                 required
                 type="date"
-                value={draft.end_date}
+                value={shiftDate(draft.end_date, -1)}
                 onChange={(event) =>
                   setDraft((value) => ({
                     ...value,
-                    end_date: event.target.value,
+                    end_date: shiftDate(event.target.value, 1),
                   }))
                 }
               />
             </label>
           </div>
+          {periods.length > 0 && (
+            <div className="plan-source-list">
+              <h3>模型建议的统计分段</h3>
+              {periods.map((period) => (
+                <p key={period.start_date}>
+                  {periodText(period.start_date, period.end_date)}
+                </p>
+              ))}
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => setPeriods([])}
+              >
+                改为整个期间汇总
+              </button>
+              <small className="field-hint">
+                调整报告起止日期时，分段也必须处于新范围内；可改为整期汇总后确认。
+              </small>
+            </div>
+          )}
           {!validScope && (
             <p className="notice error">
               所选文件不支持这个部门或期间，请调整范围。
@@ -339,9 +387,7 @@ export function MaterialPlanReview({
               {selectedScopes.map((scope) => (
                 <div key={`${scope.department}:${scope.start_date}`}>
                   <strong>{scope.department}</strong>
-                  <span>
-                    {scope.start_date} 至 {scope.end_date}（不含）
-                  </span>
+                  <span>{periodText(scope.start_date, scope.end_date)}</span>
                 </div>
               ))}
               <p className="field-hint">
@@ -538,9 +584,9 @@ export function MaterialPlanReview({
               type="submit"
               disabled={Boolean(
                 missing.length ||
-                unsupported ||
-                !validScope ||
-                (!requested.length && !notesAvailable),
+                  unsupported ||
+                  !validScope ||
+                  (!requested.length && !notesAvailable),
               )}
             >
               {busy ? (

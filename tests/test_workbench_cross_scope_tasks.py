@@ -3,6 +3,7 @@
 import time
 
 import httpx
+import pytest
 from test_workbench_execution_acceptance import (
     ScriptedProvider,
     finished,
@@ -211,7 +212,8 @@ def test_pending_plan_is_one_task_then_moves_into_report_and_failed_attempts_are
         }
 
 
-def test_same_department_cross_quarter_file_supports_explicit_wide_period(tmp_path):
+@pytest.mark.parametrize("quarterly", [False, True])
+def test_same_department_cross_quarter_file_supports_explicit_wide_period(tmp_path, quarterly):
     with workbench(tmp_path) as (client, app):
         material = upload(
             client,
@@ -228,22 +230,27 @@ def test_same_department_cross_quarter_file_supports_explicit_wide_period(tmp_pa
         response = submit(
             client,
             [material],
-            text="规划技术部2026-01-01至2026-07-01的工作汇编",
+            text="规划技术部2026-01-01至2026-07-01的工作汇编"
+            + ("，按季度统计" if quarterly else ""),
             planning_only=True,
         )
         assert app.state.execution_service.wait_for_idle(10)
         run = client.get("/api/v1/runs/" + response.json()["id"]).json()
         assert run["status"] == "awaiting_confirmation", run
-        assert run["default_plan_option"] == "all"
-        assert len(run["plan_options"][0]["scopes"]) == 2
+        assert run["default_plan_option"] == "scope-0"
+        assert len(run["plan_options"][0]["scopes"]) == 1
+        assert len(run["outline"].get("periods", [])) == (2 if quarterly else 0)
         assert approve(client, run).status_code == 202
         assert app.state.execution_service.wait_for_idle(10)
         final = client.get("/api/v1/runs/" + run["id"]).json()
         assert final["status"] == "completed", final
         counts = {fact["metric_id"]: fact["value"] for fact in final["facts"]}
-        assert counts["scope1_achievement_count"] == 1
-        assert counts["scope2_achievement_count"] == 2
-        assert len(final["statistics"]["data_scopes"]) == 2
+        if quarterly:
+            assert counts["scope1_achievement_count"] == 1
+            assert counts["scope2_achievement_count"] == 2
+        else:
+            assert counts["achievement_count"] == 3
+        assert len(final["statistics"]["data_scopes"]) == (2 if quarterly else 1)
 
 
 def test_equivalent_quarter_and_dates_do_not_duplicate_a_scope(tmp_path):
